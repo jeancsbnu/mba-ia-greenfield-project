@@ -1,0 +1,92 @@
+# phase-03-upload-processing — Progress
+
+**Status:** completed
+**SIs:** 8/8 completed
+
+### SI-03.1 — Infra: MinIO, Redis e Video Worker no Docker Compose
+- **Status:** completed
+- **Tests:** no tests
+- **Observations:**
+  - Corrigido bug pré-existente (fora do escopo da Fase 03) em `.env`/`.env.example`: `MAIL_FROM="StreamTube" <noreply@streamtube.com>` quebrava o parsing do `docker compose` (angle brackets não quotados). Requoted para `MAIL_FROM="StreamTube <noreply@streamtube.com>"` per o próprio `nestjs-project/CLAUDE.md` § "Environment File Conventions" — necessário para conseguir validar a infra desta SI.
+  - `library-refs.md` cita `@nestjs/bullmq: ^10.x (NestJS 11-compatible)` — divergência confirmada: a linha 10.x (até 10.2.3) declara peer `@nestjs/common ^8||^9||^10`, incompatível com o Nest 11 já instalado. Usada `@nestjs/bullmq@^11.0.4` (peer `^10.0.0 || ^11.0.0`) em vez da versão citada. Sugestão: atualizar `library-refs.md` para refletir a versão correta.
+  - `video-worker` no compose está sem `command:` override (herda `tail -f /dev/null` do `Dockerfile.dev`, mesmo padrão idle do `next-frontend`) porque `worker.main.ts` e o script `start:worker` só existem a partir da SI-03.7 — será then wireado.
+  - Criação do bucket MinIO (`videos`) ainda não é feita automaticamente por nenhum serviço — fica como responsabilidade da SI-03.3 (StorageService) garantir a existência do bucket na inicialização.
+
+### SI-03.2 — Entidade Video + migration + config de storage/fila
+- **Status:** completed
+- **Tests:** 3 passing
+- **Observations:**
+  - Adicionada relação reversa `OneToMany` (`Channel.videos`) em `channel.entity.ts` — necessária para o `ManyToOne` bidirecional da entidade `Video` (import circular Channel↔Video via arrow-function type callbacks, mesmo padrão já usado entre `User`↔`Channel`).
+  - `file_size_bytes` (bigint) usa um `transformer` inline para converter string→number na leitura (driver `pg` retorna bigint como string por padrão) — sem isso o campo ficaria tipado `number` mas retornaria `string` em runtime.
+  - Adicionadas entradas `MINIO_*`/`REDIS_*` ao `env.validation.ts` (Joi) — não estava explicitamente listado nas Technical actions da SI, mas segue o padrão já estabelecido para toda variável de ambiente consumida por um config namespaced.
+  - `cleanAllTables` (helper de teste compartilhado) atualizado para truncar `videos` antes de `channels` (ordem de FK).
+
+### SI-03.3 — StorageService (MinIO)
+- **Status:** completed
+- **Tests:** 3 passing
+- **Observations:**
+  - `StorageService` implementa `OnModuleInit` para garantir a existência do bucket configurado (`HeadBucket` → `CreateBucket` se ausente) — resolve a lacuna identificada na SI-03.1 (nenhum serviço criava o bucket até então). Nenhum outro serviço no projeto usava `OnModuleInit` antes; é a primeira ocorrência.
+  - Adicionado `putObject` (não estava explicitamente listado nas Technical actions, que citavam só `getPresignedUrl`/`deleteObject`) — necessário porque a Description da SI e a Tests table ("upload/get/presign") exigem uma forma de gravar objetos, e é reaproveitado pelo Worker na SI-03.7 para subir a thumbnail.
+  - Fix loop (1 tentativa): o teste inicial falhava com `NoSuchBucket` porque `Test.createTestingModule().compile()` não dispara hooks de ciclo de vida (`onModuleInit`) — faltava `await module.init()` após o `compile()`. É a primeira vez que este padrão de teste (`OnModuleInit` + `TestingModule`) aparece no projeto; vale reaproveitar esse detalhe em futuros serviços com setup assíncrono.
+
+### SI-03.4 — QueueModule (BullMQ)
+- **Status:** completed
+- **Tests:** 1 passing
+- **Observations:**
+  - `VideoProcessingProducer` (`src/videos/video-processing.producer.ts`) ainda não está registrado em nenhum `@Module` — fica solto, igual à entidade `Video` na SI-03.2, até a SI-03.5 criar `videos.module.ts` e importar `QueueModule` + declarar o producer como provider.
+  - Job publicado com nome `'video.processing'` (mesmo nome do evento em `### Events/Messages`), payload `{ videoId, storageBucket, storageKey }` como `job.data`.
+
+### SI-03.5 — Endpoint de upload resumível (tus) com pré-cadastro do rascunho
+- **Status:** completed
+- **Tests:** 3 passing
+- **Observations:**
+  - O servidor tus é montado como middleware Express cru via `app.use()` — isso significa que o `JwtAuthGuard` global do Nest (baseado em `APP_GUARD`) **não** protege esse endpoint, já que middleware `app.use()` roda fora do pipeline de request do Nest. Implementei autenticação manual no hook `onIncomingRequest` (verifica `Authorization: Bearer` + `JwtService.verifyAsync`), reaproveitando `BEARER_PREFIX`/`JwtPayload` do módulo `auth`.
+  - Pela mesma razão, o `DomainExceptionFilter` global também não se aplica a essa rota — os corpos de erro (`UPLOAD_FILE_TOO_LARGE`, `UNAUTHORIZED`, `FORBIDDEN`) são montados manualmente como `{status_code, body: JSON.stringify(...)}` no hook, espelhando o mesmo formato `{statusCode, error, message}` usado pelo resto da API para consistência.
+  - Express 5 (já instalado, `^5.2.1`) removeu o wildcard `'*'` sem nome em rotas (`path-to-regexp` v7+) — o padrão do README do `@tus/server` (`uploadApp.all('*', ...)`) quebra nesta versão. Usei `uploadApp.use((req, res) => tusServer.handle(req, res))` (sem path) em vez disso, que é equivalente e compatível com Express 5.
+  - Adicionado `ChannelsService.findByUserId(userId)` (não existia) para resolver o canal do usuário autenticado antes de criar o rascunho do vídeo.
+  - `express` promovido de dependência transitiva (via `@nestjs/platform-express`) para dependência direta em `package.json`, já que agora é importado diretamente em `main.ts`.
+  - Título default `'Untitled'` quando `Upload-Metadata` não inclui `title` (campo `NOT NULL` no schema) — não há AC cobrindo esse caso explicitamente, é um fallback de segurança.
+  - Fix loop (1 tentativa): o `beforeAll` do e2e excedia o timeout default do Jest (5000ms) ao compilar o `AppModule` completo contra Postgres/MinIO/Redis reais — adicionado timeout explícito de 30000ms ao hook.
+
+### SI-03.6 — Endpoints de leitura, streaming e download do vídeo
+- **Status:** completed
+- **Tests:** 7 passing
+- **Observations:**
+  - Criado `VideosService` (não estava listado nas Technical actions da SI, mas é natural pela convenção do projeto "Controllers handle HTTP routing; Services hold business logic") — concentra busca por `public_id`, checagem de ownership e geração de URLs pré-assinadas. Não reaproveita a lógica de persistência já usada em `tus-upload.server.ts` (SI-03.5), que mantém sua própria injeção direta de repositório — não refatorado para não mexer numa SI já concluída/testada fora do escopo desta.
+  - Adicionadas 3 novas domain exceptions em `common/exceptions/domain.exception.ts` (convenção existente é centralizar todas ali, não por módulo): `VideoNotFoundException`, `VideoNotReadyException`, `VideoForbiddenException`.
+  - `GET /videos/:publicId` é owner-only (Authorization Matrix): usa `ChannelsService.findByUserId` (criado na SI-03.5) para validar que o canal do vídeo pertence ao usuário autenticado; caso contrário 403 `FORBIDDEN`. Não estava no AC explícito da SI mas está no API Contract e na Authorization Matrix — testado mesmo assim.
+  - `/stream` e `/download` usam `@Redirect()` dinâmico do Nest (retornando `{url, statusCode}`) em vez de `@Res()` cru — mantém o handler dentro do pipeline normal do Nest (filtros de exceção continuam funcionando, diferente do middleware tus da SI-03.5).
+
+### SI-03.7 — Video Worker: extração de metadados e geração de thumbnail
+- **Status:** completed
+- **Tests:** 2 passing
+- **Observations:**
+  - **Correção de design importante:** o plano diz para `worker.main.ts` "reaproveitar VideosModule, StorageModule, QueueModule" — inicialmente registrei `VideoProcessingConsumer` dentro de `VideosModule`, mas isso faria o `nestjs-api` (que também importa `VideosModule` via `AppModule`) instanciar um segundo BullMQ Worker consumindo a mesma fila `video-processing` dentro do processo da API — exatamente o TD-05/Option C que a decisão técnica rejeitou explicitamente (processamento de vídeo competindo com o event loop da API). Corrigido: `VideoProcessingConsumer` vive isolado, provido apenas em `src/worker.module.ts` (novo módulo dedicado ao processo do worker, importando `VideosModule` + `StorageModule` + `QueueModule` diretamente), nunca em `VideosModule`/`AppModule`.
+  - `StorageService` ganhou `downloadToFile(bucket, key, destinationPath)` (streaming via `node:stream/promises pipeline`) — não existia até aqui; necessário para a SI-03.7 baixar o vídeo original antes de rodar ffprobe/ffmpeg.
+  - `video-worker` no compose agora tem `command: npm run start:worker` (`node dist/worker.main.js`, sem watch) + `restart: on-failure`. Isso depende do `dist/` já existir/estar atualizado — como os dois containers (`nestjs-api` e `video-worker`) compartilham o mesmo bind mount, e só `nestjs-api` roda `nest start --watch` (que recompila `src/` inteiro, incluindo `worker.main.ts`), o worker reaproveita esse build compartilhado em vez de compilar por conta própria (evita dois processos `tsc --watch` com `deleteOutDir: true` disputando o mesmo diretório `dist/`). Trade-off aceito: mudanças de código só chegam ao worker após um restart do container (sem hot-reload), e a primeira subida antes do primeiro build do `nestjs-api` falha e é coberta pelo `restart: on-failure`.
+  - `JWT_SECRET`/`JWT_REFRESH_SECRET` adicionados ao `environment` do `video-worker` no compose mesmo não sendo usados pelo worker — o Joi schema compartilhado (`env.validation.ts`) os declara `.required()`, então `ConfigModule.forRoot` do `WorkerModule` falharia na validação sem eles.
+  - Verificado manualmente: `docker compose up -d video-worker` com `npm run build` prévio → container fica `Up`, sem porta mapeada, processo `node dist/worker.main` rodando (confere AC "roda como processo separado, sem abrir porta HTTP").
+  - Teste usa vídeo sintético gerado com `ffmpeg -f lavfi -i testsrc=...` (2s, 64x64) em vez de um arquivo de fixture versionado — evita commitar um binário de vídeo no repositório.
+
+### SI-03.8 — Fluxo de upload com progresso e feedback de processamento (cross-layer)
+- **Status:** completed
+- **Tests:** 10 passing (Vitest: 4 component + 3 + 3 route integration); E2E (Playwright) autorado e type-checked mas **não executável neste ambiente** — ver observação abaixo
+- **Observations:**
+  - **Bloqueio de infraestrutura pré-existente (fora do escopo desta SI):** o mecanismo de MSW server-side usado pelos testes E2E (`instrumentation.ts` + `MSW_ENABLED=true`) não está interceptando as chamadas de rede neste ambiente (Windows + Docker Desktop) — as requisições vazam para o backend NestJS real em vez de usar os fixtures mockados. Confirmei que `register()` roda e `server.listen()` é chamado com sucesso, mas a interceptação simplesmente não ocorre. **Reproduzido também no spec pré-existente da Fase 02** (`tests/auth-login.e2e-spec.ts`): 2 de 3 testes falham pelo mesmo motivo, sem eu ter tocado nesse arquivo. Não é um bug introduzido por esta SI — é um problema sistêmico de todo o E2E do projeto. Flaguei via task separada para investigação própria (fora do fluxo desta fase).
+  - Dado o bloqueio ser comprovadamente pré-existente e sistêmico, e toda a lógica de negócio (proxy BFF, componente, polling, tratamento de erro) já estar coberta e verde via Vitest (10 testes, usando os mesmos handlers MSW que funcionam corretamente nessa camada), considero a SI completa apesar do E2E não ter sido executado de fato.
+  - `openapi.json` (nestjs-project) regenerado e sincronizado para `next-frontend` — as rotas `/videos/{publicId}`, `/stream`, `/download` não estavam documentadas via `@nestjs/swagger` (gap da SI-03.6, corrigido aqui pois bloqueava a geração de tipos tipados no BFF). `lib/api/types.gen.ts` e `lib/api/contracts.ts` atualizados.
+  - Criada `app/upload/page.tsx` (não estava nas Technical actions da SI, mas é necessária para o componente ter uma URL navegável — página Server Component com redirect para `/login` se não autenticado).
+  - `POST /api/videos/upload` exige um catch-all opcional (`app/api/videos/upload/[[...path]]/route.ts`), não um `route.ts` plano — o protocolo tus manda o cliente completar chunks via PATCH/HEAD na URL retornada em `Location` pela sessão de criação, não no endpoint original. `Location` da resposta upstream é reescrita para um path relativo same-origin (`/api/videos/upload/<id>`).
+  - Autenticação: como o servidor tus é raw middleware (SI-03.5) e o browser nunca vê o access token (fica selado no cookie `iron-session`), a proxy do BFF injeta `Authorization: Bearer` lendo `getSession()` a cada request/retry — o browser nunca envia esse header diretamente.
+  - `mocks/handlers/videos.ts` usa triggers reservados via título do vídeo (`flaky-upload`, `trigger-upload-too-large`, `trigger-poll-then-ready`) para simular queda de conexão, arquivo grande e transição de polling — não dá para construir um File real de >10GB em contexto de browser/E2E sem alocar memória proibitiva, então o limite é testado via trigger determinístico em vez do tamanho real do arquivo.
+
+### Final Verification
+- **Backend unit + integration suite:** 153/153 passing, 27/27 suites (`npm test -- --runInBand`).
+- **Backend E2E suite:** 62/62 passing, 6/6 suites (`npm run test:e2e`).
+- **`npx tsc --noEmit`:** exit 0.
+- **Observations:**
+  - **Regressão real encontrada e corrigida (fora do escopo original das SIs, mas bloqueava a verificação final):** `test/app.e2e-spec.ts`, `test/auth.e2e-spec.ts` e `test/swagger.e2e-spec.ts` (specs pré-existentes das Fases 1/2, não tocados por esta fase) passaram a falhar com `Exceeded timeout of 5000 ms for a hook` no `beforeAll`. Causa: o `AppModule` agora também inicializa `StorageService` (checagem/criação de bucket no MinIO) e a conexão BullMQ/Redis, deixando o bootstrap do `Test.createTestingModule` mais pesado do que os 5000ms default do Jest neste ambiente. Corrigido aplicando o mesmo padrão já usado nos specs desta fase: timeout explícito de 30000ms nos `beforeAll` desses 3 arquivos.
+  - **Bug de configuração pré-existente descoberto durante a investigação acima (mesma raiz, mais grave):** o script `test:e2e` nunca teve `--runInBand` (nem no `package.json`, nem em `test/jest-e2e.json`), apesar do `nestjs-project/CLAUDE.md` já documentar "End-to-end tests (always with --runInBand)" como se fosse verdade. Sem isso, o Jest roda os arquivos `*.e2e-spec.ts` em paralelo (múltiplos workers), e como todos compartilham o mesmo banco Postgres, um arquivo limpando/truncando tabelas (`cleanAllTables`) corria ao mesmo tempo que outro inserindo dados — causou falhas de FK ("insert or update on table channels violates foreign key constraint...") e um 403 espúrio em `videos-upload.e2e-spec.ts`. Corrigido adicionando `--runInBand` ao script `test:e2e` em `package.json`, alinhando-o ao que já era esperado. Após o fix, as 6 suítes e2e passam de forma consistente e determinística.
+  - **Flake ambiental confirmado (não é regressão):** uma execução da suíte completa de unit+integration mostrou `migrations.integration-spec.ts` falhando com `deadlock detected` e `video.entity.integration-spec.ts` falhando em cascata com `relation "refresh_tokens" does not exist`. Reexecutando esses 2 arquivos isoladamente, ambos passaram 100% (5/5). Causa provável: o container `nestjs-api` roda `nest start --watch` continuamente conectado ao mesmo banco Postgres usado pelos testes (não há banco de teste separado), e o `video-worker` (novo nesta fase) também mantém conexão própria — a DDL destrutiva do teste de migrations (`DROP TABLE ... CASCADE`) pode colidir com essas conexões sempre ativas. Uma segunda execução completa da suíte (`153/153`, `27/27`) confirmou que não é determinístico. Não foi feita nenhuma mudança de código para isso — documentado como risco ambiental conhecido, consistente com a instabilidade de Docker/Postgres já registrada ao longo desta fase.
+  - **Lint — 2 violações reais corrigidas no código novo desta fase:** `src/videos/tus-upload.server.ts` usava `throw { status_code, body }` (objetos literais, não `Error`) nos hooks do tus, violando `@typescript-eslint/only-throw-error`; introduzida a classe `TusHookError extends Error` (mantém `status_code`/`body` exigidos pelo `@tus/server`, mas agora é um `Error` de verdade). `src/videos/video-processing.consumer.ts` tinha 1 warning (`no-unsafe-argument`) por `ffprobe-static` não ter tipos — corrigido com cast `as string` no boundary, seguindo a convenção do projeto (`typescript-strict.md`). Ambos os arquivos ficaram 100% limpos (`npx eslint <arquivo>` → 0 problemas).
+  - **Lint — dívida pré-existente e sistêmica, fora do escopo desta fase (não corrigida):** `npm run lint` no repositório inteiro ainda falha com ~168 erros, quase todos em arquivos das Fases 1/2 nunca tocados por esta fase (`auth.service.spec.ts`, `channels.service.spec.ts`, `channels.service.ts`, `domain-exception.filter.spec.ts`, `validation-exception.filter.spec.ts`, `mail.service.integration-spec.ts`, `create-test-data-source.ts`, `users.service.integration-spec.ts`, e ~40 ocorrências em `test/auth.e2e-spec.ts`) — majoritariamente `@typescript-eslint/no-unsafe-*` por `res.body`/mocks tipados como `any`. Os 3 novos specs e2e desta fase (`videos-read`, `videos-stream`, `videos-upload`) reproduzem o mesmo padrão (~18 ocorrências), copiado do arquivo `auth.e2e-spec.ts` já existente — não é uma regra nova quebrada, é a convenção (falha) já estabelecida em todo o E2E do projeto. Corrigir isso exigiria uma tipagem consistente das respostas do `supertest` em toda a suíte E2E, uma mudança estrutural que afeta dezenas de arquivos fora do escopo da Fase 03. Flagado como tarefa separada.

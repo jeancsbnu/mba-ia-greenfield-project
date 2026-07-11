@@ -55,3 +55,9 @@ export type RefreshTokenPair =
 // Shared error envelope (all auth 4xx responses)
 export type ApiErrorEnvelope =
   paths["/auth/register"]["post"]["responses"][400]["content"]["application/json"];
+
+// ─── Videos ─────────────────────────────────────────────────────────────────
+
+// Pass-through alias — BFF returns the upstream shape as-is.
+export type Video =
+  paths["/videos/{publicId}"]["get"]["responses"][200]["content"]["application/json"];
