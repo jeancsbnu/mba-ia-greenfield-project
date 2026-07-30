@@ -19,6 +19,7 @@ const FORWARD_RESPONSE_HEADERS = [
   "upload-length",
   "upload-metadata",
   "content-type",
+  "x-video-public-id",
 ];
 
 async function proxyTus(

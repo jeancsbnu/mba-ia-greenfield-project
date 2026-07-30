@@ -20,10 +20,6 @@ type UploadState =
   | { phase: "failed"; publicId: string }
   | { phase: "error"; message: string }
 
-function extractPublicIdFromUploadUrl(url: string): string {
-  return url.split("/").filter(Boolean).pop() ?? ""
-}
-
 function mapUploadErrorToMessage(error: Error | tus.DetailedError): string {
   const body =
     "originalResponse" in error ? error.originalResponse?.getBody() : undefined
@@ -49,6 +45,7 @@ function UploadForm({ className, ...props }: React.ComponentProps<"div">) {
   const [file, setFile] = React.useState<File | null>(null)
   const [title, setTitle] = React.useState("")
   const [state, setState] = React.useState<UploadState>({ phase: "idle" })
+  const publicIdRef = React.useRef("")
 
   React.useEffect(() => {
     if (state.phase !== "processing") return
@@ -97,9 +94,12 @@ function UploadForm({ className, ...props }: React.ComponentProps<"div">) {
           progress: Math.round((bytesUploaded / bytesTotal) * 100),
         })
       },
+      onAfterResponse: (req, res) => {
+        if (req.getMethod() !== "POST") return
+        publicIdRef.current = res.getHeader("X-Video-Public-Id") ?? ""
+      },
       onSuccess: () => {
-        const publicId = extractPublicIdFromUploadUrl(upload.url ?? "")
-        setState({ phase: "processing", publicId })
+        setState({ phase: "processing", publicId: publicIdRef.current })
       },
     })
 

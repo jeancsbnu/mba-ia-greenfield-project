@@ -6,10 +6,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { server } from "@/mocks/server"
 
+interface MockHttpRequest {
+  getMethod: () => string
+}
+
+interface MockHttpResponse {
+  getHeader: (header: string) => string | undefined
+}
+
 interface MockUploadOptions {
   onProgress?: (bytesSent: number, bytesTotal: number) => void
   onSuccess?: () => void
   onError?: (error: Error) => void
+  onAfterResponse?: (
+    req: MockHttpRequest,
+    res: MockHttpResponse
+  ) => void | Promise<void>
 }
 
 const uploadInstances: {
@@ -90,6 +102,10 @@ describe("<UploadForm />", () => {
     await user.upload(screen.getByLabelText("Arquivo de vídeo"), makeVideoFile())
     await user.click(screen.getByRole("button", { name: "Enviar vídeo" }))
 
+    uploadInstances[0].options.onAfterResponse?.(
+      { getMethod: () => "POST" },
+      { getHeader: (header) => (header === "X-Video-Public-Id" ? "fixture-upload-id" : undefined) }
+    )
     uploadInstances[0].options.onSuccess?.()
 
     expect(

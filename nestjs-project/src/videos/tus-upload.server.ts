@@ -97,9 +97,10 @@ export function createTusUploadServer(app: INestApplication): Server {
         );
       }
 
+      const publicId = nanoid(10);
       await videoRepository.save(
         videoRepository.create({
-          public_id: nanoid(10),
+          public_id: publicId,
           channel_id: channel.id,
           title: upload.metadata?.title || 'Untitled',
           description: upload.metadata?.description ?? null,
@@ -110,6 +111,7 @@ export function createTusUploadServer(app: INestApplication): Server {
         }),
       );
 
+      res.setHeader('X-Video-Public-Id', publicId);
       return { res };
     },
     onUploadFinish: async (req, res, upload) => {
