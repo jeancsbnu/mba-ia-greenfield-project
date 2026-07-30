@@ -1,3 +1,4 @@
+import express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import type { ConfigType } from '@nestjs/config';
@@ -9,6 +10,7 @@ import { ValidationExceptionFilter } from './common/filters/validation-exception
 import swaggerConfig from './config/swagger.config';
 import { buildSwaggerDocument } from './swagger/swagger-document';
 import swaggerMetadata from './metadata.js';
+import { createTusUploadServer } from './videos/tus-upload.server';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +40,11 @@ async function bootstrap() {
       swaggerOptions: { persistAuthorization: true },
     });
   }
+
+  const tusServer = createTusUploadServer(app);
+  const uploadApp = express();
+  uploadApp.use((req, res) => tusServer.handle(req, res));
+  app.use('/videos/upload', uploadApp);
 
   await app.listen(port);
 }

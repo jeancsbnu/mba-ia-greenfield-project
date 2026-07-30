@@ -6,6 +6,7 @@ import { VerificationToken } from '../auth/entities/verification-token.entity';
 import { CreateUsersAndChannels1775687773260 } from './migrations/1775687773260-CreateUsersAndChannels';
 import { CreateAuthTokens1777579850478 } from './migrations/1777579850478-CreateAuthTokens';
 import { createTestDataSource } from '../test/create-test-data-source';
+import { Video } from '../videos/entities/video.entity';
 
 const MANAGED_TABLES = [
   'users',
@@ -19,7 +20,7 @@ describe('Database migrations (integration)', () => {
 
   beforeAll(async () => {
     dataSource = createTestDataSource(
-      [User, Channel, RefreshToken, VerificationToken],
+      [User, Channel, RefreshToken, VerificationToken, Video],
       {
         synchronize: false,
         migrations: [
@@ -37,6 +38,16 @@ describe('Database migrations (integration)', () => {
       ),
       dataSource.query(`DROP TABLE IF EXISTS "migrations" CASCADE`),
     ]);
+
+    // DROP TABLE ... CASCADE removes objects that depend on the table (FKs,
+    // views) — it does NOT drop a column's enum TYPE, since the dependency
+    // runs the other way (table depends on the type). Drop it explicitly,
+    // strictly after the table drop above has committed, so re-running
+    // CreateAuthTokens' up() (CREATE TYPE) is idempotent regardless of what
+    // state the shared dev DB was in before.
+    await dataSource.query(
+      `DROP TYPE IF EXISTS "public"."verification_tokens_type_enum"`,
+    );
   });
 
   afterAll(async () => {
