@@ -15,6 +15,34 @@ import { cleanAllTables } from '../src/test/create-test-data-source';
 import { Video, VideoStatus } from '../src/videos/entities/video.entity';
 import { createTusUploadServer } from '../src/videos/tus-upload.server';
 
+/** Só o método que os cenários espionam do MailService, que é privado. */
+interface MailServiceLike {
+  sendConfirmationEmail(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<void>;
+  sendPasswordResetEmail?(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<void>;
+}
+
+/**
+ * `res.body` do supertest é `any` e propaga esse `any` para a asserção.
+ * Tipar os corpos inspecionados mantém a checagem do compilador.
+ */
+interface ErrorBody {
+  error: string;
+  message: string | string[];
+  statusCode: number;
+}
+interface TokenPairBody {
+  access_token: string;
+  refresh_token: string;
+}
+
 describe('POST /videos/upload (e2e)', () => {
   let app: INestApplication<App>;
   let dataSource: DataSource;
@@ -69,12 +97,15 @@ describe('POST /videos/upload (e2e)', () => {
     password = 'password123',
   ): Promise<string> {
     const authService = app.get(AuthService);
-    const mailServiceInstance = (authService as any).mailService;
+    const mailServiceInstance = (
+      authService as unknown as { mailService: MailServiceLike }
+    ).mailService;
     let capturedToken = '';
     jest
       .spyOn(mailServiceInstance, 'sendConfirmationEmail')
-      .mockImplementationOnce(async (_e: string, _n: string, t: string) => {
+      .mockImplementationOnce((_e: string, _n: string, t: string) => {
         capturedToken = t;
+        return Promise.resolve();
       });
     await request(app.getHttpServer())
       .post('/auth/register')
@@ -85,7 +116,7 @@ describe('POST /videos/upload (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email, password });
-    return res.body.access_token;
+    return (res.body as TokenPairBody).access_token;
   }
 
   function metadataHeader(fields: Record<string, string>): string {
@@ -132,7 +163,9 @@ describe('POST /videos/upload (e2e)', () => {
       .expect(204);
 
     const jobs = await queue.getJobs(['waiting', 'active', 'delayed']);
-    const job = jobs.find((j) => j.data.videoId === draft?.id);
+    const job = jobs.find(
+      (j) => (j.data as { videoId: string }).videoId === draft?.id,
+    );
     expect(job).toBeDefined();
     expect(job?.name).toBe('video.processing');
   });
@@ -148,7 +181,9 @@ describe('POST /videos/upload (e2e)', () => {
       .set('Upload-Length', String(tooLargeBytes))
       .expect(400);
 
-    expect(JSON.parse(res.text).error).toBe('UPLOAD_FILE_TOO_LARGE');
+    expect((JSON.parse(res.text) as ErrorBody).error).toBe(
+      'UPLOAD_FILE_TOO_LARGE',
+    );
   });
 
   it('returns 401 without an Authorization header', async () => {

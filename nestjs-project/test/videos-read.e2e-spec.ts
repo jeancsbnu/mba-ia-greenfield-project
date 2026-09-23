@@ -12,6 +12,38 @@ import { ValidationExceptionFilter } from '../src/common/filters/validation-exce
 import { cleanAllTables } from '../src/test/create-test-data-source';
 import { Video, VideoStatus } from '../src/videos/entities/video.entity';
 
+/** Só o método que os cenários espionam do MailService, que é privado. */
+interface MailServiceLike {
+  sendConfirmationEmail(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<void>;
+  sendPasswordResetEmail?(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<void>;
+}
+
+/**
+ * `res.body` do supertest é `any` e propaga esse `any` para a asserção.
+ * Tipar os corpos inspecionados mantém a checagem do compilador.
+ */
+interface ErrorBody {
+  error: string;
+  message: string | string[];
+  statusCode: number;
+}
+interface TokenPairBody {
+  access_token: string;
+  refresh_token: string;
+}
+interface RegisteredUserBody {
+  id: string;
+  email: string;
+}
+
 interface AuthenticatedUser {
   userId: string;
   accessToken: string;
@@ -64,12 +96,15 @@ describe('GET /videos/:publicId (e2e)', () => {
     password = 'password123',
   ): Promise<AuthenticatedUser> {
     const authService = app.get(AuthService);
-    const mailServiceInstance = (authService as any).mailService;
+    const mailServiceInstance = (
+      authService as unknown as { mailService: MailServiceLike }
+    ).mailService;
     let capturedToken = '';
     jest
       .spyOn(mailServiceInstance, 'sendConfirmationEmail')
-      .mockImplementationOnce(async (_e: string, _n: string, t: string) => {
+      .mockImplementationOnce((_e: string, _n: string, t: string) => {
         capturedToken = t;
+        return Promise.resolve();
       });
     const registerRes = await request(app.getHttpServer())
       .post('/auth/register')
@@ -81,8 +116,8 @@ describe('GET /videos/:publicId (e2e)', () => {
       .post('/auth/login')
       .send({ email, password });
     return {
-      userId: registerRes.body.id,
-      accessToken: loginRes.body.access_token,
+      userId: (registerRes.body as RegisteredUserBody).id,
+      accessToken: (loginRes.body as TokenPairBody).access_token,
     };
   }
 
@@ -131,7 +166,7 @@ describe('GET /videos/:publicId (e2e)', () => {
       .set('Authorization', `Bearer ${user.accessToken}`)
       .expect(404);
 
-    expect(res.body.error).toBe('VIDEO_NOT_FOUND');
+    expect((res.body as ErrorBody).error).toBe('VIDEO_NOT_FOUND');
   });
 
   it('returns 403 with errorCode FORBIDDEN when the caller is not the channel owner', async () => {
@@ -146,6 +181,6 @@ describe('GET /videos/:publicId (e2e)', () => {
       .set('Authorization', `Bearer ${stranger.accessToken}`)
       .expect(403);
 
-    expect(res.body.error).toBe('FORBIDDEN');
+    expect((res.body as ErrorBody).error).toBe('FORBIDDEN');
   });
 });
