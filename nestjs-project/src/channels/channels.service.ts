@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, QueryFailedError } from 'typeorm';
+import {
+  ChannelNotFoundException,
+  NicknameAlreadyExistsException,
+} from '../common/exceptions/domain.exception';
+import { UpdateChannelDto } from './dto/update-channel.dto';
 import { appendRandomSuffix, sanitizeNickname } from './nickname.util';
 import { Channel } from './entities/channel.entity';
 
@@ -9,7 +14,10 @@ const MAX_RETRIES = 5;
 
 function isPgUniqueViolationOnColumn(err: unknown, column: string): boolean {
   if (!(err instanceof QueryFailedError)) return false;
-  const e = err as any;
+  // O TypeORM copia os campos do driver para o próprio erro, mas não os
+  // declara. Tipar só o que se lê mantém a checagem honesta — `as any`
+  // apagaria o tipo e contaminaria todas as linhas abaixo.
+  const e = err as QueryFailedError & { code?: unknown; detail?: unknown };
   return (
     e.code === PG_UNIQUE_VIOLATION &&
     typeof e.detail === 'string' &&
@@ -58,6 +66,47 @@ export class ChannelsService {
         'Nickname conflict could not be resolved after max retries',
       );
     });
+  }
+
+  // Alteração livre de nickname, com unicidade garantida pelo índice único
+  // (TD-07). A troca muda a URL pública /@{nickname} (TD-08), o que é esperado.
+  async updateChannel(userId: string, dto: UpdateChannelDto): Promise<Channel> {
+    const channel = await this.findByUserId(userId);
+    if (!channel) {
+      throw new ChannelNotFoundException();
+    }
+
+    if (dto.nickname !== undefined) {
+      channel.nickname = dto.nickname;
+    }
+    if (dto.name !== undefined) {
+      channel.name = dto.name;
+    }
+    if (dto.description !== undefined) {
+      // String vazia significa "sem descrição", não descrição vazia.
+      channel.description = dto.description === '' ? null : dto.description;
+    }
+
+    try {
+      return await this.dataSource.getRepository(Channel).save(channel);
+    } catch (err) {
+      if (isPgUniqueViolationOnColumn(err, NICKNAME_COLUMN)) {
+        throw new NicknameAlreadyExistsException();
+      }
+      throw err;
+    }
+  }
+
+  // Resolve a página pública /@{nickname} (TD-08). Nickname inexistente é 404,
+  // não lista vazia: o canal simplesmente não existe.
+  async findByNicknameOrFail(nickname: string): Promise<Channel> {
+    const channel = await this.dataSource
+      .getRepository(Channel)
+      .findOne({ where: { nickname } });
+    if (!channel) {
+      throw new ChannelNotFoundException();
+    }
+    return channel;
   }
 
   async findByUserId(userId: string): Promise<Channel | null> {

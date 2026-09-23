@@ -6,6 +6,7 @@ import {
   createTestDataSource,
 } from '../test/create-test-data-source';
 import { User } from '../users/entities/user.entity';
+import { NicknameAlreadyExistsException } from '../common/exceptions/domain.exception';
 import { ChannelsService } from './channels.service';
 import { Channel } from './entities/channel.entity';
 import { Video } from '../videos/entities/video.entity';
@@ -88,6 +89,81 @@ describe('ChannelsService (integration)', () => {
 
       const channels = await channelRepository.find();
       expect(channels).toHaveLength(2);
+    });
+  });
+
+  describe('updateChannel', () => {
+    it('persists nickname, name and description', async () => {
+      const user = await createUser();
+      await channelsService.createChannel(user.id, 'joana@example.com');
+
+      const updated = await channelsService.updateChannel(user.id, {
+        nickname: 'joana_nova',
+        name: 'Joana Nova',
+        description: 'Vídeos de culinária',
+      });
+
+      expect(updated.nickname).toBe('joana_nova');
+
+      const stored = await channelRepository.findOneByOrFail({
+        user_id: user.id,
+      });
+      expect(stored.nickname).toBe('joana_nova');
+      expect(stored.name).toBe('Joana Nova');
+      expect(stored.description).toBe('Vídeos de culinária');
+    });
+
+    it('persists an empty description as null', async () => {
+      const user = await createUser();
+      await channelsService.createChannel(user.id, 'joana@example.com');
+      await channelsService.updateChannel(user.id, {
+        description: 'Tinha descrição',
+      });
+
+      await channelsService.updateChannel(user.id, { description: '' });
+
+      const stored = await channelRepository.findOneByOrFail({
+        user_id: user.id,
+      });
+      expect(stored.description).toBeNull();
+    });
+
+    it('rejects a nickname that already belongs to another channel', async () => {
+      const first = await createUser();
+      const second = await createUser();
+      const firstChannel = await channelsService.createChannel(
+        first.id,
+        'primeiro@example.com',
+      );
+      await channelsService.createChannel(second.id, 'segundo@example.com');
+
+      // O índice único da coluna é quem barra: a checagem é do banco, não do código.
+      await expect(
+        channelsService.updateChannel(second.id, {
+          nickname: firstChannel.nickname,
+        }),
+      ).rejects.toBeInstanceOf(NicknameAlreadyExistsException);
+
+      const stored = await channelRepository.findOneByOrFail({
+        user_id: second.id,
+      });
+      expect(stored.nickname).not.toBe(firstChannel.nickname);
+    });
+
+    it('allows saving the same nickname the channel already has', async () => {
+      const user = await createUser();
+      const channel = await channelsService.createChannel(
+        user.id,
+        'joana@example.com',
+      );
+
+      const updated = await channelsService.updateChannel(user.id, {
+        nickname: channel.nickname,
+        name: 'Outro nome',
+      });
+
+      expect(updated.nickname).toBe(channel.nickname);
+      expect(updated.name).toBe('Outro nome');
     });
   });
 });

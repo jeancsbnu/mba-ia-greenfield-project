@@ -9,8 +9,8 @@ describe("TermsCheckbox", () => {
   it("renders checkbox and terms label with links", () => {
     render(<TermsCheckbox />);
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /terms of service/i })).toHaveAttribute("href", "/terms");
-    expect(screen.getByRole("link", { name: /privacy policy/i })).toHaveAttribute("href", "/privacy");
+    expect(screen.getByRole("link", { name: /termos de uso/i })).toHaveAttribute("href", "/terms");
+    expect(screen.getByRole("link", { name: /política de privacidade/i })).toHaveAttribute("href", "/privacy");
   });
 
   it("is unchecked by default (uncontrolled)", () => {

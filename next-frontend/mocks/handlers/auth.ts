@@ -14,6 +14,25 @@ const BAD_REQUEST_EMAIL = "badrequest@example.com";
 const INVALID_CREDENTIALS_EMAIL = "invalid@example.com";
 const UNCONFIRMED_EMAIL = "unconfirmed@example.com";
 
+/**
+ * Prefixo do token de acesso fabricado no login.
+ *
+ * As rotas `/me/*` do upstream simulado precisam saber QUEM está chamando para
+ * honrar os gatilhos por e-mail dos specs (canal cheio, canal vazio, painel com
+ * erro). O único canal de informação que chega até elas é o header
+ * Authorization, então o e-mail viaja dentro do próprio token.
+ */
+export const ACCESS_TOKEN_PREFIX = "fixture-access-token:";
+
+/** Extrai o e-mail de um header `Authorization: Bearer <token>`. */
+export function emailFromAuthHeader(header: string | null): string {
+  if (!header) return "";
+  const token = header.replace(/^Bearer\s+/i, "");
+  return token.startsWith(ACCESS_TOKEN_PREFIX)
+    ? token.slice(ACCESS_TOKEN_PREFIX.length)
+    : "";
+}
+
 function errorEnvelope(
   statusCode: number,
   error: string,
@@ -70,7 +89,10 @@ export const handlers = [
       );
     }
     return HttpResponse.json<LoginTokenPair>(
-      { access_token: "fixture-access-token", refresh_token: "fixture-refresh-token" },
+      {
+        access_token: `${ACCESS_TOKEN_PREFIX}${email}`,
+        refresh_token: `fixture-refresh-token:${email}`,
+      },
       { status: 200 }
     );
   }),
@@ -95,9 +117,19 @@ export const handlers = [
   }),
 
   // POST /auth/refresh
-  http.post(`${env.API_URL}/auth/refresh`, () => {
+  http.post(`${env.API_URL}/auth/refresh`, async ({ request }) => {
+    // O e-mail atravessa o refresh: sem isso a sessão renovada perderia a
+    // identidade e os gatilhos por usuário parariam de valer.
+    const body = (await request.json()) as Record<string, unknown>;
+    const previous =
+      typeof body.refresh_token === "string" ? body.refresh_token : "";
+    const email = previous.includes(":") ? previous.split(":")[1] : "";
+
     return HttpResponse.json<RefreshTokenPair>(
-      { access_token: "new-fixture-access-token", refresh_token: "new-fixture-refresh-token" },
+      {
+        access_token: `${ACCESS_TOKEN_PREFIX}${email}`,
+        refresh_token: `fixture-refresh-token:${email}`,
+      },
       { status: 200 }
     );
   }),

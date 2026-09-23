@@ -134,12 +134,12 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="fullName">Full Name</Label>
+        <Label htmlFor="fullName">Nome completo</Label>
         <Input
           id="fullName"
           type="text"
           autoComplete="name"
-          placeholder="Enter your full name"
+          placeholder="Digite seu nome completo"
           aria-invalid={!!errors.fullName}
           {...register("fullName")}
         />
@@ -147,12 +147,12 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email address</Label>
+        <Label htmlFor="email">E-mail</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="Enter your email"
+          placeholder="Digite seu e-mail"
           aria-invalid={!!errors.email}
           {...register("email")}
         />
@@ -175,13 +175,13 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Senha</Label>
         <div className="relative">
           <Input
             id="password"
             type={passwordType}
             autoComplete="new-password"
-            placeholder="Create password"
+            placeholder="Crie uma senha"
             className="pr-12"
             aria-invalid={!!errors.password}
             {...register("password")}
@@ -196,13 +196,13 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">Confirmar senha</Label>
         <div className="relative">
           <Input
             id="confirmPassword"
             type={confirmType}
             autoComplete="new-password"
-            placeholder="Confirm your password"
+            placeholder="Confirme sua senha"
             className="pr-12"
             aria-invalid={!!errors.confirmPassword}
             {...register("confirmPassword")}
@@ -235,7 +235,7 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
         disabled={isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? "Creating account…" : "Create account"}
+        {isSubmitting ? "Criando conta…" : "Criar conta"}
       </Button>
     </form>
   )

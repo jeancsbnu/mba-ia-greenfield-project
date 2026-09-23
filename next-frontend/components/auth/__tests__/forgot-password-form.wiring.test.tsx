@@ -24,10 +24,10 @@ describe("<ForgotPasswordForm /> wiring", () => {
 
     render(<ForgotPasswordForm />)
     await user.type(
-      screen.getByLabelText("Email address"),
+      screen.getByLabelText("E-mail"),
       "alice@example.com"
     )
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent(
@@ -37,7 +37,7 @@ describe("<ForgotPasswordForm /> wiring", () => {
     expect(received).toEqual([{ email: "alice@example.com" }])
     // Form was replaced by the confirmation box.
     expect(
-      screen.queryByRole("button", { name: "Send reset link" })
+      screen.queryByRole("button", { name: "Enviar link de redefinição" })
     ).not.toBeInTheDocument()
   })
 
@@ -52,10 +52,10 @@ describe("<ForgotPasswordForm /> wiring", () => {
 
     render(<ForgotPasswordForm />)
     await user.type(
-      screen.getByLabelText("Email address"),
+      screen.getByLabelText("E-mail"),
       "nobody@example.com"
     )
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
     const status = await screen.findByRole("status")
     expect(status).toHaveTextContent("Verifique seu e-mail")
@@ -75,15 +75,15 @@ describe("<ForgotPasswordForm /> wiring", () => {
 
     render(<ForgotPasswordForm />)
     await user.type(
-      screen.getByLabelText("Email address"),
+      screen.getByLabelText("E-mail"),
       "alice@example.com"
     )
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
     expect(await screen.findByText("Validation failed")).toBeInTheDocument()
     expect(screen.queryByRole("status")).not.toBeInTheDocument()
     expect(
-      screen.getByRole("button", { name: "Send reset link" })
+      screen.getByRole("button", { name: "Enviar link de redefinição" })
     ).toBeInTheDocument()
   })
 
@@ -98,23 +98,23 @@ describe("<ForgotPasswordForm /> wiring", () => {
     )
 
     render(<ForgotPasswordForm />)
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
     expect(
       await screen.findByText("Endereço de e-mail inválido")
     ).toBeInTheDocument()
     expect(onCall).not.toHaveBeenCalled()
 
-    await user.type(screen.getByLabelText("Email address"), "not-an-email")
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.type(screen.getByLabelText("E-mail"), "not-an-email")
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
     expect(onCall).not.toHaveBeenCalled()
 
-    await user.clear(screen.getByLabelText("Email address"))
+    await user.clear(screen.getByLabelText("E-mail"))
     await user.type(
-      screen.getByLabelText("Email address"),
+      screen.getByLabelText("E-mail"),
       "alice@example.com"
     )
-    await user.click(screen.getByRole("button", { name: "Send reset link" }))
+    await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
     await waitFor(() => expect(onCall).toHaveBeenCalledTimes(1))
   })

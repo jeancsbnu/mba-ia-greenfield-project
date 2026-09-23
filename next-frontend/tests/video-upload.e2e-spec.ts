@@ -13,9 +13,9 @@ import { expect, test } from "./fixtures"
 //     first 2 polls, then "ready"
 async function loginAsUploader(page: Page) {
   await page.goto("/login")
-  await page.getByLabel("Email address").fill("uploader@example.com")
-  await page.getByLabel("Password", { exact: true }).fill("secret123")
-  await page.getByRole("button", { name: "Sign in" }).click()
+  await page.getByLabel("E-mail").fill("uploader@example.com")
+  await page.getByLabel("Senha", { exact: true }).fill("secret123")
+  await page.getByRole("button", { name: "Entrar" }).click()
   await expect
     .poll(
       async () =>
@@ -37,25 +37,50 @@ test.describe("video-upload", () => {
     await page.goto("/upload")
 
     await page.getByLabel("Título").fill("Meu vídeo de teste")
-    // 6MB — bigger than the 5MB chunkSize, so the upload spans 2 PATCH chunks.
+    // 21MB contra o chunkSize de 5MB → 5 chunks. Com 2 chunks o upstream em
+    // processo responde rápido demais e o React agrupa as atualizações, então
+    // os estados intermediários mal chegam a existir — e o cenário é
+    // justamente "o progresso avança por chunk".
     await page.getByLabel("Arquivo de vídeo").setInputFiles({
       name: "video.mp4",
       mimeType: "video/mp4",
-      buffer: Buffer.alloc(6 * 1024 * 1024, 1),
+      buffer: Buffer.alloc(21 * 1024 * 1024, 1),
     })
+    // Observar por MutationObserver, não por polling: com o upstream fingido
+    // em processo os chunks são instantâneos, e os valores intermediários —
+    // que existem de verdade — duram menos que o intervalo de amostragem.
+    await page.evaluate(() => {
+      const seen = new Set<string>()
+      ;(window as unknown as { __progress: Set<string> }).__progress = seen
+
+      const sample = () => {
+        // O texto "N% enviado" é renderizado junto da barra e é o sinal mais
+        // confiável: não depende de qual atributo o primitivo do DS expõe.
+        const text = document
+          .querySelector("[data-slot='upload-progress']")
+          ?.textContent?.match(/(\d+)%/)?.[1]
+        if (text) seen.add(text)
+      }
+
+      new MutationObserver(sample).observe(document.body, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+        attributes: true,
+      })
+      sample()
+    })
+
     await page.getByRole("button", { name: "Enviar vídeo" }).click()
 
-    const seenValues = new Set<string>()
     await expect
       .poll(
-        async () => {
-          const value = await page
-            .getByRole("progressbar")
-            .getAttribute("aria-valuenow")
-          if (value) seenValues.add(value)
-          return seenValues.size
-        },
-        { timeout: 10000 }
+        async () =>
+          await page.evaluate(
+            () =>
+              (window as unknown as { __progress: Set<string> }).__progress.size
+          ),
+        { timeout: 15000 }
       )
       .toBeGreaterThan(1)
 
@@ -143,8 +168,13 @@ test.describe("video-upload", () => {
     })
     await page.getByRole("button", { name: "Enviar vídeo" }).click()
 
-    const alert = page.getByRole("alert")
-    await expect(alert).toBeVisible({ timeout: 10000 })
+    // Escopar no data-slot da aplicação: `getByRole("alert")` também casa com
+    // o route announcer do Next (`#__next-route-announcer__`), que já existe
+    // vazio e faz o toBeVisible passar de imediato contra o elemento errado.
+    // O timeout é generoso porque o tus só chama onError depois de esgotar
+    // `retryDelays: [0, 1000, 3000, 5000]`.
+    const alert = page.locator("[data-slot='upload-error']")
+    await expect(alert).toBeVisible({ timeout: 20000 })
     await expect(alert).toContainText(/excede o tamanho máximo permitido/)
 
     const alertText = (await alert.textContent()) ?? ""

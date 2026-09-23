@@ -149,8 +149,11 @@
   --spacing-10: 40px;
   --spacing-11: 44px;
   --spacing-12: 48px;
+  --spacing-14: 56px;
   --spacing-16: 64px;
   --spacing-20: 80px;
+  --spacing-22: 88px;
+  --spacing-25: 100px;
   --shadow-y-xs: 1px;
   --shadow-y-sm: 1px;
   --shadow-y-md: 4px;
@@ -249,6 +252,14 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-destructive: var(--destructive);
+  /* Os semânticos de sucesso/aviso já existiam em :root, mas sem este
+     mapeamento não viravam utilitário Tailwind (bg-success, text-success-text). */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-text: var(--success-text);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-text: var(--warning-text);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted: var(--muted);

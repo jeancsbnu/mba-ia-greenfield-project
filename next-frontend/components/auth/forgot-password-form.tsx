@@ -94,12 +94,12 @@ function ForgotPasswordForm({
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email address</Label>
+        <Label htmlFor="email">E-mail</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="Enter your email"
+          placeholder="Digite seu e-mail"
           aria-invalid={!!errors.email}
           {...register("email")}
         />
@@ -107,7 +107,7 @@ function ForgotPasswordForm({
       </div>
 
       <Button type="submit" size="md" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Sending…" : "Send reset link"}
+        {isSubmitting ? "Enviando…" : "Enviar link de redefinição"}
       </Button>
     </form>
   )

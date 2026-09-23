@@ -153,6 +153,11 @@
 | "Recuperação de senha: solicitação via e-mail → link com token → redefinição"      | ForgotPasswordForm + SubmitButton (parcial — apenas solicitação) | /forgot-password (set-new-password ausente do Figma) |
 | "Telas de cadastro, login, confirmação de conta e recuperação de senha"            | Telas signup + login + forgot-password      | /signup, /login, /forgot-password (confirmação de-scoped) |
 
+## Nota — 2026-08-08
+
+- **Resolvida a inconsistência da linha 163** ("Sign up" no AuthFooter de `/forgot-password`, esperado "Sign in"): confirmado como bug real — o link levava a `/signup`. Corrigido no código para "Entrar" → `/login`, junto da tradução completa das telas de auth para pt-BR (decisão [D-04](../design-identity.md#d-04--a-ui-é-em-português)).
+- **Novo drift, registrado para rastreabilidade:** o Figma (`FC Tube.fig`) ainda mostra as telas de auth em inglês — todo o texto quotado nas tabelas abaixo ("Email address", "Sign in", "Create account" etc.) reflete o que estava no Figma em 2026-05-14, não o código atual. Código e Figma divergem agora. Ver `docs/design-identity.md` para a decisão e `docs/decisions/technical-decisions-video-channel-management.md` (TD-02) para o precedente equivalente na Fase 04. Atualizar o Figma para pt-BR antes de rodar qualquer extração nova destas telas.
+
 ## Open questions
 
 - Capability "Confirmação de conta via e-mail com link de ativação" não tem tela inventariada — de-scoped pelo usuário em 2026-05-14 ("o restante não iremos implementar agora"). O fluxo end-to-end de cadastro depende desta tela para fechar (após signup → e-mail com link → tela de confirmação); precisará ser retomada em uma fase posterior. TD-07 (Email-Link Landing Pattern) prevê RSC processando o token server-side; recomenda-se gerar o inventory da tela antes de implementar.

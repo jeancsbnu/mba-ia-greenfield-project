@@ -6,10 +6,17 @@ import { cn } from "@/lib/utils"
 type BackLinkProps = {
   href: string
   className?: string
+  /** Ícone decorativo à esquerda do texto. Sem ele a saída não muda. */
+  icon?: React.ReactNode
   children?: React.ReactNode
 }
 
-function BackLink({ href, className, children = "Back" }: BackLinkProps) {
+function BackLink({
+  href,
+  className,
+  icon,
+  children = "Voltar",
+}: BackLinkProps) {
   return (
     <Link
       href={href}
@@ -21,6 +28,14 @@ function BackLink({ href, className, children = "Back" }: BackLinkProps) {
         className
       )}
     >
+      {icon ? (
+        // aria-hidden aqui, e não só no componente de ícone: o nome acessível
+        // do link tem de vir apenas do texto, independentemente do que o
+        // chamador passar.
+        <span aria-hidden="true" data-slot="back-link-icon">
+          {icon}
+        </span>
+      ) : null}
       {children}
     </Link>
   )
