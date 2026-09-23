@@ -200,6 +200,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/channel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the authenticated user channel
+         * @description Returns name, nickname and description of the channel owned by the authenticated user.
+         */
+        get: operations["ChannelsController_getMyChannel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update the authenticated user channel
+         * @description Edits nickname, name and description. Changing the nickname changes the public channel URL.
+         */
+        patch: operations["ChannelsController_updateMyChannel"];
+        trace?: never;
+    };
     "/videos/{publicId}": {
         parameters: {
             query?: never;
@@ -217,7 +241,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update a video
+         * @description Edits title, description, category and visibility, replaces the custom thumbnail and publishes or unpublishes the video in a single multipart call. Only the owning channel can access this endpoint.
+         */
+        patch: operations["VideosController_updateVideo"];
         trace?: never;
     };
     "/videos/{publicId}/stream": {
@@ -229,7 +257,7 @@ export interface paths {
         };
         /**
          * Stream a video
-         * @description Redirects to a presigned storage URL for the video file. Accessible without authentication.
+         * @description Redirects to a presigned storage URL for the video file. Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also stream their own drafts.
          */
         get: operations["VideosController_stream"];
         put?: never;
@@ -249,9 +277,69 @@ export interface paths {
         };
         /**
          * Download a video
-         * @description Redirects to a presigned storage URL for downloading the video file. Accessible without authentication.
+         * @description Redirects to a presigned storage URL for downloading the video file. Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also download their own drafts.
          */
         get: operations["VideosController_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the videos of the authenticated user channel
+         * @description Returns every video of the channel — drafts included — newest first, with offset/limit pagination and the channel total.
+         */
+        get: operations["ChannelVideosController_listMyVideos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{nickname}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a public channel
+         * @description Returns the public information of a channel. videosCount counts only published, public videos.
+         */
+        get: operations["ChannelVideosController_getPublicChannel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{nickname}/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the public videos of a channel
+         * @description Returns published, public videos only — drafts and unlisted videos are excluded. Newest published first.
+         */
+        get: operations["ChannelVideosController_listPublicChannelVideos"];
         put?: never;
         post?: never;
         delete?: never;
@@ -264,12 +352,39 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        RegisterDto: Record<string, never>;
-        ResendConfirmationDto: Record<string, never>;
-        LoginDto: Record<string, never>;
-        RefreshTokenDto: Record<string, never>;
-        ForgotPasswordDto: Record<string, never>;
-        ResetPasswordDto: Record<string, never>;
+        RegisterDto: {
+            /** Format: email */
+            email: string;
+            password: string;
+        };
+        ResendConfirmationDto: {
+            /** Format: email */
+            email: string;
+        };
+        LoginDto: {
+            /** Format: email */
+            email: string;
+            password: string;
+        };
+        RefreshTokenDto: {
+            refresh_token: string;
+        };
+        ForgotPasswordDto: {
+            /** Format: email */
+            email: string;
+        };
+        ResetPasswordDto: {
+            token: string;
+            new_password: string;
+        };
+        UpdateChannelDto: {
+            /** @description Identidade pública do canal; único e global no sistema. */
+            nickname?: string;
+            /** @description Nome exibido do canal. */
+            name?: string;
+            /** @description Descrição do canal. String vazia grava null. */
+            description?: string;
+        };
         ApiErrorEnvelope: {
             /** @example 401 */
             statusCode: number;
@@ -278,6 +393,82 @@ export interface components {
             /** @example Invalid email or password */
             message: string | string[];
             code?: string | null;
+        };
+        ChannelResponse: {
+            name: string;
+            nickname: string;
+            description: string | null;
+        };
+        PublicChannelResponse: {
+            name: string;
+            nickname: string;
+            description: string | null;
+            /** @description Conta apenas vídeos publicados e públicos. */
+            videosCount: number;
+        };
+        VideoDetailResponse: {
+            publicId: string;
+            title: string;
+            description: string | null;
+            /** @enum {string} */
+            status: "draft" | "processing" | "ready" | "failed";
+            durationSeconds: number | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            category: "Música" | "Jogos" | "Educação" | "Entretenimento" | "Notícias" | "Esportes" | "Tecnologia" | "Outros";
+            /** @enum {string} */
+            visibility: "public" | "unlisted";
+            /**
+             * Format: date-time
+             * @description Nulo quando o vídeo ainda é rascunho.
+             */
+            publishedAt: string | null;
+            /** @description URL única já resolvida: a thumbnail customizada quando existe, senão a gerada pelo worker. */
+            thumbnailUrl: string | null;
+        };
+        OwnerVideoListItem: {
+            publicId: string;
+            title: string;
+            durationSeconds: number | null;
+            thumbnailUrl: string | null;
+            /** @enum {string} */
+            status: "draft" | "processing" | "ready" | "failed";
+            /** @enum {string} */
+            visibility: "public" | "unlisted";
+            /**
+             * Format: date-time
+             * @description Nulo quando o vídeo ainda é rascunho.
+             */
+            publishedAt: string | null;
+            /** @enum {string} */
+            category: "Música" | "Jogos" | "Educação" | "Entretenimento" | "Notícias" | "Esportes" | "Tecnologia" | "Outros";
+            viewsCount: number;
+            likesCount: number;
+            commentsCount: number;
+        };
+        OwnerVideosPage: {
+            items: components["schemas"]["OwnerVideoListItem"][];
+            /** @description Total de vídeos do canal, ignorando a página. */
+            total: number;
+            offset: number;
+            limit: number;
+        };
+        PublicVideoListItem: {
+            publicId: string;
+            title: string;
+            durationSeconds: number | null;
+            thumbnailUrl: string | null;
+            viewsCount: number;
+            /** Format: date-time */
+            publishedAt: string;
+        };
+        PublicVideosPage: {
+            items: components["schemas"]["PublicVideoListItem"][];
+            /** @description Total de vídeos publicados e públicos, ignorando a página. */
+            total: number;
+            offset: number;
+            limit: number;
         };
     };
     responses: never;
@@ -301,7 +492,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": string;
+                };
             };
         };
     };
@@ -354,7 +547,9 @@ export interface operations {
     };
     AuthController_confirmEmail: {
         parameters: {
-            query?: never;
+            query: {
+                token: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -650,6 +845,86 @@ export interface operations {
             };
         };
     };
+    ChannelsController_getMyChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Channel found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChannelResponse"];
+                };
+            };
+            /** @description The authenticated user has no channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ChannelsController_updateMyChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateChannelDto"];
+            };
+        };
+        responses: {
+            /** @description Channel updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChannelResponse"];
+                };
+            };
+            /** @description Validation failed or empty body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description The authenticated user has no channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Nickname already belongs to another channel */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
     VideosController_getVideo: {
         parameters: {
             query?: never;
@@ -667,16 +942,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        publicId?: string;
-                        title?: string;
-                        description?: string | null;
-                        /** @enum {string} */
-                        status?: "draft" | "processing" | "ready" | "failed";
-                        durationSeconds?: number | null;
-                        /** Format: date-time */
-                        createdAt?: string;
-                    };
+                    "application/json": components["schemas"]["VideoDetailResponse"];
                 };
             };
             /** @description Authenticated user does not own the video */
@@ -690,6 +956,78 @@ export interface operations {
             };
             /** @description Video not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_updateVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    title?: string;
+                    description?: string | null;
+                    /** @enum {string} */
+                    category?: "Música" | "Jogos" | "Educação" | "Entretenimento" | "Notícias" | "Esportes" | "Tecnologia" | "Outros";
+                    /** @enum {string} */
+                    visibility?: "public" | "unlisted";
+                    published?: boolean;
+                    /** Format: binary */
+                    thumbnail?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Video updated — same shape as GET /videos/{publicId} */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoDetailResponse"];
+                };
+            };
+            /** @description Validation failed or unsupported thumbnail type */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Authenticated user does not own the video */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video is still processing or failed, so it cannot be published */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -717,7 +1055,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Video not found */
+            /** @description Video not found, or a draft requested by someone else */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -755,7 +1093,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Video not found */
+            /** @description Video not found, or a draft requested by someone else */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -766,6 +1104,125 @@ export interface operations {
             };
             /** @description Video is not ready for download */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ChannelVideosController_listMyVideos: {
+        parameters: {
+            query?: {
+                /** @description Quantos vídeos pular. */
+                offset?: number;
+                /** @description Quantos vídeos retornar (máximo 50). */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list of the channel videos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnerVideosPage"];
+                };
+            };
+            /** @description offset or limit out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description The authenticated user has no channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ChannelVideosController_getPublicChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Channel found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicChannelResponse"];
+                };
+            };
+            /** @description Channel not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ChannelVideosController_listPublicChannelVideos: {
+        parameters: {
+            query?: {
+                /** @description Quantos vídeos pular. */
+                offset?: number;
+                /** @description Quantos vídeos retornar (máximo 50). */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list of public videos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicVideosPage"];
+                };
+            };
+            /** @description offset or limit out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Channel not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

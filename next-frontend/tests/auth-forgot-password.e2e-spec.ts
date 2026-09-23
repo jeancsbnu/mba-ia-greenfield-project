@@ -12,11 +12,11 @@ test.describe("auth-forgot-password", () => {
 
     const card = page.locator("[data-slot='card']")
     await expect(card).toBeVisible()
-    await expect(page.getByLabel("Email address")).toBeVisible()
-    const submit = page.getByRole("button", { name: "Send reset link" })
+    await expect(page.getByLabel("E-mail")).toBeVisible()
+    const submit = page.getByRole("button", { name: "Enviar link de redefinição" })
     await expect(submit).toBeVisible()
 
-    await page.getByLabel("Email address").fill("alice@example.com")
+    await page.getByLabel("E-mail").fill("alice@example.com")
 
     const req = page.waitForRequest(
       (r) =>
@@ -29,7 +29,7 @@ test.describe("auth-forgot-password", () => {
     await expect(page.getByRole("status")).toContainText("Verifique seu e-mail")
     await expect(card).toBeVisible()
     await expect(
-      page.getByRole("button", { name: "Send reset link" })
+      page.getByRole("button", { name: "Enviar link de redefinição" })
     ).toHaveCount(0)
     await expect(page).toHaveURL(/\/forgot-password$/)
     const cookies = await page.context().cookies()
@@ -39,8 +39,8 @@ test.describe("auth-forgot-password", () => {
   test("1.2 forgot-password-anti-enumeration", async ({ page }) => {
     await page.goto("/forgot-password")
 
-    await page.getByLabel("Email address").fill("nobody-unregistered@example.com")
-    await page.getByRole("button", { name: "Send reset link" }).click()
+    await page.getByLabel("E-mail").fill("nobody-unregistered@example.com")
+    await page.getByRole("button", { name: "Enviar link de redefinição" }).click()
 
     const status = page.getByRole("status")
     await expect(status).toContainText("Verifique seu e-mail")
@@ -61,26 +61,26 @@ test.describe("auth-forgot-password", () => {
         requests.push(r.method())
     })
 
-    await page.getByRole("button", { name: "Send reset link" }).click()
+    await page.getByRole("button", { name: "Enviar link de redefinição" }).click()
     await expect(
       page.getByText("Endereço de e-mail inválido")
     ).toBeVisible()
     expect(requests).toHaveLength(0)
 
-    await page.getByLabel("Email address").fill("not-an-email")
-    await page.getByRole("button", { name: "Send reset link" }).click()
+    await page.getByLabel("E-mail").fill("not-an-email")
+    await page.getByRole("button", { name: "Enviar link de redefinição" }).click()
     await expect(
       page.getByText("Endereço de e-mail inválido")
     ).toBeVisible()
     expect(requests).toHaveLength(0)
 
     // Well-formed email that trips the upstream 400 validation trigger.
-    await page.getByLabel("Email address").fill("badrequest@example.com")
+    await page.getByLabel("E-mail").fill("badrequest@example.com")
     const req = page.waitForRequest(
       (r) =>
         r.url().includes("/api/auth/forgot-password") && r.method() === "POST"
     )
-    await page.getByRole("button", { name: "Send reset link" }).click()
+    await page.getByRole("button", { name: "Enviar link de redefinição" }).click()
     await req
 
     await expect(page.getByText(/validation failed/i)).toBeVisible()

@@ -39,7 +39,10 @@ async function tryRefresh(): Promise<boolean> {
   return true;
 }
 
-function refreshOnce(): Promise<boolean> {
+// Exportado para a rota GET /api/auth/refresh (SI-04.10): Server Components não
+// podem gravar cookie, então a renovação precisa acontecer num Route Handler.
+// A deduplicação por refreshPromise vale para os dois chamadores.
+export function refreshOnce(): Promise<boolean> {
   if (!refreshPromise) {
     refreshPromise = tryRefresh().finally(() => {
       refreshPromise = null;

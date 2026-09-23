@@ -17,7 +17,7 @@ describe("PasswordStrengthMeter", () => {
     expect(
       container.querySelector("[data-strength='weak']")
     ).toBeInTheDocument();
-    expect(screen.getByText(/weak/i)).toBeInTheDocument();
+    expect(screen.getByText(/fraca/i)).toBeInTheDocument();
   });
 
   it("reflects fair strength for moderately complex passwords", () => {
@@ -26,7 +26,7 @@ describe("PasswordStrengthMeter", () => {
     expect(
       container.querySelector("[data-strength='fair']")
     ).toBeInTheDocument();
-    expect(screen.getByText(/fair/i)).toBeInTheDocument();
+    expect(screen.getByText(/razoável/i)).toBeInTheDocument();
   });
 
   it("reflects strong or very-strong for highly complex passwords", () => {
@@ -40,6 +40,6 @@ describe("PasswordStrengthMeter", () => {
   it("shows no label for empty value", () => {
     render(<PasswordStrengthMeter value="" />);
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
-    expect(screen.queryByText(/weak|fair|strong/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/fraca|razoável|forte/i)).not.toBeInTheDocument();
   });
 });

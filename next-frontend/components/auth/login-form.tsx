@@ -91,12 +91,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email address</Label>
+        <Label htmlFor="email">E-mail</Label>
         <Input
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="Enter your email"
+          placeholder="Digite seu e-mail"
           aria-invalid={!!errors.email}
           {...register("email")}
         />
@@ -105,12 +105,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Senha</Label>
           <Link
             href="/forgot-password"
             className="text-body-md text-link hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-[var(--radius-0-5)]"
           >
-            Forgot password?
+            Esqueceu a senha?
           </Link>
         </div>
         <Input
@@ -124,7 +124,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
       </div>
 
       <Button type="submit" size="md" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Signing in…" : "Sign in"}
+        {isSubmitting ? "Entrando…" : "Entrar"}
       </Button>
     </form>
   )

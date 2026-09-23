@@ -65,6 +65,31 @@ export class VideoNotReadyException extends DomainException {
   }
 }
 
+// Alteração de nickname é livre, mas a unicidade continua valendo (TD-07).
+export class NicknameAlreadyExistsException extends DomainException {
+  constructor() {
+    super('NICKNAME_ALREADY_EXISTS', 409, 'Nickname is already taken');
+  }
+}
+
+export class ChannelNotFoundException extends DomainException {
+  constructor() {
+    super('CHANNEL_NOT_FOUND', 404, 'Channel not found');
+  }
+}
+
+// Publicar exige status = ready: `status` pertence ao Video Worker e um vídeo
+// em processamento ou com falha não pode ir ao ar (TD-02, Clarification AMB-1).
+export class VideoNotPublishableException extends DomainException {
+  constructor() {
+    super(
+      'VIDEO_NOT_PUBLISHABLE',
+      409,
+      'Video can only be published once processing has finished',
+    );
+  }
+}
+
 export class VideoForbiddenException extends DomainException {
   constructor() {
     super('FORBIDDEN', 403, 'You do not have access to this video');

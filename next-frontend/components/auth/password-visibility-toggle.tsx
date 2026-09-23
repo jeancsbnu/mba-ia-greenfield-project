@@ -28,7 +28,7 @@ function PasswordVisibilityToggle({
       type="button"
       data-slot="password-visibility-toggle"
       aria-pressed={visible}
-      aria-label={visible ? "Hide password" : "Show password"}
+      aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
       onClick={handleToggle}
       className={cn(
         "inline-flex items-center justify-center text-muted-foreground",

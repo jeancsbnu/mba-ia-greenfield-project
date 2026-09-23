@@ -19,10 +19,10 @@ function getStrengthLevel(password: string): StrengthLevel {
 
 const SEGMENTS: Record<StrengthLevel, { filled: number; label: string }> = {
   empty:       { filled: 0, label: "" },
-  weak:        { filled: 1, label: "Weak" },
-  fair:        { filled: 2, label: "Fair" },
-  strong:      { filled: 3, label: "Strong" },
-  "very-strong": { filled: 4, label: "Very strong" },
+  weak:        { filled: 1, label: "Fraca" },
+  fair:        { filled: 2, label: "Razoável" },
+  strong:      { filled: 3, label: "Forte" },
+  "very-strong": { filled: 4, label: "Muito forte" },
 }
 
 const FILL_COLOR: Record<StrengthLevel, string> = {

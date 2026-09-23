@@ -22,25 +22,43 @@ export class JwtAuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
-
     const request = context
       .switchToHttp()
       .getRequest<{ headers: Record<string, string>; user: unknown }>();
     const authHeader = request.headers?.authorization;
+    const hasBearer = Boolean(authHeader?.startsWith(BEARER_PREFIX));
 
-    if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
+    // Rota pública com token: identificamos o chamador em vez de ignorá-lo, para
+    // que o handler possa distinguir dono de anônimo (TD-02). Token ausente ou
+    // inválido não é erro aqui — a rota continua pública e segue anônima.
+    if (isPublic) {
+      if (hasBearer) {
+        await this.tryAttachUser(request, authHeader);
+      }
+      return true;
+    }
+
+    if (!hasBearer) {
       throw new UnauthorizedException();
     }
 
-    const token = authHeader.slice(BEARER_PREFIX.length);
+    const attached = await this.tryAttachUser(request, authHeader);
+    if (!attached) {
+      throw new UnauthorizedException();
+    }
+    return true;
+  }
 
+  private async tryAttachUser(
+    request: { user: unknown },
+    authHeader: string,
+  ): Promise<boolean> {
+    const token = authHeader.slice(BEARER_PREFIX.length);
     try {
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-      request.user = payload;
+      request.user = await this.jwtService.verifyAsync<JwtPayload>(token);
       return true;
     } catch {
-      throw new UnauthorizedException();
+      return false;
     }
   }
 }

@@ -9,13 +9,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-[448px] items-center gap-6 px-6 py-10">
         <BrandLogo size="lg" />
 
-        <h1 className="text-h1 text-foreground text-center">Sign in</h1>
+        <h1 className="text-h1 text-foreground text-center">Entrar</h1>
 
         <LoginForm className="w-full" />
 
         <AuthFooter
-          question="Don't have an account?"
-          linkLabel="Sign up"
+          question="Ainda não tem uma conta?"
+          linkLabel="Cadastre-se"
           linkHref="/signup"
         />
       </Card>

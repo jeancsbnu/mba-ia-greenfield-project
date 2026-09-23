@@ -1,0 +1,615 @@
+<title>StreamTube — Esboços de Tela, Fase 04</title>
+<style>
+  :root{
+    --bg:#EEF1F5;
+    --panel-bg:#FFFFFF;
+    --ink:#173157;
+    --ink-soft:#4C6483;
+    --line-existing:#1F6FA8;
+    --line-new:#B5650B;
+    --rule: rgba(23,49,87,0.16);
+    --grid-dot: rgba(23,49,87,0.10);
+    --code-bg: rgba(23,49,87,0.06);
+    --accent: var(--line-new);
+    --accent-ink:#FFFBF2;
+    --font-display:"Bahnschrift","SF Compact Condensed","Roboto Condensed","Arial Narrow",sans-serif;
+    --font-body: system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:"JetBrains Mono","SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0A1F3D;
+      --panel-bg:#102A4E;
+      --ink:#E3EEF7;
+      --ink-soft:#9FBAD4;
+      --line-existing:#6FC3E0;
+      --line-new:#FFB627;
+      --rule: rgba(255,255,255,0.16);
+      --grid-dot: rgba(255,255,255,0.07);
+      --code-bg: rgba(255,255,255,0.07);
+      --accent-ink:#0A1F3D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1F3D; --panel-bg:#102A4E; --ink:#E3EEF7; --ink-soft:#9FBAD4;
+    --line-existing:#6FC3E0; --line-new:#FFB627; --rule: rgba(255,255,255,0.16);
+    --grid-dot: rgba(255,255,255,0.07); --code-bg: rgba(255,255,255,0.07); --accent-ink:#0A1F3D;
+  }
+  :root[data-theme="light"]{
+    --bg:#EEF1F5; --panel-bg:#FFFFFF; --ink:#173157; --ink-soft:#4C6483;
+    --line-existing:#1F6FA8; --line-new:#B5650B; --rule: rgba(23,49,87,0.16);
+    --grid-dot: rgba(23,49,87,0.10); --code-bg: rgba(23,49,87,0.06); --accent-ink:#FFFBF2;
+  }
+
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+
+  body{margin:0;}
+  .doc{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    min-height:100%;
+    padding:0 0 6rem;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 clamp(1rem,4vw,2.5rem);}
+
+  a{color:var(--line-existing);}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--line-new); outline-offset:3px; border-radius:3px;}
+
+  /* ---------- Title block ---------- */
+  .titleblock{
+    border-bottom:3px solid var(--ink);
+    padding:2.5rem 0 1.5rem;
+  }
+  .titleblock .eyebrow{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0 0 .6rem;
+  }
+  .titleblock h1{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:.02em; font-size:clamp(1.8rem,4.4vw,3rem); margin:0 0 .3rem; text-wrap:balance;
+  }
+  .titleblock p.lede{
+    max-width:62ch; color:var(--ink-soft); font-size:1rem; margin:.4rem 0 1.4rem;
+  }
+  .stampgrid{
+    display:grid; grid-template-columns:repeat(4,1fr); border:1.5px solid var(--ink); border-radius:4px; overflow:hidden;
+  }
+  .stampgrid > div{ padding:.65rem .9rem; border-right:1.5px solid var(--ink); }
+  .stampgrid > div:last-child{border-right:none;}
+  .stampgrid .k{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); display:block; margin-bottom:.2rem;}
+  .stampgrid .v{font-family:var(--font-mono); font-size:.86rem; font-weight:600;}
+  @media (max-width:680px){ .stampgrid{grid-template-columns:1fr 1fr;} .stampgrid > div:nth-child(2){border-right:none;} }
+
+  .legend{display:flex; gap:1.6rem; flex-wrap:wrap; margin-top:1.4rem; font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:.5rem;}
+  .legend i{width:22px; height:12px; border-radius:2px; display:inline-block;}
+  .legend .ex{border:2px solid var(--line-existing); background:color-mix(in srgb, var(--line-existing) 12%, transparent);}
+  .legend .nw{border:2px dashed var(--line-new); background:color-mix(in srgb, var(--line-new) 10%, transparent);}
+
+  /* ---------- Sheet index nav ---------- */
+  .index{
+    display:flex; flex-wrap:wrap; gap:.5rem; margin:1.6rem 0 0; padding:0; list-style:none;
+  }
+  .index a{
+    font-family:var(--font-mono); font-size:.78rem; text-decoration:none; color:var(--ink);
+    border:1px solid var(--rule); padding:.4rem .7rem; border-radius:3px; background:var(--panel-bg);
+  }
+  .index a:hover{border-color:var(--line-existing);}
+
+  /* ---------- Sheets ---------- */
+  .sheet{ padding:3rem 0; border-bottom:1px dashed var(--rule); }
+  .sheet:last-of-type{border-bottom:none;}
+  .sheet-head{ display:flex; align-items:baseline; gap:.9rem; flex-wrap:wrap; margin-bottom:.3rem;}
+  .sheet-num{
+    font-family:var(--font-mono); font-weight:700; font-size:.95rem; color:var(--panel-bg);
+    background:var(--ink); padding:.15rem .55rem; border-radius:2px; letter-spacing:.04em;
+  }
+  .sheet-head h2{font-family:var(--font-display); text-transform:uppercase; letter-spacing:.01em; font-size:clamp(1.25rem,2.6vw,1.7rem); margin:0;}
+  .route{font-family:var(--font-mono); font-size:.82rem; color:var(--ink-soft); margin:0 0 1.2rem;}
+  .route code{background:var(--code-bg); padding:.15rem .4rem; border-radius:3px; color:var(--ink);}
+  .route .tbd{font-style:italic;}
+
+  .wf-frame{
+    background:var(--panel-bg); border:1.5px solid var(--ink); border-radius:6px; overflow:hidden;
+    box-shadow: 0 1px 0 var(--rule);
+  }
+  .wf-frame svg{display:block; width:100%; height:auto;}
+
+  .grid-dot{fill:var(--grid-dot);}
+  .wf-canvas-bg{fill:var(--panel-bg);}
+  .wf-line-existing{stroke:var(--line-existing); stroke-width:2; fill:none;}
+  .wf-line-new{stroke:var(--line-new); stroke-width:2; stroke-dasharray:7 5; fill:none;}
+  .wf-fill-existing{fill:color-mix(in srgb, var(--line-existing) 12%, transparent); stroke:var(--line-existing); stroke-width:2;}
+  .wf-fill-new{fill:color-mix(in srgb, var(--line-new) 10%, transparent); stroke:var(--line-new); stroke-width:2; stroke-dasharray:7 5;}
+  .wf-label{font-family:var(--font-mono); fill:var(--ink); font-size:12px;}
+  .wf-label-soft{font-family:var(--font-mono); fill:var(--ink-soft); font-size:11px;}
+  .wf-title-txt{font-family:var(--font-display); fill:var(--ink); text-transform:uppercase; letter-spacing:.02em;}
+  .wf-rule{stroke:var(--rule); stroke-width:1;}
+  .wf-chrome{fill:var(--code-bg);}
+  .wf-dot{fill:var(--ink-soft); opacity:.4;}
+  .wf-num{font-family:var(--font-mono); fill:var(--ink-soft); font-size:11px; font-variant-numeric:tabular-nums;}
+
+  .notes{ margin-top:1.4rem; display:grid; grid-template-columns:1fr 1fr; gap:0 2.4rem; }
+  @media (max-width:760px){ .notes{grid-template-columns:1fr;} }
+  .notes h3{font-family:var(--font-mono); text-transform:uppercase; font-size:.72rem; letter-spacing:.1em; color:var(--ink-soft); margin:1rem 0 .5rem;}
+  .notes ul{margin:0; padding-left:1.1rem;}
+  .notes li{margin:.3rem 0; font-size:.92rem;}
+  .notes code{font-family:var(--font-mono); font-size:.82rem; background:var(--code-bg); padding:.1rem .35rem; border-radius:3px;}
+  .tag-ex, .tag-nw{font-family:var(--font-mono); font-size:.68rem; padding:.05rem .4rem; border-radius:2px; margin-left:.35rem; white-space:nowrap;}
+  .tag-ex{border:1px solid var(--line-existing); color:var(--line-existing);}
+  .tag-nw{border:1px dashed var(--line-new); color:var(--line-new);}
+
+  .callout{
+    margin-top:1.2rem; border-left:3px solid var(--accent); background:var(--code-bg);
+    padding:.85rem 1.1rem; border-radius:0 4px 4px 0; font-size:.92rem;
+  }
+  .callout strong{font-family:var(--font-mono); text-transform:uppercase; font-size:.7rem; letter-spacing:.08em; display:block; margin-bottom:.3rem; color:var(--ink-soft);}
+
+  /* ---------- Instructions sheet ---------- */
+  .steps{ counter-reset:step; list-style:none; margin:1.6rem 0 0; padding:0; display:flex; flex-direction:column; gap:1.1rem; }
+  .steps li{
+    counter-increment:step; position:relative; padding-left:3.1rem; min-height:2.2rem;
+  }
+  .steps li::before{
+    content:counter(step,decimal-leading-zero); position:absolute; left:0; top:-.1rem;
+    font-family:var(--font-mono); font-weight:700; font-size:.95rem; color:var(--accent-ink);
+    background:var(--ink); width:2.3rem; height:2.3rem; border-radius:4px; display:flex; align-items:center; justify-content:center;
+  }
+  .steps h4{margin:0 0 .25rem; font-family:var(--font-body); font-size:1.02rem; font-weight:700;}
+  .steps p{margin:0; color:var(--ink-soft); font-size:.92rem; max-width:70ch;}
+  .steps code{font-family:var(--font-mono); font-size:.84rem; background:var(--code-bg); padding:.12rem .4rem; border-radius:3px; color:var(--ink);}
+
+  footer.colophon{ margin-top:2.5rem; padding-top:1.4rem; border-top:1px solid var(--rule); font-family:var(--font-mono); font-size:.74rem; color:var(--ink-soft); }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle class="grid-dot" cx="1.6" cy="1.6" r="1.3"></circle>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="doc">
+  <div class="wrap">
+
+    <header class="titleblock">
+      <p class="eyebrow">Bolsa de esboços · não é o inventário formal</p>
+      <h1>StreamTube — Esboços de Tela</h1>
+      <p class="lede">Seis telas rascunhadas em baixa fidelidade para orientar a montagem no arquivo <code style="font-family:var(--font-mono); background:var(--code-bg); padding:.1rem .35rem; border-radius:3px;">FC&nbsp;Tube.fig</code>: as quatro que faltam para a Fase 04 — Gerenciamento de Vídeos e Canal — e as duas telas de autenticação que ficaram pendentes desde a Fase 02.</p>
+      <div class="stampgrid">
+        <div><span class="k">Projeto</span><span class="v">StreamTube</span></div>
+        <div><span class="k">Fase</span><span class="v">04 — Vídeos &amp; Canal</span></div>
+        <div><span class="k">Status</span><span class="v">Esboço · pré-Figma</span></div>
+        <div><span class="k">Próximo passo</span><span class="v">/screen-inventory 04</span></div>
+      </div>
+      <div class="legend">
+        <span><i class="ex"></i> componente já existe no DS — reaproveitar</span>
+        <span><i class="nw"></i> componente novo — a desenhar</span>
+      </div>
+      <ul class="index">
+        <li><a href="#a01">A-01 Painel</a></li>
+        <li><a href="#a02">A-02 Edição de vídeo</a></li>
+        <li><a href="#a03">A-03 Edição de canal</a></li>
+        <li><a href="#a04">A-04 Página pública</a></li>
+        <li><a href="#a05">A-05 Débitos da Fase 02</a></li>
+        <li><a href="#howto">Como montar no Figma</a></li>
+      </ul>
+    </header>
+
+    <!-- ============ A-01 PAINEL ============ -->
+    <section class="sheet" id="a01">
+      <div class="sheet-head"><span class="sheet-num">A-01</span><h2>Painel de Gerenciamento de Vídeos do Canal</h2></div>
+      <p class="route">rota sugerida <code>/channel/videos</code> <span class="tbd">— a confirmar no /screen-inventory</span> · primeira superfície autenticada do produto</p>
+
+      <div class="wf-frame">
+        <svg viewBox="0 0 1160 660" role="img" aria-label="Esboço do painel de gerenciamento de vídeos: barra superior com logo e menu do canal, cabeçalho com botão de upload, tabela de vídeos com colunas de visibilidade, status, métricas e ação de editar.">
+          <rect width="1160" height="660" class="wf-canvas-bg"></rect>
+          <rect width="1160" height="660" fill="url(#dots)"></rect>
+
+          <!-- browser chrome -->
+          <rect width="1160" height="34" class="wf-chrome"></rect>
+          <circle cx="20" cy="17" r="4" class="wf-dot"></circle>
+          <circle cx="36" cy="17" r="4" class="wf-dot"></circle>
+          <circle cx="52" cy="17" r="4" class="wf-dot"></circle>
+          <rect x="90" y="8" width="340" height="18" rx="9" class="wf-chrome"></rect>
+          <text x="102" y="21" class="wf-label-soft">streamtube.app/channel/videos</text>
+
+          <!-- app bar -->
+          <rect x="0" y="34" width="1160" height="60" class="wf-fill-new"></rect>
+          <rect x="24" y="50" width="130" height="28" rx="4" class="wf-fill-existing"></rect>
+          <text x="34" y="68" class="wf-label">BrandLogo</text>
+          <rect x="978" y="50" width="158" height="28" rx="4" class="wf-fill-new"></rect>
+          <text x="990" y="68" class="wf-label">Avatar ▾ Sair</text>
+
+          <!-- page header -->
+          <text x="40" y="150" class="wf-title-txt" font-size="26" font-weight="700">Seus vídeos</text>
+          <rect x="944" y="122" width="176" height="40" rx="5" class="wf-fill-existing"></rect>
+          <text x="972" y="147" class="wf-label" font-weight="700">+ Fazer upload</text>
+
+          <!-- table -->
+          <rect x="40" y="182" width="1080" height="424" rx="6" class="wf-fill-new"></rect>
+          <text x="64" y="210" class="wf-label-soft">VÍDEO</text>
+          <text x="470" y="210" class="wf-label-soft">VISIBILIDADE</text>
+          <text x="608" y="210" class="wf-label-soft">STATUS</text>
+          <text x="722" y="210" class="wf-label-soft">VIEWS</text>
+          <text x="800" y="210" class="wf-label-soft">LIKES</text>
+          <text x="872" y="210" class="wf-label-soft">COMENT.</text>
+          <text x="968" y="210" class="wf-label-soft">PUBLICADO</text>
+          <line x1="56" y1="224" x2="1104" y2="224" class="wf-rule"></line>
+
+          <!-- rows -->
+          <g>
+            <rect x="64" y="238" width="72" height="44" rx="3" class="wf-fill-existing"></rect>
+            <text x="148" y="256" class="wf-label">Tour pelo estúdio — setup 2026</text>
+            <text x="148" y="272" class="wf-label-soft">04:12</text>
+            <rect x="470" y="246" width="82" height="22" rx="11" class="wf-fill-new"></rect><text x="482" y="261" class="wf-label-soft">Público</text>
+            <rect x="608" y="246" width="90" height="22" rx="11" class="wf-fill-new"></rect><text x="620" y="261" class="wf-label-soft">Publicado</text>
+            <text x="722" y="264" class="wf-num">1 204</text>
+            <text x="800" y="264" class="wf-num">88</text>
+            <text x="872" y="264" class="wf-num">14</text>
+            <text x="968" y="264" class="wf-label-soft">28 jul</text>
+            <text x="1064" y="264" class="wf-label" text-decoration="underline">Editar</text>
+          </g>
+          <line x1="56" y1="296" x2="1104" y2="296" class="wf-rule"></line>
+
+          <g>
+            <rect x="64" y="310" width="72" height="44" rx="3" class="wf-fill-existing"></rect>
+            <text x="148" y="328" class="wf-label">Renderizando com FFmpeg — bastidores</text>
+            <text x="148" y="344" class="wf-label-soft">11:47</text>
+            <rect x="470" y="318" width="102" height="22" rx="11" class="wf-fill-new"></rect><text x="482" y="333" class="wf-label-soft">Indisponível</text>
+            <rect x="608" y="318" width="90" height="22" rx="11" class="wf-fill-new"></rect><text x="620" y="333" class="wf-label-soft">Publicado</text>
+            <text x="722" y="336" class="wf-num">312</text>
+            <text x="800" y="336" class="wf-num">19</text>
+            <text x="872" y="336" class="wf-num">3</text>
+            <text x="968" y="336" class="wf-label-soft">22 jul</text>
+            <text x="1064" y="336" class="wf-label" text-decoration="underline">Editar</text>
+          </g>
+          <line x1="56" y1="368" x2="1104" y2="368" class="wf-rule"></line>
+
+          <g>
+            <rect x="64" y="382" width="72" height="44" rx="3" class="wf-fill-existing"></rect>
+            <text x="148" y="400" class="wf-label">Como editar uma thumbnail personalizada</text>
+            <text x="148" y="416" class="wf-label-soft">02:58 · rascunho</text>
+            <rect x="470" y="390" width="82" height="22" rx="11" class="wf-fill-new" opacity="0.5"></rect><text x="482" y="405" class="wf-label-soft">—</text>
+            <rect x="608" y="390" width="90" height="22" rx="11" class="wf-fill-new"></rect><text x="620" y="405" class="wf-label-soft">Rascunho</text>
+            <text x="722" y="408" class="wf-num">—</text>
+            <text x="800" y="408" class="wf-num">—</text>
+            <text x="872" y="408" class="wf-num">—</text>
+            <text x="968" y="408" class="wf-label-soft">—</text>
+            <text x="1064" y="408" class="wf-label" text-decoration="underline">Editar</text>
+          </g>
+
+          <rect x="944" y="566" width="176" height="30" rx="15" class="wf-fill-new"></rect>
+          <text x="964" y="586" class="wf-label-soft">‹ Anterior · Próxima ›</text>
+        </svg>
+      </div>
+
+      <div class="notes">
+        <div>
+          <h3>Componentes</h3>
+          <ul>
+            <li><code>components/auth/brand-logo.tsx</code><span class="tag-ex">existente</span></li>
+            <li>Menu do canal (avatar + sair)<span class="tag-nw">novo</span></li>
+            <li>Botão "Fazer upload" — reusa <code>components/ui/button.tsx</code>, leva para o fluxo já implementado na Fase 03<span class="tag-ex">existente</span></li>
+            <li>Tabela de vídeos<span class="tag-nw">novo</span></li>
+            <li>Chip de visibilidade / status<span class="tag-nw">novo</span></li>
+            <li>Paginação offset/limit (TD-06)<span class="tag-nw">novo</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Cobre</h3>
+          <ul>
+            <li>"Painel de gerenciamento de vídeos do canal (thumbnail, título, visualizações, likes, comentários, tempo de publicação e status)"</li>
+          </ul>
+          <h3>Observações</h3>
+          <ul>
+            <li>Candidata natural a hospedar o botão de <strong>logout</strong> — ficou pendente da Fase 02 por não existir ainda "chrome autenticado".</li>
+            <li>Rascunho sem métricas ainda: exibir travessão em vez de zero, para não sugerir engajamento real.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A-02 EDIÇÃO DE VÍDEO ============ -->
+    <section class="sheet" id="a02">
+      <div class="sheet-head"><span class="sheet-num">A-02</span><h2>Edição de Vídeo</h2></div>
+      <p class="route">rota dedicada (decidido em TD-09) — sugestão <code>/videos/[id]/edit</code> <span class="tbd">— path exato a confirmar</span> · acessada a partir do painel (A-01)</p>
+
+      <div class="wf-frame">
+        <svg viewBox="0 0 1160 560" role="img" aria-label="Esboço da edição de vídeo: link de voltar, preview da thumbnail com botão para trocar, e um formulário com título, descrição, categoria, visibilidade e ações de publicar ou salvar rascunho.">
+          <rect width="1160" height="560" class="wf-canvas-bg"></rect>
+          <rect width="1160" height="560" fill="url(#dots)"></rect>
+          <rect width="1160" height="34" class="wf-chrome"></rect>
+          <circle cx="20" cy="17" r="4" class="wf-dot"></circle><circle cx="36" cy="17" r="4" class="wf-dot"></circle><circle cx="52" cy="17" r="4" class="wf-dot"></circle>
+          <rect x="90" y="8" width="360" height="18" rx="9" class="wf-chrome"></rect>
+          <text x="102" y="21" class="wf-label-soft">streamtube.app/videos/8f2c/edit</text>
+
+          <text x="40" y="70" class="wf-label">‹ Voltar para o painel</text>
+
+          <!-- left column: thumbnail -->
+          <rect x="40" y="94" width="340" height="200" rx="6" class="wf-fill-existing"></rect>
+          <text x="60" y="200" class="wf-label-soft">thumbnail atual</text>
+          <rect x="40" y="308" width="340" height="40" rx="5" class="wf-fill-new"></rect>
+          <text x="60" y="333" class="wf-label">Alterar thumbnail</text>
+          <text x="40" y="368" class="wf-label-soft" font-size="10.5">auto-gerada ou personalizada — TD-04</text>
+
+          <!-- right column: form card -->
+          <rect x="416" y="94" width="704" height="440" rx="6" class="wf-fill-existing"></rect>
+
+          <text x="444" y="130" class="wf-label-soft">TÍTULO</text>
+          <rect x="444" y="140" width="648" height="34" rx="4" class="wf-fill-existing"></rect>
+
+          <text x="444" y="200" class="wf-label-soft">DESCRIÇÃO</text>
+          <rect x="444" y="210" width="648" height="70" rx="4" class="wf-fill-new"></rect>
+
+          <text x="444" y="308" class="wf-label-soft">CATEGORIA</text>
+          <rect x="444" y="318" width="300" height="34" rx="4" class="wf-fill-new"></rect>
+          <text x="460" y="340" class="wf-label-soft">Tutoriais ▾</text>
+
+          <text x="444" y="380" class="wf-label-soft">VISIBILIDADE</text>
+          <circle cx="454" cy="398" r="7" class="wf-fill-new"></circle><text x="470" y="403" class="wf-label">Público</text>
+          <circle cx="560" cy="398" r="7" class="wf-fill-new"></circle><text x="576" y="403" class="wf-label">Indisponível</text>
+
+          <line x1="444" y1="430" x2="1092" y2="430" class="wf-rule"></line>
+          <rect x="444" y="452" width="150" height="40" rx="5" class="wf-fill-new"></rect>
+          <text x="470" y="477" class="wf-label" font-weight="700">Publicar</text>
+          <rect x="608" y="452" width="180" height="40" rx="5" class="wf-fill-existing"></rect>
+          <text x="628" y="477" class="wf-label">Salvar rascunho</text>
+          <text x="808" y="477" class="wf-label-soft" text-decoration="underline">Cancelar</text>
+        </svg>
+      </div>
+
+      <div class="notes">
+        <div>
+          <h3>Componentes</h3>
+          <ul>
+            <li>Card do formulário — <code>components/ui/card.tsx</code><span class="tag-ex">existente</span></li>
+            <li>Input Título / Label — <code>components/ui/input.tsx</code>, <code>label.tsx</code><span class="tag-ex">existente</span></li>
+            <li>Textarea Descrição<span class="tag-nw">novo</span></li>
+            <li>Select Categoria (TD-01/TD-10)<span class="tag-nw">novo</span></li>
+            <li>Radio Visibilidade (TD-02)<span class="tag-nw">novo</span></li>
+            <li>Uploader de thumbnail personalizada (TD-03)<span class="tag-nw">novo</span></li>
+            <li>Botão "Salvar rascunho" — reusa <code>button.tsx</code> variant secundária<span class="tag-ex">existente</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Cobre</h3>
+          <ul>
+            <li>"Edição das informações do vídeo: título, descrição, categoria e thumbnail customizada"</li>
+            <li>"Visibilidade do vídeo: público ou unlisted"</li>
+            <li>"Fluxo de rascunho → publicação"</li>
+          </ul>
+          <div class="callout"><strong>atenção ao desenhar</strong>Precedência entre thumbnail automática e personalizada é decisão de backend (TD-04) — a tela só precisa mostrar a URL já resolvida, nunca calcular precedência no cliente.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A-03 EDIÇÃO DE CANAL ============ -->
+    <section class="sheet" id="a03">
+      <div class="sheet-head"><span class="sheet-num">A-03</span><h2>Edição de Canal</h2></div>
+      <p class="route">rota sugerida <code>/channel/settings</code> <span class="tbd">— a confirmar</span></p>
+
+      <div class="wf-frame">
+        <svg viewBox="0 0 1160 460" role="img" aria-label="Esboço da edição de canal: cartão centralizado com campos de nickname, nome e descrição, e botão salvar.">
+          <rect width="1160" height="460" class="wf-canvas-bg"></rect>
+          <rect width="1160" height="460" fill="url(#dots)"></rect>
+          <rect width="1160" height="34" class="wf-chrome"></rect>
+          <circle cx="20" cy="17" r="4" class="wf-dot"></circle><circle cx="36" cy="17" r="4" class="wf-dot"></circle><circle cx="52" cy="17" r="4" class="wf-dot"></circle>
+          <rect x="90" y="8" width="300" height="18" rx="9" class="wf-chrome"></rect>
+          <text x="102" y="21" class="wf-label-soft">streamtube.app/channel/settings</text>
+
+          <rect x="380" y="70" width="400" height="360" rx="6" class="wf-fill-existing"></rect>
+          <text x="408" y="112" class="wf-title-txt" font-size="20" font-weight="700">Editar canal</text>
+
+          <text x="408" y="150" class="wf-label-soft">NICKNAME</text>
+          <rect x="408" y="160" width="344" height="34" rx="4" class="wf-fill-new"></rect>
+          <text x="420" y="182" class="wf-label-soft">@</text>
+          <text x="436" y="182" class="wf-label">joana.cria</text>
+          <text x="408" y="208" class="wf-label-soft" font-size="10.5">livre e único — TD-07</text>
+
+          <text x="408" y="240" class="wf-label-soft">NOME DO CANAL</text>
+          <rect x="408" y="250" width="344" height="34" rx="4" class="wf-fill-existing"></rect>
+
+          <text x="408" y="312" class="wf-label-soft">DESCRIÇÃO</text>
+          <rect x="408" y="322" width="344" height="66" rx="4" class="wf-fill-new"></rect>
+
+          <rect x="408" y="404" width="120" height="14" rx="4" class="wf-fill-new"></rect>
+          <text x="416" y="415" class="wf-label" font-size="10" font-weight="700">Salvar</text>
+          <text x="546" y="414" class="wf-label-soft" text-decoration="underline" font-size="11">Cancelar</text>
+        </svg>
+      </div>
+
+      <div class="notes">
+        <div>
+          <h3>Componentes</h3>
+          <ul>
+            <li>Card — <code>components/ui/card.tsx</code>, mesmo padrão das telas de auth<span class="tag-ex">existente</span></li>
+            <li>Input Nickname com prefixo <code>@</code><span class="tag-nw">novo</span></li>
+            <li>Input Nome / Label<span class="tag-ex">existente</span></li>
+            <li>Textarea Descrição<span class="tag-nw">novo</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Cobre</h3>
+          <ul><li>"Edição das informações do canal: nickname, nome e descrição"</li></ul>
+          <h3>Observações</h3>
+          <ul><li>Tela mais simples do lote — bom ponto de partida se quiser desenhar uma primeiro no Figma e validar o fluxo antes das outras.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A-04 PÁGINA PÚBLICA ============ -->
+    <section class="sheet" id="a04">
+      <div class="sheet-head"><span class="sheet-num">A-04</span><h2>Página Pública do Canal</h2></div>
+      <p class="route">rota decidida (TD-08): <code>/@{nickname}</code> · acesso anônimo, sem login</p>
+
+      <div class="wf-frame">
+        <svg viewBox="0 0 1160 600" role="img" aria-label="Esboço da página pública do canal: barra superior mínima, faixa com avatar e nome do canal, e grade de vídeos publicados.">
+          <rect width="1160" height="600" class="wf-canvas-bg"></rect>
+          <rect width="1160" height="600" fill="url(#dots)"></rect>
+          <rect width="1160" height="34" class="wf-chrome"></rect>
+          <circle cx="20" cy="17" r="4" class="wf-dot"></circle><circle cx="36" cy="17" r="4" class="wf-dot"></circle><circle cx="52" cy="17" r="4" class="wf-dot"></circle>
+          <rect x="90" y="8" width="260" height="18" rx="9" class="wf-chrome"></rect>
+          <text x="102" y="21" class="wf-label-soft">streamtube.app/@joana.cria</text>
+
+          <rect x="0" y="34" width="1160" height="54" class="wf-fill-new"></rect>
+          <rect x="24" y="48" width="110" height="26" rx="4" class="wf-fill-existing"></rect>
+          <text x="34" y="65" class="wf-label">BrandLogo</text>
+          <rect x="1050" y="48" width="86" height="26" rx="4" class="wf-fill-new"></rect>
+          <text x="1064" y="65" class="wf-label" font-size="10.5">Entrar</text>
+
+          <!-- channel header band -->
+          <rect x="0" y="88" width="1160" height="110" class="wf-fill-new"></rect>
+          <circle cx="100" cy="143" r="40" class="wf-fill-new"></circle>
+          <text x="164" y="130" class="wf-title-txt" font-size="22" font-weight="700">Joana cria</text>
+          <text x="164" y="152" class="wf-label-soft">@joana.cria · 42 vídeos</text>
+
+          <!-- video grid -->
+          <g>
+            <rect x="40" y="230" width="256" height="150" rx="5" class="wf-fill-existing"></rect>
+            <text x="40" y="398" class="wf-label">Tour pelo estúdio — setup 2026</text>
+            <text x="40" y="416" class="wf-label-soft">1,2 mil views · há 2 sem.</text>
+          </g>
+          <g>
+            <rect x="320" y="230" width="256" height="150" rx="5" class="wf-fill-existing"></rect>
+            <text x="320" y="398" class="wf-label">Renderizando com FFmpeg</text>
+            <text x="320" y="416" class="wf-label-soft">312 views · há 3 sem.</text>
+          </g>
+          <g>
+            <rect x="600" y="230" width="256" height="150" rx="5" class="wf-fill-existing"></rect>
+            <text x="600" y="398" class="wf-label">Bastidores da fila de upload</text>
+            <text x="600" y="416" class="wf-label-soft">98 views · há 1 mês</text>
+          </g>
+          <g>
+            <rect x="880" y="230" width="240" height="150" rx="5" class="wf-fill-existing"></rect>
+            <text x="880" y="398" class="wf-label">Q&amp;A com a comunidade</text>
+            <text x="880" y="416" class="wf-label-soft">640 views · há 1 mês</text>
+          </g>
+
+          <rect x="500" y="552" width="160" height="30" rx="15" class="wf-fill-new"></rect>
+          <text x="524" y="572" class="wf-label-soft">‹ Anterior · Próxima ›</text>
+        </svg>
+      </div>
+
+      <div class="notes">
+        <div>
+          <h3>Componentes</h3>
+          <ul>
+            <li><code>components/auth/brand-logo.tsx</code><span class="tag-ex">existente</span></li>
+            <li>Faixa do canal (avatar + nome + contagem)<span class="tag-nw">novo</span></li>
+            <li><code>VideoCard</code> — será reaproveitado nas Fases 05–07 (assistir, sugestões, busca)<span class="tag-nw">novo</span></li>
+            <li>Paginação offset/limit (TD-06)<span class="tag-nw">novo</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Cobre</h3>
+          <ul><li>"Página pública do canal com informações e listagem de vídeos"</li></ul>
+          <div class="callout"><strong>atenção ao desenhar</strong>Barra superior aqui é mínima de propósito — o header/navbar completo (busca, avatar/login) só entra na Fase 07. Não invista tempo nele agora.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A-05 DÉBITOS FASE 02 ============ -->
+    <section class="sheet" id="a05">
+      <div class="sheet-head"><span class="sheet-num">A-05</span><h2>Débitos herdados da Fase 02 (auth)</h2></div>
+      <p class="route">duas telas que ficaram sem design desde a autenticação — sem elas, o link de recuperação de senha cai em 404</p>
+
+      <div class="notes" style="grid-template-columns:1fr 1fr; gap:2.4rem;">
+        <div>
+          <div class="wf-frame">
+            <svg viewBox="0 0 520 380" role="img" aria-label="Esboço da redefinição de senha: cartão com dois campos de senha e botão redefinir.">
+              <rect width="520" height="380" class="wf-canvas-bg"></rect>
+              <rect width="520" height="380" fill="url(#dots)"></rect>
+              <rect x="90" y="30" width="340" height="320" rx="6" class="wf-fill-existing"></rect>
+              <text x="118" y="76" class="wf-title-txt" font-size="18" font-weight="700">Nova senha</text>
+              <text x="118" y="112" class="wf-label-soft">SENHA</text>
+              <rect x="118" y="122" width="284" height="32" rx="4" class="wf-fill-existing"></rect>
+              <text x="118" y="182" class="wf-label-soft">CONFIRMAR SENHA</text>
+              <rect x="118" y="192" width="284" height="32" rx="4" class="wf-fill-existing"></rect>
+              <rect x="118" y="256" width="284" height="36" rx="5" class="wf-fill-existing"></rect>
+              <text x="220" y="279" class="wf-label" font-weight="700">Redefinir senha</text>
+            </svg>
+          </div>
+          <p class="route" style="margin-top:.7rem;">rota sugerida <code>/reset-password?token=…</code></p>
+          <ul style="font-size:.9rem; padding-left:1.1rem; margin:.4rem 0 0;">
+            <li>Reaproveita 100% o padrão visual de <code>login</code>/<code>signup</code> — mesmo Card, mesmos Password fields com toggle<span class="tag-ex">existente</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="wf-frame">
+            <svg viewBox="0 0 520 380" role="img" aria-label="Esboço da confirmação de conta: cartão com mensagem de status e botão ir para login.">
+              <rect width="520" height="380" class="wf-canvas-bg"></rect>
+              <rect width="520" height="380" fill="url(#dots)"></rect>
+              <rect x="90" y="30" width="340" height="320" rx="6" class="wf-fill-existing"></rect>
+              <circle cx="260" cy="120" r="28" class="wf-fill-new"></circle>
+              <text x="248" y="128" class="wf-label" font-size="18">✓</text>
+              <text x="150" y="196" class="wf-title-txt" font-size="18" font-weight="700">Conta confirmada!</text>
+              <text x="150" y="222" class="wf-label-soft">Você já pode entrar.</text>
+              <rect x="150" y="256" width="220" height="36" rx="5" class="wf-fill-existing"></rect>
+              <text x="200" y="279" class="wf-label" font-weight="700">Ir para login</text>
+            </svg>
+          </div>
+          <p class="route" style="margin-top:.7rem;">rota sugerida <code>/confirm?token=…</code></p>
+          <ul style="font-size:.9rem; padding-left:1.1rem; margin:.4rem 0 0;">
+            <li>Escopo foi deferido em 2026-05-14 — inclua só se você decidir reverter essa decisão de produto.<span class="tag-nw">opcional</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW TO ============ -->
+    <section class="sheet instructions" id="howto">
+      <div class="sheet-head"><span class="sheet-num">GUIA</span><h2>Como montar essas telas no Figma</h2></div>
+      <p class="route">arquivo já em uso: <code>FC Tube.fig</code> · mesma biblioteca das telas de login/cadastro (fileKey <code>Doz7n3FsRhfvelYrPhTZAG</code>)</p>
+
+      <ol class="steps">
+        <li>
+          <h4>Abra o <code>FC Tube.fig</code> e localize as telas de auth</h4>
+          <p>São a referência mais próxima de fidelidade: Card, BrandLogo, Input, Label e Button já existem lá com os tokens do DS aplicados de verdade.</p>
+        </li>
+        <li>
+          <h4>Duplique um frame existente como ponto de partida</h4>
+          <p>Não desenhe do zero. Duplicar o frame de <em>login</em> ou <em>cadastro</em> já traz o Card centralizado, a tipografia e o espaçamento corretos — você só reorganiza o conteúdo de dentro.</p>
+        </li>
+        <li>
+          <h4>Crie um frame por tela, com o nome exato que ele vai ter no inventário</h4>
+          <p>Use o nome do cabeçalho "Screen:" deste esboço, ex.: <code>Painel de Gerenciamento de Vídeos</code>, <code>Edição de Vídeo</code>. Tamanho desktop 1440 (ou o breakpoint que o time já usa nas telas de auth).</p>
+        </li>
+        <li>
+          <h4>Monte com componentes de verdade, nunca com formas soltas</h4>
+          <p>Onde este esboço marcou a caixa com <strong>borda sólida ciano</strong> ("existente"), arraste a instância do componente da biblioteca. Onde marcou <strong>borda tracejada âmbar</strong> ("novo"), crie um componente novo — mas ainda assim um <em>Component</em> do Figma, não um grupo de retângulos soltos, e ligado aos tokens de cor/tipografia/radius já definidos no arquivo (ver <code>docs/design-system-pillars.md</code>).</p>
+        </li>
+        <li>
+          <h4>Modele estados como variants, não como cópias soltas</h4>
+          <p>O chip "Rascunho / Publicado" e o toggle de visibilidade devem virar <em>variants</em> de um único componente — é o que mantém o Pilar 3 (Contrato de componente) do design system, e o que faz o <code>/screen-inventory</code> classificar certo depois.</p>
+        </li>
+        <li>
+          <h4>Nunca achate (flatten) ou exporte como imagem</h4>
+          <p>A extração automática lê a árvore de componentes do Figma, não um screenshot. Um frame achatado em bitmap vira uma tela "vazia" para a ferramenta, mesmo parecendo completa visualmente.</p>
+        </li>
+        <li>
+          <h4>Copie o link de cada frame pronto</h4>
+          <p>Clique no frame → <em>Share → Copy link to selection</em>. O link já sai no formato <code>?node-id=…</code>, exatamente o que o próximo passo espera.</p>
+        </li>
+        <li>
+          <h4>Volte aqui e rode o inventário</h4>
+          <p>Com as URLs das telas em mãos, rode <code>/screen-inventory 04</code> e cole a lista. O skill extrai os componentes automaticamente e gera o inventário formal — este documento é só o rascunho de apoio, não o substitui.</p>
+        </li>
+      </ol>
+
+      <div class="callout" style="margin-top:1.8rem;">
+        <strong>ordem sugerida se for desenhar aos poucos</strong>
+        A-03 (Edição de Canal) é a mais simples — bom primeiro frame para validar o fluxo. Depois A-01 (Painel), que é pré-requisito visual para A-02 (Edição de Vídeo). A-04 (Página Pública) pode vir por último, já que é a única com rota 100% decidida (TD-08) e menos dependência de escolha de layout.
+      </div>
+    </section>
+
+    <footer class="colophon">
+      Esboço gerado a partir de <code>docs/project-plan.md</code>, <code>docs/phases/phase-04-video-channel-management/context.md</code> e do inventário existente <code>docs/inventories/screen-inventory-phase-02-auth-frontend.md</code>. Nomes de componente e rotas marcadas "sugerida" não são decisões — validam-se no Figma real e no <code>/screen-inventory 04</code>.
+    </footer>
+
+  </div>
+</div>

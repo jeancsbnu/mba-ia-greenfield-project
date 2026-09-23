@@ -12,6 +12,13 @@ import storageConfig from '../src/config/storage.config';
 import { User } from '../src/users/entities/user.entity';
 import { Video, VideoStatus } from '../src/videos/entities/video.entity';
 
+/** Envelope de erro da API, para não ler `res.body` como `any`. */
+interface ErrorBody {
+  error: string;
+  message: string | string[];
+  statusCode: number;
+}
+
 describe('GET /videos/:publicId/stream and /download (e2e)', () => {
   let app: INestApplication<App>;
   let dataSource: DataSource;
@@ -79,6 +86,9 @@ describe('GET /videos/:publicId/stream and /download (e2e)', () => {
         channel_id: channelId,
         title: 'Streamable Video',
         status: VideoStatus.READY,
+        // Publicado por padrão: desde a SI-04.7 rascunho só é servido ao dono,
+        // e estes cenários da Fase 03 são todos de chamador anônimo.
+        published_at: new Date(),
         storage_bucket: bucket,
         storage_key: 'videos/streamable-key.mp4',
         ...overrides,
@@ -120,7 +130,7 @@ describe('GET /videos/:publicId/stream and /download (e2e)', () => {
       .redirects(0)
       .expect(409);
 
-    expect(res.body.error).toBe('VIDEO_NOT_READY');
+    expect((res.body as ErrorBody).error).toBe('VIDEO_NOT_READY');
   });
 
   it('returns 404 with errorCode VIDEO_NOT_FOUND for an unknown publicId on stream', async () => {
@@ -129,6 +139,6 @@ describe('GET /videos/:publicId/stream and /download (e2e)', () => {
       .redirects(0)
       .expect(404);
 
-    expect(res.body.error).toBe('VIDEO_NOT_FOUND');
+    expect((res.body as ErrorBody).error).toBe('VIDEO_NOT_FOUND');
   });
 });

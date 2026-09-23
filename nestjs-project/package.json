@@ -19,14 +19,14 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:integration": "jest --runInBand --testRegex=\"\\.integration-spec\\.ts$\"",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:run": "npm run typeorm -- migration:run -d src/database/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate -d src/database/data-source.ts",
     "migration:create": "npm run typeorm -- migration:create",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' src/database/seeds/seed.ts",
-    "openapi:export": "ts-node -r tsconfig-paths/register src/openapi-export.ts"
+    "openapi:export": "nest build && node dist/openapi-export.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1080.0",
@@ -66,6 +66,7 @@
     "@nestjs/testing": "^11.0.1",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",

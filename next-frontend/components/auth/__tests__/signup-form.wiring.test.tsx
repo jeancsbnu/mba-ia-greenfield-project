@@ -12,10 +12,10 @@ function envelope(statusCode: number, message: string) {
 }
 
 async function fillValid(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText("Full Name"), "Alice Doe")
-  await user.type(screen.getByLabelText("Email address"), "alice@example.com")
-  await user.type(screen.getByLabelText(/^Password$/), "Password1")
-  await user.type(screen.getByLabelText(/Confirm Password/), "Password1")
+  await user.type(screen.getByLabelText("Nome completo"), "Alice Doe")
+  await user.type(screen.getByLabelText("E-mail"), "alice@example.com")
+  await user.type(screen.getByLabelText(/^Senha$/), "Password1")
+  await user.type(screen.getByLabelText(/Confirmar senha/), "Password1")
   await user.click(screen.getByRole("checkbox"))
 }
 
@@ -35,7 +35,7 @@ describe("<SignupForm /> wiring", () => {
 
     render(<SignupForm />)
     await fillValid(user)
-    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent("Conta criada!")
@@ -59,7 +59,7 @@ describe("<SignupForm /> wiring", () => {
 
     render(<SignupForm />)
     await fillValid(user)
-    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     expect(
       await screen.findByText(/Email already registered/i)
@@ -78,7 +78,7 @@ describe("<SignupForm /> wiring", () => {
 
     render(<SignupForm />)
     await fillValid(user)
-    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     const alert = await screen.findByRole("alert")
     expect(alert).toHaveTextContent("Validation failed")
@@ -98,7 +98,7 @@ describe("<SignupForm /> wiring", () => {
     )
 
     render(<SignupForm />)
-    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     expect(
       await screen.findByText("Endereço de e-mail inválido")
@@ -107,7 +107,7 @@ describe("<SignupForm /> wiring", () => {
     expect(onCall).not.toHaveBeenCalled()
 
     await fillValid(user)
-    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     await waitFor(() => expect(onCall).toHaveBeenCalledTimes(1))
   })

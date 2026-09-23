@@ -1,0 +1,500 @@
+<title>StreamTube — Telas Restantes, aplicadas à identidade</title>
+<style>
+  :root{
+    --background:#ffffff; --foreground:#0f0f0f;
+    --card:#ffffff; --card-fg:#0f0f0f;
+    --muted:#e3e3e3; --muted-fg:#535353;
+    --border:#c6c6c6; --input-bg:#e3e3e3;
+    --primary:#0f0f0f; --primary-fg:#ffffff;
+    --secondary:#e3e3e3; --secondary-fg:#0f0f0f;
+    --link:#1976d2;
+    --success:#1fc16b; --success-text:#15803d;
+    --warning:#ffdb43; --warning-text:#b45309;
+    --destructive:#fb3748; --destructive-text:#d00416;
+    --new-marker:#b45309;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --background:#0f0f0f; --foreground:#ffffff;
+      --card:#282828; --card-fg:#ffffff;
+      --muted:#3d3d3d; --muted-fg:#aaaaaa;
+      --border:#3d3d3d; --input-bg:#0f0f0f;
+      --primary:#ffffff; --primary-fg:#0f0f0f;
+      --secondary:#282828; --secondary-fg:#ffffff;
+      --link:#3ea6ff;
+      --success:#84ebb4; --success-text:#84ebb4;
+      --warning:#ffdb43; --warning-text:#ffdb43;
+      --destructive:#fb3748; --destructive-text:#fb3748;
+      --new-marker:#ffdb43;
+    }
+  }
+  :root[data-theme="dark"]{
+    --background:#0f0f0f; --foreground:#ffffff; --card:#282828; --card-fg:#ffffff;
+    --muted:#3d3d3d; --muted-fg:#aaaaaa; --border:#3d3d3d; --input-bg:#0f0f0f;
+    --primary:#ffffff; --primary-fg:#0f0f0f; --secondary:#282828; --secondary-fg:#ffffff;
+    --link:#3ea6ff; --success:#84ebb4; --success-text:#84ebb4; --warning:#ffdb43; --warning-text:#ffdb43;
+    --destructive:#fb3748; --destructive-text:#fb3748; --new-marker:#ffdb43;
+  }
+  :root[data-theme="light"]{
+    --background:#ffffff; --foreground:#0f0f0f; --card:#ffffff; --card-fg:#0f0f0f;
+    --muted:#e3e3e3; --muted-fg:#535353; --border:#c6c6c6; --input-bg:#e3e3e3;
+    --primary:#0f0f0f; --primary-fg:#ffffff; --secondary:#e3e3e3; --secondary-fg:#0f0f0f;
+    --link:#1976d2; --success:#1fc16b; --success-text:#15803d; --warning:#ffdb43; --warning-text:#b45309;
+    --destructive:#fb3748; --destructive-text:#d00416; --new-marker:#b45309;
+  }
+
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+  body{margin:0;}
+  .doc{
+    background:var(--background); color:var(--foreground); min-height:100%;
+    font-family:Inter,ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:5rem; line-height:1.5;
+  }
+  .mono{font-family:"Geist Mono","SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace; font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 clamp(1rem,4vw,2.5rem);}
+  a{color:var(--link);}
+  a:focus-visible{outline:2px solid var(--link); outline-offset:3px; border-radius:3px;}
+  .tok{font-family:"Geist Mono",Consolas,monospace; background:var(--muted); color:var(--foreground); padding:.1rem .38rem; border-radius:4px; font-size:.88em;}
+
+  header.hero{padding:3rem 0 2rem; border-bottom:1px solid var(--border);}
+  .eyebrow{font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-fg); margin:0 0 .8rem; font-weight:500;}
+  h1{font-size:clamp(1.85rem,4vw,2.5rem); line-height:1.12; font-weight:700; margin:0 0 .6rem; text-wrap:balance; letter-spacing:-.01em;}
+  .lede{max-width:66ch; font-size:1.03rem; color:var(--muted-fg); margin:0 0 1.5rem;}
+
+  nav.index{display:flex; gap:.4rem; flex-wrap:wrap; margin-top:1.5rem;}
+  nav.index a{font-size:.82rem; text-decoration:none; color:var(--foreground); border:1px solid var(--border); padding:.42rem .8rem; border-radius:999px;}
+  nav.index a:hover{border-color:var(--link); color:var(--link);}
+
+  .flag{
+    margin:1.6rem 0 0; border:1px solid var(--border); border-left:3px solid var(--warning);
+    background:var(--card); padding:1rem 1.2rem; border-radius:0 8px 8px 0;
+  }
+  .flag strong{display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--warning-text); margin-bottom:.4rem;}
+  .flag p{margin:0 0 .5rem; font-size:.93rem; max-width:74ch;}
+  .flag p:last-child{margin-bottom:0;}
+
+  section{padding:3rem 0; border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap; margin-bottom:.25rem;}
+  .sheetid{font-family:"Geist Mono",monospace; font-size:.8rem; font-weight:700; background:var(--foreground); color:var(--background); padding:.18rem .5rem; border-radius:4px;}
+  .sec-head h2{font-size:clamp(1.25rem,2.3vw,1.6rem); font-weight:700; margin:0; letter-spacing:-.01em;}
+  .sec-sub{color:var(--muted-fg); font-size:.92rem; margin:0 0 1.6rem; max-width:74ch;}
+  .sec-sub .mono{font-size:.88em;}
+
+  .frame{background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+  .frame svg{display:block; width:100%; height:auto;}
+
+  /* wireframe primitives — colored with REAL product tokens */
+  .s-bg{fill:var(--background);} .s-card{fill:var(--card);} .s-muted{fill:var(--muted);}
+  .s-border{stroke:var(--border); stroke-width:1; fill:none;}
+  .s-cardbox{fill:var(--card); stroke:var(--border); stroke-width:1;}
+  .s-mutedbox{fill:var(--muted); stroke:var(--border); stroke-width:1;}
+  .s-inputbox{fill:var(--input-bg); stroke:var(--border); stroke-width:1;}
+  .s-primary{fill:var(--primary);}
+  .s-successbox{fill:var(--success); opacity:.22;}
+  .s-txt{font-family:Inter,system-ui,sans-serif; fill:var(--foreground);}
+  .s-txt-soft{font-family:Inter,system-ui,sans-serif; fill:var(--muted-fg);}
+  .s-txt-on-primary{font-family:Inter,system-ui,sans-serif; fill:var(--primary-fg);}
+  .s-txt-link{font-family:Inter,system-ui,sans-serif; fill:var(--link);}
+  .s-txt-success{font-family:Inter,system-ui,sans-serif; fill:var(--success-text);}
+  .s-num{font-family:"Geist Mono",monospace; font-size:10px; font-weight:700;}
+  .s-numbg-new{fill:var(--new-marker);}
+  .s-numbg-reuse{fill:var(--muted-fg);}
+
+  .callouts-legend{display:flex; gap:1.5rem; flex-wrap:wrap; margin:1rem 0 0; font-size:.82rem; color:var(--muted-fg);}
+  .callouts-legend span{display:inline-flex; align-items:center; gap:.45rem;}
+  .callouts-legend i{width:17px; height:17px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    font-family:"Geist Mono",monospace; font-size:9px; font-weight:700; color:var(--background);}
+
+  .parts{overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin-top:1.4rem;}
+  table.parts-t{width:100%; border-collapse:collapse; font-size:.89rem; min-width:720px;}
+  table.parts-t th{text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-fg);
+    padding:.75rem 1rem; border-bottom:1px solid var(--border); background:var(--muted); white-space:nowrap;}
+  table.parts-t td{padding:.8rem 1rem; border-bottom:1px solid var(--border); vertical-align:top;}
+  table.parts-t tr:last-child td{border-bottom:none;}
+  td.key{width:34px;}
+  .keydot{width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    font-family:"Geist Mono",monospace; font-size:10px; font-weight:700; color:var(--background);}
+  .kd-new{background:var(--new-marker);} .kd-reuse{background:var(--muted-fg);}
+  .badge-reuse, .badge-new{font-family:"Geist Mono",monospace; font-size:.7rem; padding:.13rem .45rem; border-radius:4px; white-space:nowrap; display:inline-block;}
+  .badge-reuse{background:var(--muted); color:var(--muted-fg);}
+  .badge-new{background:color-mix(in srgb, var(--warning) 22%, transparent); color:var(--warning-text);}
+  .copy{font-style:italic;}
+
+  .statecards{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin-top:1.4rem;}
+  .statecard{border:1px solid var(--border); border-radius:8px; padding:.9rem 1.05rem; background:var(--card);}
+  .statecard h4{margin:0 0 .35rem; font-size:.82rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-fg);}
+  .statecard p{margin:0; font-size:.9rem;}
+
+  .summary-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:10px;}
+  table.summary{width:100%; border-collapse:collapse; font-size:.89rem; min-width:640px;}
+  table.summary th{text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-fg);
+    padding:.75rem 1rem; border-bottom:1px solid var(--border); background:var(--muted);}
+  table.summary td{padding:.8rem 1rem; border-bottom:1px solid var(--border);}
+  table.summary tr:last-child td{border-bottom:none;}
+  table.summary td.n{font-family:"Geist Mono",monospace; font-variant-numeric:tabular-nums; text-align:right; width:90px;}
+
+  footer.colophon{margin-top:2.5rem; padding-top:1.4rem; border-top:1px solid var(--border);
+    font-family:"Geist Mono",monospace; font-size:.73rem; color:var(--muted-fg); line-height:1.7;}
+</style>
+
+<div class="doc">
+  <div class="wrap">
+
+    <header class="hero">
+      <p class="eyebrow">Parte 2 · continuação da auditoria de identidade</p>
+      <h1>As três telas que faltam, já desenhadas na identidade certa</h1>
+      <p class="lede">As anteriores foram corrigidas <em>depois</em> de montadas. Estas ainda não existem no Figma — então aqui elas já nascem com o token certo em cada elemento. Os wireframes abaixo estão pintados com as cores reais de <span class="tok">globals.css</span>, não com cores de rascunho.</p>
+
+      <div class="flag">
+        <strong>decisão pendente que afeta a A-05</strong>
+        <p>O idioma da UI está dividido no código de hoje: a <strong>Fase 02 (auth) shipou em inglês</strong> — <span class="tok">Email address</span>, <span class="tok">Sign in</span>, <span class="tok">Create account</span>, <span class="tok">Forgot password?</span> — enquanto a <strong>Fase 03 (upload) shipou em português</strong> — <span class="tok">Título</span>, <span class="tok">Arquivo de vídeo</span>, <span class="tok">Enviar vídeo</span>. As mensagens de erro vindas do backend sempre foram em português, inclusive dentro das telas em inglês.</p>
+        <p>Como A-05 são telas de <em>auth</em>, elas ficam no meio dessa divisão. <strong>Segui em português</strong> — coerente com a Fase 03, com a Fase 04 e com a decisão de "Indisponível". As telas de auth antigas viram dívida de tradução separada, não escopo desta fase.</p>
+      </div>
+
+      <nav class="index">
+        <a href="#a04">A-04 · Página pública do canal</a>
+        <a href="#a05a">A-05a · Redefinir senha</a>
+        <a href="#a05b">A-05b · Conta confirmada</a>
+        <a href="#reuso">Balanço de reúso</a>
+      </nav>
+    </header>
+
+    <!-- ============ A-04 ============ -->
+    <section id="a04">
+      <div class="sec-head"><span class="sheetid">A-04</span><h2>Página pública do canal</h2></div>
+      <p class="sec-sub">Rota decidida em TD-08: <span class="tok">/@{nickname}</span> · acesso anônimo, sem login · paginação offset/limit (TD-06). É a única das seis telas que um visitante não-cadastrado enxerga — o que muda o peso de cada decisão de cor aqui.</p>
+
+      <div class="frame">
+        <svg viewBox="0 0 1120 600" role="img" aria-label="Página pública do canal: barra superior com logo e botão Entrar, faixa com avatar, nome do canal e contagem de vídeos, e grade de quatro cards de vídeo com paginação.">
+          <rect width="1120" height="600" class="s-bg"></rect>
+
+          <!-- top bar -->
+          <rect x="0" y="0" width="1120" height="56" class="s-card"></rect>
+          <line x1="0" y1="56" x2="1120" y2="56" class="s-border"></line>
+          <rect x="32" y="18" width="20" height="20" rx="5" class="s-primary"></rect>
+          <text x="60" y="34" class="s-txt" font-size="15" font-weight="700">StreamTube</text>
+          <rect x="1000" y="14" width="88" height="28" rx="6" class="s-primary"></rect>
+          <text x="1024" y="33" class="s-txt-on-primary" font-size="13" font-weight="500">Entrar</text>
+          <circle cx="1073" cy="12" r="9" class="s-numbg-reuse"></circle><text x="1070" y="16" class="s-num" fill="#fff">1</text>
+
+          <!-- channel band -->
+          <rect x="0" y="57" width="1120" height="112" class="s-muted"></rect>
+          <circle cx="88" cy="113" r="36" class="s-cardbox"></circle>
+          <text x="76" y="120" class="s-txt-soft" font-size="20" font-weight="600">JC</text>
+          <text x="146" y="105" class="s-txt" font-size="24" font-weight="700">Estúdio Criador</text>
+          <text x="146" y="130" class="s-txt-soft" font-size="14">@joana.cria · 42 vídeos</text>
+          <circle cx="132" cy="78" r="9" class="s-numbg-new"></circle><text x="129" y="82" class="s-num" fill="#fff">2</text>
+
+          <!-- video grid -->
+          <g>
+            <rect x="32" y="212" width="248" height="140" rx="8" class="s-mutedbox"></rect>
+            <rect x="240" y="330" width="32" height="15" rx="3" class="s-primary" opacity="0.82"></rect>
+            <text x="246" y="341" class="s-txt-on-primary" font-size="9.5">4:12</text>
+            <text x="32" y="374" class="s-txt" font-size="14" font-weight="500">Tour pelo estúdio — setup 2026</text>
+            <text x="32" y="394" class="s-txt-soft" font-size="12.5">1,2 mil visualizações · há 2 semanas</text>
+            <circle cx="272" cy="204" r="9" class="s-numbg-new"></circle><text x="269" y="208" class="s-num" fill="#fff">3</text>
+          </g>
+          <g>
+            <rect x="304" y="212" width="248" height="140" rx="8" class="s-mutedbox"></rect>
+            <rect x="512" y="330" width="32" height="15" rx="3" class="s-primary" opacity="0.82"></rect>
+            <text x="518" y="341" class="s-txt-on-primary" font-size="9.5">11:47</text>
+            <text x="304" y="374" class="s-txt" font-size="14" font-weight="500">Renderizando com FFmpeg</text>
+            <text x="304" y="394" class="s-txt-soft" font-size="12.5">312 visualizações · há 3 semanas</text>
+          </g>
+          <g>
+            <rect x="576" y="212" width="248" height="140" rx="8" class="s-mutedbox"></rect>
+            <rect x="784" y="330" width="32" height="15" rx="3" class="s-primary" opacity="0.82"></rect>
+            <text x="790" y="341" class="s-txt-on-primary" font-size="9.5">7:03</text>
+            <text x="576" y="374" class="s-txt" font-size="14" font-weight="500">Bastidores da fila de upload</text>
+            <text x="576" y="394" class="s-txt-soft" font-size="12.5">98 visualizações · há 1 mês</text>
+          </g>
+          <g>
+            <rect x="848" y="212" width="240" height="140" rx="8" class="s-mutedbox"></rect>
+            <rect x="1048" y="330" width="32" height="15" rx="3" class="s-primary" opacity="0.82"></rect>
+            <text x="1054" y="341" class="s-txt-on-primary" font-size="9.5">28:40</text>
+            <text x="848" y="374" class="s-txt" font-size="14" font-weight="500">Q&amp;A com a comunidade</text>
+            <text x="848" y="394" class="s-txt-soft" font-size="12.5">640 visualizações · há 1 mês</text>
+          </g>
+
+          <!-- second row (partial, to show grid continues) -->
+          <rect x="32" y="440" width="248" height="80" rx="8" class="s-mutedbox" opacity="0.5"></rect>
+          <rect x="304" y="440" width="248" height="80" rx="8" class="s-mutedbox" opacity="0.5"></rect>
+          <rect x="576" y="440" width="248" height="80" rx="8" class="s-mutedbox" opacity="0.5"></rect>
+          <rect x="848" y="440" width="240" height="80" rx="8" class="s-mutedbox" opacity="0.5"></rect>
+
+          <!-- pagination -->
+          <rect x="472" y="552" width="80" height="32" rx="6" class="s-cardbox"></rect>
+          <text x="494" y="572" class="s-txt" font-size="13">Anterior</text>
+          <rect x="568" y="552" width="80" height="32" rx="6" class="s-cardbox"></rect>
+          <text x="592" y="572" class="s-txt" font-size="13">Próxima</text>
+          <circle cx="648" cy="546" r="9" class="s-numbg-new"></circle><text x="645" y="550" class="s-num" fill="#fff">4</text>
+        </svg>
+      </div>
+
+      <div class="callouts-legend">
+        <span><i class="kd-reuse" style="background:var(--muted-fg);">1</i> componente já existe no repositório</span>
+        <span><i class="kd-new" style="background:var(--new-marker);">2</i> componente a criar</span>
+      </div>
+
+      <div class="parts">
+        <table class="parts-t">
+          <thead><tr><th></th><th>Elemento</th><th>Token de cor</th><th>Tipografia</th><th>Componente</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">1</span></td>
+              <td>Barra superior — logo + "Entrar"</td>
+              <td>fundo <span class="tok">card</span> · borda <span class="tok">border</span> · botão <span class="tok">primary</span></td>
+              <td><span class="tok">label-md</span></td>
+              <td><span class="badge-reuse">brand-logo.tsx</span> <span class="badge-reuse">button.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-new">2</span></td>
+              <td>Faixa do canal — avatar, nome, <span class="mono">@nickname</span> · N vídeos</td>
+              <td>fundo <span class="tok">muted</span> · nome <span class="tok">foreground</span> · meta <span class="tok">muted-foreground</span></td>
+              <td>nome <span class="tok">h1</span> · meta <span class="tok">body-md</span></td>
+              <td><span class="badge-new">channel-header.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-new">3</span></td>
+              <td>Card de vídeo — thumbnail, duração, título, meta</td>
+              <td>thumb <span class="tok">muted</span> · duração <span class="tok">primary</span> a 82% · título <span class="tok">foreground</span> · meta <span class="tok">muted-foreground</span></td>
+              <td>título <span class="tok">body-md</span>/500 · meta <span class="tok">caption</span></td>
+              <td><span class="badge-new">video-card.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-new">4</span></td>
+              <td>Paginação "Anterior / Próxima"</td>
+              <td>fundo <span class="tok">card</span> · borda <span class="tok">border</span> — <strong>nunca</strong> <span class="tok">primary</span></td>
+              <td><span class="tok">body-md</span></td>
+              <td><span class="badge-new">pagination.tsx</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="statecards">
+        <div class="statecard">
+          <h4>Estado vazio</h4>
+          <p class="copy">"Este canal ainda não publicou nenhum vídeo."</p>
+        </div>
+        <div class="statecard">
+          <h4>Canal inexistente</h4>
+          <p class="copy">"Não encontramos esse canal. Confira se o endereço está correto."</p>
+        </div>
+        <div class="statecard">
+          <h4>Vídeos "Indisponível"</h4>
+          <p>Não aparecem nesta listagem — só por link direto. Nenhum chip de visibilidade é renderizado aqui: o visitante não precisa saber que existem.</p>
+        </div>
+      </div>
+
+      <div class="flag" style="border-left-color:var(--link);">
+        <strong style="color:var(--link);">o card de vídeo é o componente de maior alcance do projeto</strong>
+        <p>Ele reaparece na sidebar de sugestões (Fase 05), na home (Fase 07) e na busca (Fase 07). Vale desenhá-lo como Component com variants desde já — <span class="tok">size=grid</span> e <span class="tok">size=list</span> cobrem os três usos previstos. Desenhar quatro cards soltos aqui custa três retrabalhos depois.</p>
+      </div>
+    </section>
+
+    <!-- ============ A-05a ============ -->
+    <section id="a05a">
+      <div class="sec-head"><span class="sheetid">A-05a</span><h2>Redefinir senha</h2></div>
+      <p class="sec-sub">Rota sugerida <span class="tok">/reset-password?token=…</span> — destino do link enviado por <span class="tok">/forgot-password</span>, que já está em produção. Hoje esse link cai em 404: é a única das seis telas cuja ausência quebra um fluxo já entregue ao usuário.</p>
+
+      <div class="frame">
+        <svg viewBox="0 0 1120 480" role="img" aria-label="Tela de redefinir senha: cartão centralizado com logo, título, campo de nova senha com medidor de força, campo de confirmação e botão redefinir senha.">
+          <rect width="1120" height="480" class="s-bg"></rect>
+
+          <rect x="360" y="40" width="400" height="404" rx="12" class="s-cardbox"></rect>
+
+          <rect x="392" y="72" width="18" height="18" rx="5" class="s-primary"></rect>
+          <text x="418" y="87" class="s-txt" font-size="14" font-weight="700">StreamTube</text>
+          <circle cx="384" cy="64" r="9" class="s-numbg-reuse"></circle><text x="381" y="68" class="s-num" fill="#fff">1</text>
+
+          <text x="392" y="132" class="s-txt" font-size="24" font-weight="700">Criar nova senha</text>
+          <text x="392" y="156" class="s-txt-soft" font-size="14">Escolha uma senha que você ainda não usou aqui.</text>
+
+          <text x="392" y="196" class="s-txt" font-size="14" font-weight="500">Nova senha</text>
+          <rect x="392" y="206" width="336" height="40" rx="6" class="s-inputbox"></rect>
+          <text x="406" y="231" class="s-txt-soft" font-size="14">••••••••••</text>
+          <circle cx="708" cy="226" r="8" class="s-mutedbox"></circle>
+          <circle cx="744" cy="198" r="9" class="s-numbg-reuse"></circle><text x="741" y="202" class="s-num" fill="#fff">2</text>
+
+          <rect x="392" y="256" width="80" height="4" rx="2" class="s-successbox"></rect>
+          <rect x="478" y="256" width="80" height="4" rx="2" class="s-successbox"></rect>
+          <rect x="564" y="256" width="80" height="4" rx="2" class="s-mutedbox"></rect>
+          <rect x="650" y="256" width="78" height="4" rx="2" class="s-mutedbox"></rect>
+          <text x="392" y="278" class="s-txt-success" font-size="12">Senha forte</text>
+          <circle cx="744" cy="258" r="9" class="s-numbg-reuse"></circle><text x="741" y="262" class="s-num" fill="#fff">3</text>
+
+          <text x="392" y="316" class="s-txt" font-size="14" font-weight="500">Confirmar nova senha</text>
+          <rect x="392" y="326" width="336" height="40" rx="6" class="s-inputbox"></rect>
+          <text x="406" y="351" class="s-txt-soft" font-size="14">••••••••••</text>
+          <circle cx="708" cy="346" r="8" class="s-mutedbox"></circle>
+
+          <rect x="392" y="392" width="336" height="40" rx="6" class="s-primary"></rect>
+          <text x="510" y="417" class="s-txt-on-primary" font-size="14" font-weight="600">Redefinir senha</text>
+          <circle cx="744" cy="384" r="9" class="s-numbg-reuse"></circle><text x="741" y="388" class="s-num" fill="#fff">4</text>
+        </svg>
+      </div>
+
+      <div class="parts">
+        <table class="parts-t">
+          <thead><tr><th></th><th>Elemento</th><th>Token de cor</th><th>Tipografia</th><th>Componente</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">1</span></td>
+              <td>Card + logo</td>
+              <td><span class="tok">card</span> sobre <span class="tok">background</span> · borda <span class="tok">border</span></td>
+              <td>—</td>
+              <td><span class="badge-reuse">card.tsx</span> <span class="badge-reuse">brand-logo.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">2</span></td>
+              <td>Campo de senha + olho de visibilidade</td>
+              <td>fundo <span class="tok">input-background</span> · borda <span class="tok">input</span> · foco <span class="tok">ring</span></td>
+              <td>label <span class="tok">label-md</span> · valor <span class="tok">body-md</span></td>
+              <td><span class="badge-reuse">input.tsx</span> <span class="badge-reuse">label.tsx</span> <span class="badge-reuse">password-visibility-toggle.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">3</span></td>
+              <td>Medidor de força da senha</td>
+              <td>preenchido <span class="tok">success</span> · vazio <span class="tok">muted</span> · texto <span class="tok">success-text</span></td>
+              <td><span class="tok">helper</span></td>
+              <td><span class="badge-reuse">password-strength-meter.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">4</span></td>
+              <td>Botão "Redefinir senha"</td>
+              <td><span class="tok">primary</span> · texto <span class="tok">primary-foreground</span></td>
+              <td><span class="tok">label-md</span>/600</td>
+              <td><span class="badge-reuse">button.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-new">5</span></td>
+              <td>O formulário em si (orquestra os itens acima)</td>
+              <td>erro de campo em <span class="tok">destructive-text</span></td>
+              <td><span class="tok">helper</span></td>
+              <td><span class="badge-new">reset-password-form.tsx</span> · reusa <span class="badge-reuse">field-error.tsx</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="statecards">
+        <div class="statecard">
+          <h4>Link expirado ou inválido</h4>
+          <p class="copy">"Este link de redefinição expirou. Peça um novo para continuar." — com botão secundário levando a <span class="tok">/forgot-password</span>.</p>
+        </div>
+        <div class="statecard">
+          <h4>Senhas não conferem</h4>
+          <p class="copy">"As senhas não são iguais." — em <span class="tok">destructive-text</span>, abaixo do segundo campo.</p>
+        </div>
+        <div class="statecard">
+          <h4>Sucesso</h4>
+          <p>Redireciona para <span class="tok">/login</span> com aviso: <span class="copy">"Senha alterada. Entre com a nova senha."</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A-05b ============ -->
+    <section id="a05b">
+      <div class="sec-head"><span class="sheetid">A-05b</span><h2>Conta confirmada</h2></div>
+      <p class="sec-sub">Rota sugerida <span class="tok">/confirm?token=…</span>. Esta tela foi <strong>dispensada por decisão de produto em 2026-05-14</strong> — o usuário cai direto no login. Ela só entra se você reverter aquela decisão; está aqui porque estava no esboço original e o custo de montá-la é praticamente zero.</p>
+
+      <div class="frame">
+        <svg viewBox="0 0 1120 380" role="img" aria-label="Tela de conta confirmada: cartão centralizado com ícone de check em verde, título Conta confirmada e botão ir para o login.">
+          <rect width="1120" height="380" class="s-bg"></rect>
+          <rect x="380" y="36" width="360" height="308" rx="12" class="s-cardbox"></rect>
+
+          <circle cx="560" cy="112" r="34" class="s-successbox"></circle>
+          <path d="M546 112 l10 10 l19 -21" fill="none" stroke="var(--success-text)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="600" cy="84" r="9" class="s-numbg-reuse"></circle><text x="597" y="88" class="s-num" fill="#fff">1</text>
+
+          <text x="452" y="186" class="s-txt" font-size="24" font-weight="700">Conta confirmada</text>
+          <text x="444" y="212" class="s-txt-soft" font-size="14">Tudo certo. Você já pode entrar no StreamTube.</text>
+
+          <rect x="412" y="256" width="296" height="40" rx="6" class="s-primary"></rect>
+          <text x="516" y="281" class="s-txt-on-primary" font-size="14" font-weight="600">Ir para o login</text>
+          <circle cx="724" cy="248" r="9" class="s-numbg-reuse"></circle><text x="721" y="252" class="s-num" fill="#fff">2</text>
+        </svg>
+      </div>
+
+      <div class="parts">
+        <table class="parts-t">
+          <thead><tr><th></th><th>Elemento</th><th>Token de cor</th><th>Tipografia</th><th>Componente</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">1</span></td>
+              <td>Ícone de confirmação</td>
+              <td>fundo <span class="tok">success</span> a 22% · traço <span class="tok">success-text</span></td>
+              <td>—</td>
+              <td><span class="badge-reuse">check-icon.tsx</span></td>
+            </tr>
+            <tr>
+              <td class="key"><span class="keydot kd-reuse">2</span></td>
+              <td>Card, título e botão</td>
+              <td><span class="tok">card</span> · <span class="tok">foreground</span> · <span class="tok">muted-foreground</span> · <span class="tok">primary</span></td>
+              <td><span class="tok">h1</span> · <span class="tok">body-md</span> · <span class="tok">label-md</span>/600</td>
+              <td><span class="badge-reuse">card.tsx</span> <span class="badge-reuse">button.tsx</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="statecards">
+        <div class="statecard">
+          <h4>Link expirado</h4>
+          <p>Mesmo layout, ícone em <span class="tok">warning</span>: <span class="copy">"Este link de confirmação expirou. Reenviamos um novo para o seu e-mail."</span></p>
+        </div>
+        <div class="statecard">
+          <h4>Conta já confirmada</h4>
+          <p class="copy">"Sua conta já estava confirmada. É só entrar."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REUSO ============ -->
+    <section id="reuso">
+      <div class="sec-head"><h2>Balanço de reúso</h2></div>
+      <p class="sec-sub">Quanto de cada tela sai da biblioteca que já existe. Quanto maior o reúso, menor a chance de a cor voltar a divergir — foi exatamente onde as três primeiras telas escorregaram.</p>
+
+      <div class="summary-wrap">
+        <table class="summary">
+          <thead><tr><th>Tela</th><th class="n">Reusados</th><th class="n">Novos</th><th>Componentes a criar</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>A-04</strong> Página pública do canal</td>
+              <td class="n">2</td>
+              <td class="n">3</td>
+              <td><span class="badge-new">channel-header.tsx</span> <span class="badge-new">video-card.tsx</span> <span class="badge-new">pagination.tsx</span></td>
+            </tr>
+            <tr>
+              <td><strong>A-05a</strong> Redefinir senha</td>
+              <td class="n">7</td>
+              <td class="n">1</td>
+              <td><span class="badge-new">reset-password-form.tsx</span></td>
+            </tr>
+            <tr>
+              <td><strong>A-05b</strong> Conta confirmada</td>
+              <td class="n">3</td>
+              <td class="n">0</td>
+              <td><span style="color:var(--muted-fg);">nenhum — montagem pura</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flag" style="border-left-color:var(--success);">
+        <strong style="color:var(--success-text);">ordem sugerida de montagem</strong>
+        <p><strong>A-05b</strong> primeiro (zero componentes novos — dá pra montar em minutos e serve de teste dos exemplares-base copiados do FC Tube.fig, ver nota abaixo). Depois <strong>A-05a</strong>, que reusa quase tudo e desbloqueia um fluxo hoje quebrado em produção. Por último <strong>A-04</strong>, que é a mais cara e cujo <span class="tok">video-card</span> merece ser desenhado com calma, porque as Fases 05 e 07 dependem dele.</p>
+        <p style="margin-top:.6rem;"><strong>Correção (2026-08-08):</strong> Team Library é recurso pago do Figma — no plano gratuito não dá pra "ativar" a library do FC Tube.fig dentro do arquivo Videos. Copie manualmente um exemplar de cada componente-base (Card, Button, Input, Label, BrandLogo, ícone de check) do FC Tube.fig e cole numa página do arquivo Videos; a partir daí, instancie a partir desses exemplares em vez de redesenhar. Sem isso, cada tela nova reinventa a cor do zero — foi exatamente o que aconteceu nas três primeiras.</p>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      Tokens: <span class="tok">next-frontend/app/globals.css</span> · Decisões: <span class="tok">docs/decisions/technical-decisions-video-channel-management.md</span> (TD-06, TD-08) · Inventário de referência: <span class="tok">docs/inventories/screen-inventory-phase-02-auth-frontend.md</span><br>
+      Componentes marcados como reusados foram conferidos contra o disco em <span class="tok">next-frontend/components/</span>. Rotas marcadas "sugerida" não são decisões — validam-se no <span class="tok">/screen-inventory 04</span>.
+    </footer>
+
+  </div>
+</div>

@@ -11,7 +11,7 @@ export default function SignupPage() {
       <Card className="relative w-full max-w-[448px] items-center gap-6 px-6 py-10">
         <BackLink
           href="/"
-          aria-label="Go back"
+          aria-label="Voltar"
           className="absolute left-4 top-4 gap-0"
         >
           <ArrowBackIcon className="size-6" />
@@ -19,16 +19,16 @@ export default function SignupPage() {
 
         <BrandLogo size="lg" />
 
-        <h1 className="text-h1 text-foreground text-center">Create account</h1>
+        <h1 className="text-h1 text-foreground text-center">Criar conta</h1>
         <p className="text-body-md text-muted-foreground text-center">
-          Join the community and start sharing.
+          Junte-se à comunidade e comece a compartilhar.
         </p>
 
         <SignupForm />
 
         <AuthFooter
-          question="Already have an account?"
-          linkLabel="Sign in"
+          question="Já tem uma conta?"
+          linkLabel="Entrar"
           linkHref="/login"
         />
       </Card>

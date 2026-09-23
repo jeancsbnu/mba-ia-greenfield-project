@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
     <main className="flex flex-1 items-center justify-center bg-background px-6 py-10">
       <Card className="relative w-full max-w-[448px] items-center gap-6 px-6 py-10">
         <IconButton
-          aria-label="Back to login"
+          aria-label="Voltar para o login"
           className="absolute left-4 top-4"
         >
           <ArrowBackIcon className="size-6" />
@@ -18,17 +18,17 @@ export default function ForgotPasswordPage() {
 
         <BrandLogo size="lg" />
 
-        <h1 className="text-h1 text-foreground text-center">Reset password</h1>
+        <h1 className="text-h1 text-foreground text-center">Redefinir senha</h1>
         <p className="text-body-md text-muted-foreground text-center">
-          Enter your email and we&apos;ll send you a reset link
+          Digite seu e-mail e enviaremos um link de redefinição
         </p>
 
         <ForgotPasswordForm className="w-full" />
 
         <AuthFooter
-          question="Remember your password?"
-          linkLabel="Sign up"
-          linkHref="/signup"
+          question="Lembrou sua senha?"
+          linkLabel="Entrar"
+          linkHref="/login"
         />
       </Card>
     </main>

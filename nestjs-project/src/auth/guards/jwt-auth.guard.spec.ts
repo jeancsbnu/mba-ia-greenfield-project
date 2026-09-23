@@ -52,6 +52,43 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
   });
 
+  // SI-04.7: rota pública precisa saber QUEM chamou para servir rascunho ao dono.
+  it('attaches request.user on a @Public() route when the token is valid', async () => {
+    mockReflector.getAllAndOverride.mockReturnValue(true);
+    const token = jwtService.sign({ sub: 'user-1', email: 'a@example.com' });
+    const request: Record<string, unknown> = {
+      headers: { authorization: `Bearer ${token}` },
+    };
+
+    await expect(guard.canActivate(makeContext(request))).resolves.toBe(true);
+    expect((request.user as Record<string, unknown>)?.sub).toBe('user-1');
+  });
+
+  it('stays anonymous on a @Public() route when the token is invalid', async () => {
+    mockReflector.getAllAndOverride.mockReturnValue(true);
+    const request: Record<string, unknown> = {
+      headers: { authorization: 'Bearer not-a-valid-jwt' },
+    };
+
+    // Token ruim em rota pública é ignorado, nunca vira 401.
+    await expect(guard.canActivate(makeContext(request))).resolves.toBe(true);
+    expect(request.user).toBeUndefined();
+  });
+
+  it('stays anonymous on a @Public() route when the token is expired', async () => {
+    mockReflector.getAllAndOverride.mockReturnValue(true);
+    const expiredToken = jwtService.sign(
+      { sub: 'user-1', email: 'a@example.com' },
+      { expiresIn: -60 },
+    );
+    const request: Record<string, unknown> = {
+      headers: { authorization: `Bearer ${expiredToken}` },
+    };
+
+    await expect(guard.canActivate(makeContext(request))).resolves.toBe(true);
+    expect(request.user).toBeUndefined();
+  });
+
   it('passes with a valid JWT and attaches payload to request.user', async () => {
     const token = jwtService.sign({ sub: 'user-1', email: 'a@example.com' });
     const request: Record<string, unknown> = {

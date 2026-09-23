@@ -5,6 +5,7 @@ import { QueueModule } from '../queue/queue.module';
 import { StorageModule } from '../storage/storage.module';
 import { Video } from './entities/video.entity';
 import { VideoProcessingProducer } from './video-processing.producer';
+import { ChannelVideosController } from './channel-videos.controller';
 import { VideosController } from './videos.controller';
 import { VideosService } from './videos.service';
 
@@ -15,7 +16,7 @@ import { VideosService } from './videos.service';
     QueueModule,
     ChannelsModule,
   ],
-  controllers: [VideosController],
+  controllers: [VideosController, ChannelVideosController],
   providers: [VideoProcessingProducer, VideosService],
   exports: [TypeOrmModule, VideoProcessingProducer],
 })

@@ -1,8 +1,15 @@
-import { QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
+import {
+  ChannelNotFoundException,
+  NicknameAlreadyExistsException,
+} from '../common/exceptions/domain.exception';
 import { ChannelsService } from './channels.service';
 import { Channel } from './entities/channel.entity';
 
-function makeManager(overrides: Record<string, jest.Mock> = {}): any {
+/** Dublê do EntityManager com apenas os métodos que o serviço usa. */
+type MockManager = Record<string, jest.Mock>;
+
+function makeManager(overrides: MockManager = {}): MockManager {
   return {
     findOne: jest.fn(),
     create: jest.fn(),
@@ -24,16 +31,26 @@ function makeChannel(nickname: string): Channel {
 }
 
 function makeUniqueError(): QueryFailedError {
-  const err = new QueryFailedError('INSERT', [], new Error()) as any;
+  // O TypeORM copia os campos do driver para o erro sem declará-los; tipar
+  // só os que o serviço lê mantém a checagem de pé.
+  const err = new QueryFailedError(
+    'INSERT',
+    [],
+    new Error(),
+  ) as QueryFailedError & { code: string; detail: string };
   err.code = '23505';
   err.detail = 'Key (nickname)=(abc) already exists.';
   return err;
 }
 
-function makeDataSource(manager: any): any {
+// O serviço só chama `transaction`; o cast é feito uma vez aqui, e não em
+// cada teste, para que os acessos ao dublê sigam checados.
+function makeDataSource(manager: MockManager): DataSource {
   return {
-    transaction: jest.fn((cb: (manager: any) => Promise<any>) => cb(manager)),
-  };
+    transaction: jest.fn((cb: (manager: EntityManager) => Promise<unknown>) =>
+      cb(manager as unknown as EntityManager),
+    ),
+  } as unknown as DataSource;
 }
 
 describe('ChannelsService', () => {
@@ -130,6 +147,106 @@ describe('ChannelsService', () => {
         service.createChannel('user-id', 'carol@example.com'),
       ).rejects.toThrow('Connection lost');
       expect(manager.save).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('updateChannel', () => {
+    function makeServiceWith(channel: Channel | null, save: jest.Mock) {
+      const repository = {
+        findOne: jest.fn().mockResolvedValue(channel),
+        save,
+      };
+      const dataSource = {
+        getRepository: jest.fn().mockReturnValue(repository),
+        transaction: jest.fn(),
+      } as unknown as DataSource;
+      return {
+        service: new ChannelsService(dataSource),
+        repository,
+      };
+    }
+
+    it('applies only the fields that were sent', async () => {
+      const channel = makeChannel('joana_cria');
+      channel.name = 'Joana Cria';
+      const save = jest.fn((c: Channel) => Promise.resolve(c));
+      const { service } = makeServiceWith(channel, save);
+
+      const updated = await service.updateChannel('user-id', {
+        name: 'Joana Nova',
+      });
+
+      expect(updated.name).toBe('Joana Nova');
+      expect(updated.nickname).toBe('joana_cria');
+    });
+
+    it('stores an empty description as null', async () => {
+      const channel = makeChannel('joana_cria');
+      channel.description = 'Tinha descrição';
+      const save = jest.fn((c: Channel) => Promise.resolve(c));
+      const { service } = makeServiceWith(channel, save);
+
+      const updated = await service.updateChannel('user-id', {
+        description: '',
+      });
+
+      expect(updated.description).toBeNull();
+    });
+
+    it('maps the unique violation on nickname to NicknameAlreadyExistsException', async () => {
+      const channel = makeChannel('joana_cria');
+      const save = jest.fn().mockRejectedValue(makeUniqueError());
+      const { service } = makeServiceWith(channel, save);
+
+      await expect(
+        service.updateChannel('user-id', { nickname: 'ja_existe' }),
+      ).rejects.toBeInstanceOf(NicknameAlreadyExistsException);
+    });
+
+    it('re-throws errors that are not a nickname unique violation', async () => {
+      const channel = makeChannel('joana_cria');
+      const boom = new Error('connection lost');
+      const save = jest.fn().mockRejectedValue(boom);
+      const { service } = makeServiceWith(channel, save);
+
+      await expect(
+        service.updateChannel('user-id', { name: 'Qualquer' }),
+      ).rejects.toBe(boom);
+    });
+
+    it('throws ChannelNotFoundException when the user has no channel', async () => {
+      const { service } = makeServiceWith(null, jest.fn());
+
+      await expect(
+        service.updateChannel('user-id', { name: 'Qualquer' }),
+      ).rejects.toBeInstanceOf(ChannelNotFoundException);
+    });
+  });
+
+  describe('findByNicknameOrFail', () => {
+    it('returns the channel when the nickname exists', async () => {
+      const channel = makeChannel('joana_cria');
+      const repository = { findOne: jest.fn().mockResolvedValue(channel) };
+      const dataSource = {
+        getRepository: jest.fn().mockReturnValue(repository),
+      } as unknown as DataSource;
+      const service = new ChannelsService(dataSource);
+
+      await expect(service.findByNicknameOrFail('joana_cria')).resolves.toBe(
+        channel,
+      );
+    });
+
+    it('throws ChannelNotFoundException when the nickname does not exist', async () => {
+      const repository = { findOne: jest.fn().mockResolvedValue(null) };
+      const dataSource = {
+        getRepository: jest.fn().mockReturnValue(repository),
+      } as unknown as DataSource;
+      const service = new ChannelsService(dataSource);
+
+      await expect(
+        service.findByNicknameOrFail('nao_existe'),
+      ).rejects.toBeInstanceOf(ChannelNotFoundException);
     });
   });
 });

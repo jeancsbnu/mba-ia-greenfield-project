@@ -42,19 +42,19 @@ function TermsCheckbox({
         htmlFor="terms"
         className="text-body-md text-muted-foreground cursor-pointer select-none"
       >
-        I agree to the{" "}
+        Concordo com os{" "}
         <Link
           href="/terms"
           className="text-link hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-[var(--radius-0-5)]"
         >
-          Terms of Service
+          Termos de Uso
         </Link>{" "}
-        and{" "}
+        e a{" "}
         <Link
           href="/privacy"
           className="text-link hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-[var(--radius-0-5)]"
         >
-          Privacy Policy
+          Política de Privacidade
         </Link>
       </label>
     </div>

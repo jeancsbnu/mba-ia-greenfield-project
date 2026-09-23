@@ -27,7 +27,9 @@ import type { paths } from "./types.gen";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-// Request bodies (fields are empty in the current openapi.json — will expand as the upstream spec grows)
+// Request bodies (populados desde que o openapi:export passou a rodar via
+// `nest build`, que é o que ativa o plugin do Swagger — antes disso todo DTO de
+// requisição saía sem propriedades)
 export type RegisterDto =
   paths["/auth/register"]["post"]["requestBody"]["content"]["application/json"];
 
@@ -61,3 +63,36 @@ export type ApiErrorEnvelope =
 // Pass-through alias — BFF returns the upstream shape as-is.
 export type Video =
   paths["/videos/{publicId}"]["get"]["responses"][200]["content"]["application/json"];
+
+export type UpdateVideoDto =
+  paths["/videos/{publicId}"]["patch"]["requestBody"]["content"]["multipart/form-data"];
+
+// A categoria vem do enum do backend (TD-10): derivá-la do contrato impede que
+// a lista do formulário e a aceita pela API divirjam.
+export type VideoCategory = NonNullable<UpdateVideoDto["category"]>;
+
+export type VideoVisibility = NonNullable<UpdateVideoDto["visibility"]>;
+
+// Painel do dono — inclui rascunhos, status e contadores.
+export type OwnerVideosPage =
+  paths["/me/videos"]["get"]["responses"][200]["content"]["application/json"];
+
+export type OwnerVideoListItem = OwnerVideosPage["items"][number];
+
+// ─── Channels ───────────────────────────────────────────────────────────────
+
+export type Channel =
+  paths["/me/channel"]["get"]["responses"][200]["content"]["application/json"];
+
+export type UpdateChannelDto =
+  paths["/me/channel"]["patch"]["requestBody"]["content"]["application/json"];
+
+// Vitrine pública: forma distinta da do dono — acrescenta videosCount e não
+// expõe status nem visibilidade.
+export type PublicChannel =
+  paths["/channels/{nickname}"]["get"]["responses"][200]["content"]["application/json"];
+
+export type PublicVideosPage =
+  paths["/channels/{nickname}/videos"]["get"]["responses"][200]["content"]["application/json"];
+
+export type PublicVideoListItem = PublicVideosPage["items"][number];

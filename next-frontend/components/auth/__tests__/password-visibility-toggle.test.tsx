@@ -11,7 +11,7 @@ describe("PasswordVisibilityToggle", () => {
     const btn = screen.getByRole("button");
     expect(btn).toHaveAttribute("data-slot", "password-visibility-toggle");
     expect(btn).toHaveAttribute("aria-pressed", "false");
-    expect(btn).toHaveAttribute("aria-label", "Show password");
+    expect(btn).toHaveAttribute("aria-label", "Mostrar senha");
   });
 
   it("toggles aria-pressed and aria-label when clicked", async () => {
@@ -21,11 +21,11 @@ describe("PasswordVisibilityToggle", () => {
 
     await user.click(btn);
     expect(btn).toHaveAttribute("aria-pressed", "true");
-    expect(btn).toHaveAttribute("aria-label", "Hide password");
+    expect(btn).toHaveAttribute("aria-label", "Ocultar senha");
 
     await user.click(btn);
     expect(btn).toHaveAttribute("aria-pressed", "false");
-    expect(btn).toHaveAttribute("aria-label", "Show password");
+    expect(btn).toHaveAttribute("aria-label", "Mostrar senha");
   });
 
   it("calls onTypeChange with 'text' on first click and 'password' on second", async () => {
