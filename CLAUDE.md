@@ -62,10 +62,10 @@ If any of these fails, the task is not done — fix the underlying issue before 
 - **Main branch:** `main` — never commit directly to it
 - Branches: `feature/*`, `bugfix/*`, `hotfix/*`, `docs/*`
 - **Commits:** short, descriptive messages focused on the "why" of the change
-- **Workflow:** Git Flow conventions. Two long-lived branches:
-  - `main` — stable, production-ready code 
-  - `dev` — integration branch; all feature/bugfix/hotfix branches start from `dev` and merge back into `dev`
-  - When `dev` is stable, it is merged into `main`
+- **Workflow:** trunk-based com uma única branch de longa duração:
+  - `main` — código estável; é a base e o destino de todo trabalho
+  - Branches de trabalho saem de `main` e voltam para `main` via pull request
+  - A branch é apagada depois do merge; nada de branches de longa duração além de `main`
 
 ## Testing Policy
 
