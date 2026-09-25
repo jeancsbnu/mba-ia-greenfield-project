@@ -95,6 +95,15 @@ _Subprojects in scope:_
 
 **Decision:** A (prazo longo cobrindo a reprodução)
 
+**Clarification (resolvida durante /screen-inventory, 2026-09-24): duas URLs, não uma.** A emissão gera **duas** URLs pré-assinadas, ambas com a validade de 6 h acima e ambas entregues **juntas, na mesma resposta de detalhe do vídeo** — nenhuma chamada extra em tempo de clique:
+
+- **URL de stream** — consumida pelo `src` do `<video>`, entrega inline.
+- **URL de download** — a mesma chave de objeto, assinada com `response-content-disposition: attachment; filename="..."`.
+
+O motivo é uma restrição do navegador, não preferência: o atributo `download` do HTML **é ignorado em cross-origin**. Como `upload-processing/TD-08` entrega o arquivo direto do storage, que é outra origem, um `<a download>` apontando para a URL de stream faria o navegador abrir o vídeo em vez de baixá-lo, e o arquivo salvo herdaria o nome da chave de objeto em vez do título. Só o `content-disposition` no lado do storage resolve — e como a assinatura cobre os query params, isso obriga a uma URL distinta.
+
+Consequência para o frontend, registrada no inventário da fase: o botão de download é **Local-interactive** — um `<a>` sobre uma URL que já veio com a página —, e o verbo de emissão pertence ao Server Component da página, não ao botão.
+
 **Dimensionamento (premissa a confirmar):** a validade da URL de stream/download passa a ser de **6 horas**, substituindo os 300 s atuais de `StorageService.getPresignedUrl`. O critério é cobrir com folga a reprodução ou o download de um arquivo longo sem que o link expire no meio do uso; 6 h cobre qualquer duração plausível nesta fase e ainda limita a janela de um link vazado a um mesmo dia. O prazo curto de 300 s continua valendo para os demais contextos de URL pré-assinada — o prazo longo é específico da entrega ao player.
 
 ---
