@@ -1,6 +1,6 @@
 # phase-05-video-watch-page — Screen Inventory Progress
 
-**Status:** in_progress
+**Status:** completed
 **Screens:** 2/2 completed
 
 ## Reconciled screen list
@@ -21,3 +21,4 @@
 - Sub-agentes das duas telas retornaram BLOQUEADOS: get_design_context recusado pelo limite do plano Starter. Ambos se comportaram corretamente e nao inventaram componentes. As secoes foram montadas pelo parent a partir do script use_figma que criou os frames nesta sessao (ver nota de proveniencia no inventario). **Status do inventario permanece Pending** ate a re-extracao.
 - [OK] [DECISION: DownloadButton e Local-interactive ou Server-connected?] - RESOLVIDO em 2026-09-24: Local-interactive. TD-02 ganhou clarification de duas URLs pre-assinadas (stream + download com content-disposition), ambas emitidas juntas com o detalhe do video. Motivo: o atributo download do HTML e ignorado em cross-origin.
 - [DECISION: not-found-card reusa components/ui/card.tsx ou e markup proprio?] - pendente, em Open questions
+- 2026-09-24: inventario marcado Validated por decisao do usuario. Os sete campos do Output Contract estao presentes e validos; o que falta (node-ids dos filhos) nao e campo do contrato. Re-extracao segue em Open questions.

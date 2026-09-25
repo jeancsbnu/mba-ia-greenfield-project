@@ -1,11 +1,11 @@
 # phase-05-video-watch-page — Screen Inventory
 
 > **Phase:** 05 — Página de Visualização do Vídeo
-> **Status:** Pending
+> **Status:** Validated
 > **Date:** 2026-09-23
 > **Screens in scope:** 2
 
-> **Proveniência desta extração — leia antes de confiar nas tabelas.** As duas telas **não** foram extraídas por `get_design_context`: a cota de chamadas do MCP do Figma (plano Starter) esgotou, e os dois sub-agentes despachados retornaram bloqueados, corretamente sem inventar nada. As tabelas abaixo foram montadas a partir de uma fonte diferente e verificável: **os dois frames foram criados nesta mesma sessão pelo script `use_figma` do agente**, cuja árvore de nós é conhecida por construção, e ambos foram conferidos em screenshot renderizado. O que falta é a confirmação independente. Consequências práticas: (a) os **node-ids dos filhos não estão registrados** — só os dos dois frames raiz, que o Figma devolveu —, porque atribuí-los de memória produziria referências erradas; (b) o `Status` permanece `Pending` até uma re-extração com cota disponível. Nenhum componente aqui é suposição: todos existem no frame porque foram escritos nele.
+> **Proveniência desta extração — leia antes de confiar nas tabelas.** As duas telas **não** foram extraídas por `get_design_context`: a cota de chamadas do MCP do Figma (plano Starter) esgotou, e os dois sub-agentes despachados retornaram bloqueados, corretamente sem inventar nada. As tabelas abaixo foram montadas a partir de uma fonte diferente e verificável: **os dois frames foram criados nesta mesma sessão pelo script `use_figma` do agente**, cuja árvore de nós é conhecida por construção, e ambos foram conferidos em screenshot renderizado. O que falta é a confirmação independente. Consequências práticas: (a) os **node-ids dos filhos não estão registrados** — só os dos dois frames raiz, que o Figma devolveu —, porque atribuí-los de memória produziria referências erradas; (b) o `Status` foi marcado `Validated` em 2026-09-24 por decisão do usuário, porque os **sete campos load-bearing do Output Contract estão presentes e válidos** — rota, URL com `node-id`, `Type` sem célula vazia, `Reuse?` nas três formas canônicas, tabela de verbos, `### Observations` e `## Open questions`. Os node-ids dos filhos não são campo do contrato, e o `/implement` consome a URL da tela, que existe. A re-extração segue registrada como open question. Nenhum componente aqui é suposição: todos existem no frame porque foram escritos nele.
 
 ---
 
@@ -125,7 +125,7 @@
 
 ## Open questions
 
-- **Re-extração pendente.** Confirmar as duas tabelas contra `get_design_context` quando a cota do MCP do Figma voltar, e preencher os node-ids dos filhos. Enquanto isso o `Status` fica `Pending`.
+- **Re-extração pendente.** Confirmar as duas tabelas contra `get_design_context` quando a cota do MCP do Figma voltar, e preencher os node-ids dos filhos. O `Status` foi marcado `Validated` porque os sete campos do Output Contract estão presentes e válidos — os node-ids dos filhos não são campo do contrato —, mas a confirmação independente segue devendo.
 - **Capability coberta sem verbo.** "Descrição do vídeo com expansão/recolhimento" é atendida por um componente Local-interactive, então não gera verbo de intenção. A regra de validação deste skill espera que toda capability tenha ao menos um verbo — aqui a ausência é correta, não uma lacuna. O `plan-validate` precisa aceitar cobertura por componente local, ou a regra precisa ser afrouxada.
 - **Estados sem desenho.** Descrição expandida, sidebar vazia, loading do player e erro de carregamento. Os dois primeiros são exigidos por capability e por TD-04; os dois últimos repetem a omissão da fase 04.
 - **Reuso do `components/ui/card.tsx`** no `not-found-card` — instância do primitivo ou markup próprio?
