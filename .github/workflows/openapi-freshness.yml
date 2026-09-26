@@ -1,0 +1,46 @@
+# Check de frescor da cadeia de contrato OpenAPI.
+# Materializa next-frontend-openapi-typing/TD-03 (Opção C): os dois artefatos gerados
+# são commitados E o CI prova que continuam correspondendo à fonte.
+#
+# Fonte:    nestjs-project/openapi.json   (produzido por `npm run openapi:export`)
+# Cópia:    next-frontend/openapi.json    (TD-02 Opção B — copiada por scripts/sync-openapi.sh)
+# Gerado:   next-frontend/lib/api/types.gen.ts  (TD-01 Opção A — openapi-typescript)
+name: OpenAPI contract freshness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: next-frontend/package-lock.json
+
+      - name: Install next-frontend dependencies
+        working-directory: next-frontend
+        run: npm ci
+
+      # Reexecuta a cadeia inteira sobre o que está commitado. Nada aqui gera o
+      # openapi.json a partir do Nest: a fonte é o artefato commitado do backend,
+      # cuja geração é responsabilidade de openapi-docs-nestjs/TD-02.
+      - name: Sync spec into next-frontend
+        run: bash scripts/sync-openapi.sh
+
+      - name: Regenerate types from spec
+        working-directory: next-frontend
+        run: npm run openapi:types
+
+      - name: Assert no drift
+        run: |
+          if ! git diff --exit-code -- next-frontend/openapi.json next-frontend/lib/api/types.gen.ts; then
+            echo "::error::A cadeia de contrato OpenAPI está desatualizada. Rode, a partir da raiz do repositório: bash scripts/sync-openapi.sh && (cd next-frontend && npm run openapi:types) — e commite os dois arquivos."
+            exit 1
+          fi
