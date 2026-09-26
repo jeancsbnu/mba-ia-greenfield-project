@@ -1,0 +1,10 @@
+# Artefatos gerados da cadeia de contrato OpenAPI (next-frontend-openapi-typing/TD-02, TD-03).
+#
+# O check de frescor do CI compara byte a byte o resultado de
+# `scripts/sync-openapi.sh` + `npm run openapi:types` contra o que está commitado.
+# Sem um EOL fixo o check falharia por diferença de fim de linha: o `openapi:export`
+# roda no host (CRLF no Windows) e o `openapi:types` roda no container Linux (LF).
+# Fixar em LF torna o resultado idêntico em qualquer máquina.
+nestjs-project/openapi.json   text eol=lf
+next-frontend/openapi.json    text eol=lf
+next-frontend/lib/api/types.gen.ts text eol=lf
