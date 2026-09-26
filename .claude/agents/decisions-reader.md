@@ -31,8 +31,8 @@ If input is missing or malformed, abort with `"decisions-reader requires a slug 
 3. **Compute kept set via two atomic Grep calls** (no per-file frontmatter loop — Grep returns matching paths atomically):
    - **Phase-scope subset** (≤1 file): the slice's own doc, already verified in step 2.
    - **Ad-hoc subset** (0..N files): take the intersection `S_adhoc ∩ S_NN` where:
-     - `S_adhoc` = `Grep(pattern: '^scope_type: ad-hoc$', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')`
-     - `S_NN`    = `Grep(pattern: '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}(?=[,\s\]])', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')` — substitute `{NN}` with the literal integer. Line-anchored ripgrep; the trailing lookahead `(?=[,\s\]])` makes it correct for `[NN]`, `[..., NN]`, and middle positions while rejecting `[12]` / `[21]` / `[]` for NN=2.
+     - `S_adhoc` = `Grep(pattern: '^scope_type: ad-hoc\s*$', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')`
+     - `S_NN`    = `Grep(pattern: '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}[,\s\]]', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')` — substitute `{NN}` with the literal integer. Line-anchored ripgrep; the trailing character class `[,\s\]]` makes it correct for `[NN]`, `[..., NN]`, and middle positions while rejecting `[12]` / `[21]` / `[]` for NN=2. **Do not use a look-ahead here** — ripgrep rejects look-around without `--pcre2`, which the Grep tool does not expose; and do not anchor the `scope_type` greps with a bare `$` — the decisions docs use CRLF, so `$` fails against the trailing `\r` and the set comes back empty.
    - **Task mode:** atomic existence + scope check on `docs/decisions/technical-decisions-{slug}.md`. Zero matches is valid (task-sem-research) — emit the placeholder per step 4.
 
 4. **Cardinality check.**
