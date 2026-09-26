@@ -241,8 +241,8 @@ Resolution hint in the issue text:
 
 **Compute the slice set via atomic Grep set-arithmetic** (same primitive used by `decisions-reader` step 3 — no per-file iteration; tool semantics make iteration complete by construction):
 
-1. `Grep -l '^scope_type: phase$' docs/decisions/technical-decisions-*.md` with `output_mode: files_with_matches` → set `S_phase` (every phase-scope decisions doc on disk).
-2. `Grep -l '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}(?=[,\s\]])' docs/decisions/technical-decisions-*.md` with `output_mode: files_with_matches` (line-anchored ripgrep regex; **no `multiline` flag needed**; `{NN}` is the literal integer; trailing lookahead avoids consuming the closing `]`, correctly matching `[NN]` / `[..., NN]` / middle positions and rejecting `[12]` / `[21]` / `[]` for NN=2 — see `decisions-reader.md` test verification table). Result: set `S_NN`.
+1. `Grep -l '^scope_type: phase\s*$' docs/decisions/technical-decisions-*.md` with `output_mode: files_with_matches` → set `S_phase` (every phase-scope decisions doc on disk).
+2. `Grep -l '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}[,\s\]]' docs/decisions/technical-decisions-*.md` with `output_mode: files_with_matches` (line-anchored ripgrep regex; **no `multiline` flag needed**; `{NN}` is the literal integer; trailing character class `[,\s\]]` consumes one delimiter, correctly matching `[NN]` / `[..., NN]` / middle positions and rejecting `[12]` / `[21]` / `[]` for NN=2 — see `decisions-reader.md` test verification table). Result: set `S_NN`. **Do not use a look-ahead here** — ripgrep rejects look-around without `--pcre2`, which the Grep tool does not expose; and do not anchor the `scope_type` greps with a bare `$` — the decisions docs use CRLF, so `$` fails against the trailing `\r` and the set comes back empty.
 3. **Slice set = `S_phase ∩ S_NN`** (intersection: phase-scope docs whose `related_phases` contains NN). Let `count = |slice set|`.
 
 For each slice in the slice set, derive its slug from the filename (`technical-decisions-{slug}.md`).
