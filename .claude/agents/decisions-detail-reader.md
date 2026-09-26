@@ -31,8 +31,8 @@ If input is missing or malformed, abort with `"decisions-detail-reader requires 
 3. **Compute kept set via two atomic Grep calls** (no per-file frontmatter loop):
    - **Phase-scope subset** (≤1 file): the slice's own doc, verified in step 2.
    - **Ad-hoc subset** (0..N files): `S_adhoc ∩ S_NN` where:
-     - `S_adhoc` = `Grep(pattern: '^scope_type: ad-hoc$', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')`
-     - `S_NN`    = `Grep(pattern: '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}(?=[,\s\]])', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')` — substitute `{NN}` with the literal integer.
+     - `S_adhoc` = `Grep(pattern: '^scope_type: ad-hoc\s*$', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')`
+     - `S_NN`    = `Grep(pattern: '^related_phases:\s*\[(?:[^\]]*[,\s])?{NN}[,\s\]]', path: 'docs/decisions', glob: 'technical-decisions-*.md', output_mode: 'files_with_matches')` — substitute `{NN}` with the literal integer.
    - **Task mode:** atomic existence + scope check on `docs/decisions/technical-decisions-{slug}.md`. Zero matches → emit placeholder per step 4.
 
 4. **Cardinality.**
