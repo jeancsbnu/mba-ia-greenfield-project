@@ -32,8 +32,8 @@ This project runs inside Docker. Always use the container for development:
 # Start container (from next-frontend/)
 docker compose up -d
 
-# Install dependencies (first time only)
-docker compose exec next-frontend npm install
+# Install dependencies (ver a nota sobre node_modules abaixo)
+docker compose exec next-frontend npm ci
 
 # Run the dev server (watch mode) — see "Long-running Processes" below
 docker compose exec next-frontend npm run dev
@@ -43,6 +43,20 @@ Service:
 - `next-frontend` — Next.js dev container, host port `3001` → container port `3000`. Browser accesses the app at **`http://localhost:3001`**.
 
 Bind mount: the repo's `next-frontend/` directory is mounted at `/home/node/app` inside the container, so file edits on the host are reflected immediately.
+
+**`node_modules` é a exceção: fica num volume nomeado, fora do bind mount.**
+O mount `node_modules:/home/node/app/node_modules` do `compose.yaml` é mais
+específico que o do diretório e tem precedência, então o `node_modules` do host
+não é visto pelo container — ele serve só para o editor.
+
+Motivo: o Vitest roda em modo fork com isolamento, um processo Node por arquivo
+de teste, e cada um relê `node_modules`. Através do bind mount Windows→Linux isso
+domina o tempo da suíte. Medido em 2026-09-26: **>22 min sem concluir** no bind
+mount, **79,9 s** para os 46 arquivos / 270 testes com o volume nomeado.
+
+Consequência prática: o volume nasce vazio, então **depois de um `compose up -d`
+em ambiente novo — ou de qualquer `compose down -v` — é preciso rodar `npm ci`
+dentro do container** antes de qualquer outra coisa. Instalar no host não resolve.
 
 Teardown and inspection commands run on the **host machine**:
 

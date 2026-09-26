@@ -7,5 +7,21 @@ services:
       - 3001:3000
     volumes:
       - .:/home/node/app
+      # node_modules fica FORA do bind-mount, num volume nomeado no ext4 do WSL2.
+      # Este mount é mais específico que o `.:/home/node/app` acima, então tem
+      # precedência e o node_modules do host deixa de ser visto pelo container.
+      #
+      # Motivo: o Vitest roda em modo fork com isolamento — um processo Node por
+      # arquivo de teste, e cada um relê node_modules inteiro. Atravessando o
+      # bind-mount Windows→Linux isso domina o tempo da suíte; os workers ficam
+      # presos em I/O ininterrupto (state D) mesmo com memória de sobra.
+      #
+      # Consequência prática: o volume nasce vazio (o Dockerfile.dev não instala
+      # nada), então depois de `compose up -d` é preciso rodar `npm ci` DENTRO do
+      # container. O node_modules do host passa a servir só para o editor.
+      - node_modules:/home/node/app/node_modules
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+volumes:
+  node_modules:
