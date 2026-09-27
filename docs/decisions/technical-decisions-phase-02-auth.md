@@ -238,6 +238,9 @@ _Subprojects in scope:_
 
 **Decision:** A (@nestjs/throttler)
 
+**Revisions:**
+- 2026-09-26 — Correção do racional, sem mudança de decisão. O texto da Recommendation afirma que o guard permite "scoping rate limiting to `AuthModule` only via module-level `APP_GUARD`". **Isso está errado:** `APP_GUARD` é global independentemente do módulo que o declara — está na doc oficial de Guards do NestJS e no README do `@nestjs/throttler` ("you could do so by adding this provider to **any** module"). O próprio repositório evidencia: `src/app.controller.ts` carrega `@SkipThrottle()`, inócuo se o guard não o alcançasse, já que `AppController` não pertence ao `AuthModule`. O escopo efetivo sempre foi a aplicação inteira, a 10 req/60 s por IP. Mesma Option A — a escolha de biblioteca permanece. Rationale: resolve ICC-1 (/plan-validate da Fase 05) — a frase induziu a MD-1 daquela fase a concluir que o endpoint público de contagem estava desprotegido, quando já nascia coberto.
+
 ---
 
 ## TD-09: Refresh Token Format

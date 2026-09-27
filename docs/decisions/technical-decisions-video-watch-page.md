@@ -1,7 +1,7 @@
 ---
 scope_type: phase
 related_phases: [5]
-status: pending
+status: decided
 date: 2026-09-23
 scope_description: "Página de visualização do vídeo: player, contagem de visualizações, sugestões e entrega do arquivo ao player"
 ---
@@ -104,7 +104,10 @@ O motivo é uma restrição do navegador, não preferência: o atributo `downloa
 
 Consequência para o frontend, registrada no inventário da fase: o botão de download é **Local-interactive** — um `<a>` sobre uma URL que já veio com a página —, e o verbo de emissão pertence ao Server Component da página, não ao botão.
 
-**Dimensionamento (premissa a confirmar):** a validade da URL de stream/download passa a ser de **6 horas**, substituindo os 300 s atuais de `StorageService.getPresignedUrl`. O critério é cobrir com folga a reprodução ou o download de um arquivo longo sem que o link expire no meio do uso; 6 h cobre qualquer duração plausível nesta fase e ainda limita a janela de um link vazado a um mesmo dia. O prazo curto de 300 s continua valendo para os demais contextos de URL pré-assinada — o prazo longo é específico da entrega ao player.
+**Dimensionamento (confirmado — ver Revisions):** a validade da URL de stream/download passa a ser de **6 horas**, substituindo os 300 s atuais de `StorageService.getPresignedUrl`. O critério é cobrir com folga a reprodução ou o download de um arquivo longo sem que o link expire no meio do uso; 6 h cobre qualquer duração plausível nesta fase e ainda limita a janela de um link vazado a um mesmo dia. O prazo curto de 300 s continua valendo para os demais contextos de URL pré-assinada — o prazo longo é específico da entrega ao player.
+
+**Revisions:**
+- 2026-09-26 — Validade de 6 h confirmada; deixa de ser premissa e passa a valor firme. Mesma Option A, nenhuma mudança de mecanismo. Rationale: resolve OQ-6 (/plan-validate) — o número foi fixado por premissa na redação original e o usuário o confirmou explicitamente no /plan-resolve.
 
 ---
 
@@ -137,7 +140,10 @@ Consequência para o frontend, registrada no inventário da fase: o botão de do
 
 **Decision:** B (endpoint dedicado após limiar de reprodução)
 
-**Limiar (premissa a confirmar):** `POST /videos/{publicId}/view` é disparado pelo player após **5 segundos contínuos de reprodução efetiva** (tempo de mídia avançado, não tempo de página aberta). O valor é baixo o bastante para não perder visualizações legítimas curtas e alto o bastante para descartar pré-carregamento, robô que não executa mídia e abertura acidental. Sem deduplicação nesta fase, conforme a opção escolhida.
+**Limiar (revisado em 2026-09-26 — ver Revisions):** `POST /videos/{publicId}/view` é disparado pelo player após **10 segundos contínuos de reprodução efetiva** (tempo de mídia avançado, não tempo de página aberta). O valor é baixo o bastante para não perder visualizações legítimas curtas e alto o bastante para descartar pré-carregamento, robô que não executa mídia e abertura acidental. Sem deduplicação nesta fase, conforme a opção escolhida.
+
+**Revisions:**
+- 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o mecanismo continua sendo o endpoint dedicado disparado pelo player, só o valor muda. Rationale: resolve OQ-6 (/plan-validate) — os 5 s eram premissa, não recomendação; 10 s exige intenção real de assistir sem penalizar vídeo curto, ao contrário dos 30 s da referência clássica de mercado, que zeraria a contagem de qualquer vídeo mais curto que isso.
 
 ---
 
@@ -169,6 +175,9 @@ Consequência para o frontend, registrada no inventário da fase: o botão de do
 **Recommendation:** **Option A** — é a única determinística, e determinismo aqui vale mais do que variedade: permite testar a sidebar sem fixar semente e cachear a resposta. A Option C fica natural quando a contagem do TD-03 tiver histórico; a Option B tem um custo de banco que não se paga.
 
 **Decision:** A (mesma categoria, mais recentes primeiro)
+
+**Revisions:**
+- 2026-09-26 — Recorte da sidebar fixado: **4 vídeos por página, com "ver mais" carregando as próximas páginas**. Mesma Option A — origem e ordenação inalteradas (mesma categoria, `published_at` desc, excluindo o vídeo atual, rascunhos e `unlisted`); o que se acrescenta é o tamanho do recorte e a paginação, que a decisão original não fixava. O contrato do endpoint expõe offset/limit, seguindo o padrão de `video-channel-management/TD-06`. Rationale: resolve AMB-1 (/plan-validate) — sem o tamanho, o plan-build não escreveria nem o contrato nem o SI da sidebar. Consequência assumida: o estado visual de "ver mais" e o de sidebar carregando não existem no Figma e serão implementados seguindo os padrões da Fase 04 (ver OQ-3).
 
 ---
 
@@ -217,7 +226,12 @@ Depende de `TD-03` (é o endpoint que ele criou) e de `phase-02-auth/TD-08` (é 
 
 Sobre os números, e explicitamente como premissa a confirmar no mesmo espírito do `TD-02` e do `TD-03`: sugiro **30 requisições por 60 s por IP** nessa rota. Trinta vídeos iniciados por minuto está muito acima de qualquer navegação humana e ainda assim é um terço do que um laço trivial alcançaria contra o default. O número é discutível; o que não é discutível é que ele deve ser diferente do orçamento de login.
 
-**Decision:** _[pending]_
+**Decision:** B (`@Throttle()` dedicado na rota, storage em memória)
+**Libraries:** —
+
+_Sem biblioteca nova: o `@nestjs/throttler` já está instalado e decidido em `phase-02-auth/TD-08`, e o decorator `@Throttle()` vem dele._
+
+**Parâmetros (premissa a confirmar):** **30 requisições por 60 s por IP** nessa rota, sobrepondo o default global de 10/60 s. O storage permanece em memória; subir para a Option C (Redis) fica declarado como o caminho para quando houver mais de uma instância da API, e é uma troca do `storage` do módulo, sem tocar nas rotas.
 
 ---
 
@@ -271,7 +285,12 @@ A Option B é a que menos entrega pelo custo: same-origin apaga a característic
 
 Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A é superfície de produção que existe parcialmente para o teste. Vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão estará sendo mal aplicada.
 
-**Decision:** _[pending]_
+**Decision:** A + C (fachada de mídia injetável, mais um E2E de fumaça com `page.route()`)
+**Libraries:** —
+
+_Sem biblioteca nova: o `@playwright/test` já está instalado no `next-frontend`, e `page.route()` vem dele._
+
+**Escopo da composição:** a **fachada** é a base e cobre o gatilho de reprodução do `TD-03` na camada de componente, de forma determinística e sem esperar relógio. O **`page.route()`** se aplica a **um único** E2E de fumaça, que prova que o `src` aponta para o lugar certo e que o elemento carrega — não é política para a suíte inteira. Limite aceito junto com a decisão: a fachada é superfície de produção que existe em parte para o teste, e vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão está sendo mal aplicada.
 
 ---
 
@@ -283,5 +302,5 @@ Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A 
 | TD-02 | Cross-layer | Validade da URL pré-assinada diante da duração da reprodução | A (prazo longo cobrindo a reprodução) | A |
 | TD-03 | Cross-layer | Momento e critério de contagem de uma visualização | B (endpoint dedicado após limiar de reprodução) | B |
 | TD-04 | Cross-layer | Origem e critério das sugestões da sidebar | A (mesma categoria, mais recentes primeiro) | A |
-| TD-05 | Cross-layer | Proteção contra abuso do endpoint público de contagem | B (`@Throttle()` dedicado na rota, storage em memória) | _[pending]_ |
-| TD-06 | Frontend | Como os testes simulam os bytes do vídeo | A + C (fachada de mídia injetável, mais um E2E de fumaça com `page.route()`) | _[pending]_ |
+| TD-05 | Cross-layer | Proteção contra abuso do endpoint público de contagem | B (`@Throttle()` dedicado na rota, storage em memória) | B |
+| TD-06 | Frontend | Como os testes simulam os bytes do vídeo | A + C (fachada de mídia injetável, mais um E2E de fumaça com `page.route()`) | A + C |

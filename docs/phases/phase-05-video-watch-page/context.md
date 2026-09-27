@@ -3,7 +3,7 @@ kind: phase
 name: phase-05-video-watch-page
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-24T23:15:59-03:00"
+  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T21:56:42-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-01-configuracao-base/context.md: "2026-06-29T19:03:26-03:00"
@@ -37,10 +37,7 @@ sources_mtime:
 
 **Deliverables:** página de visualização com player funcional, sidebar de sugestões, download e acesso anônimo.
 
-**Affected subprojects:**
-
-- `next-frontend` — página, player e sidebar
-- `nestjs-project` — contagem de visualização, sugestões, acesso anônimo e acesso a unlisted por link
+**Affected subprojects:** _No subproject paths are explicitly named in the Fase 05 block of `docs/project-plan.md`._ The phase is described purely in capability terms. Derived from the TDs in scope: `nestjs-project/` (TD-02, TD-03, TD-04, TD-05 are `Cross-layer`) and `next-frontend/` (TD-01 and TD-06 are `Frontend`).
 
 **Deferred subprojects:** _None._
 
@@ -48,8 +45,8 @@ sources_mtime:
 
 **Neighbors (for boundary detection only):**
 
-- **Phase 04:** Fase 04 — Gerenciamento de Vídeos e Canal (Depende de: Fase 02, Fase 03)
-- **Phase 06:** Fase 06 — Interações Sociais (Likes, Comentários, Inscrições) (Depende de: Fase 02, Fase 05)
+- **Phase 04:** Gerenciamento de Vídeos e Canal — "Edição das informações do vídeo, fluxo de rascunho e publicação, painel de administração do canal e página pública."
+- **Phase 06:** Interações Sociais (Likes, Comentários, Inscrições) — "Likes/dislikes em vídeos e comentários, comentários com respostas e inscrição em canais."
 
 ## Decisions Index
 
@@ -57,8 +54,15 @@ sources_mtime:
 |-----|--------|-------|-------|--------|----------|-----------|
 | video-watch-page/TD-01 | phase | Frontend | Implementação do player de vídeo | decided | A (`<video controls>` nativo) | — |
 | video-watch-page/TD-02 | phase | Cross-layer | Validade da URL pré-assinada diante da duração da reprodução | decided | A (prazo longo cobrindo a reprodução) | — |
+|     └─ Last revision: 2026-09-26 — Validade de 6 h confirmada; deixa de ser premissa e passa a valor firme. Mesma… | | | | | | |
 | video-watch-page/TD-03 | phase | Cross-layer | Momento e critério de contagem de uma visualização | decided | B (endpoint dedicado após limiar de reprodução) | — |
+|     └─ Last revision: 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o… | | | | | | |
 | video-watch-page/TD-04 | phase | Cross-layer | Origem e critério das sugestões da sidebar | decided | A (mesma categoria, mais recentes primeiro) | — |
+|     └─ Last revision: 2026-09-26 — Recorte da sidebar fixado: **4 vídeos por página, com "ver mais" carregando as… | | | | | | |
+| video-watch-page/TD-05 | phase | Cross-layer | Proteção contra abuso do endpoint público de contagem | decided | B (`@Throttle()` dedicado na rota, storage em memória) | — |
+| video-watch-page/TD-06 | phase | Frontend | Como os testes simulam os bytes do vídeo | decided | A + C (fachada de mídia injetável + E2E de fumaça com `page.route()`) | — |
+
+_Nenhum TD do escopo declara `**Renders in:**`; pela regra de backwards-compat a coluna é omitida (todos os valores seriam `—`). O default por inferência é resolvido adiante pelo filtro A2 do `plan-build`, junto com o `ui_in_scope` da fase._
 
 _Source files:_
 
@@ -68,10 +72,10 @@ _Source files:_
 
 | Capability (from project-plan.md) | Covered by |
 |-----------------------------------|------------|
-| Player de vídeo com controles: play/pause, volume e barra de progresso | video-watch-page/TD-01, video-watch-page/TD-02 |
+| Player de vídeo com controles: play/pause, volume e barra de progresso | video-watch-page/TD-01, video-watch-page/TD-02, video-watch-page/TD-06 |
 | Layout da página: vídeo principal + informações + sidebar com sugestões | — _(sem TD; o decisions doc registra como composição de primitivos existentes, resolvida no screen-inventory e no plan-build)_ |
 | Descrição do vídeo com expansão/recolhimento | — _(sem TD; o decisions doc registra como comportamento de UI sem alternativa relevante)_ |
-| Contagem de visualizações | video-watch-page/TD-03 |
+| Contagem de visualizações | video-watch-page/TD-03, video-watch-page/TD-05, video-watch-page/TD-06 |
 | Sugestões de vídeos da mesma categoria na sidebar | video-watch-page/TD-04 |
 | Acesso anônimo à visualização de vídeos | — _(sem TD nesta fase; resolvido por video-channel-management/TD-02 + `assertServable`, já implementado)_ |
 | Botão de download do vídeo | video-watch-page/TD-02 |
@@ -89,14 +93,33 @@ _Source files:_
 **Recommendation:** o trade-off de expor um link temporário já foi aceito em `TD-08`; o que falta é dimensionar o prazo para o uso real. A Option C reverte uma decisão vigente e sai de escopo. A Option B resolve um risco que hoje é hipotético, ao custo de um caminho de erro difícil de testar com o player nativo do TD-01; ela é o caminho natural se algum dia surgir requisito de revogação imediata.
 **Libraries:** —
 
+**Revisions:**
+- 2026-09-26 — Validade de 6 h confirmada; deixa de ser premissa e passa a valor firme. Mesma Option A, nenhuma mudança de mecanismo. Rationale: resolve OQ-6 (/plan-validate) — o número foi fixado por premissa na redação original e o usuário o confirmou explicitamente no /plan-resolve.
+
 ### video-watch-page/TD-03
 
 **Recommendation:** separa "abriu a página" de "assistiu", que é a distinção que dá sentido ao número, sem introduzir armazenamento de estado por visitante. A Option A é barata mas entrega uma métrica que engana. A Option C é o destino provável quando a contagem passar a ter peso — em ranking ou recomendação —, e aí o custo de privacidade e infraestrutura se justifica; hoje não.
 **Libraries:** —
 
+**Revisions:**
+- 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o mecanismo continua sendo o endpoint dedicado disparado pelo player, só o valor muda. Rationale: resolve OQ-6 (/plan-validate) — os 5 s eram premissa, não recomendação; 10 s exige intenção real de assistir sem penalizar vídeo curto, ao contrário dos 30 s da referência clássica de mercado, que zeraria a contagem de qualquer vídeo mais curto que isso.
+
 ### video-watch-page/TD-04
 
 **Recommendation:** é a única determinística, e determinismo aqui vale mais do que variedade: permite testar a sidebar sem fixar semente e cachear a resposta. A Option C fica natural quando a contagem do TD-03 tiver histórico; a Option B tem um custo de banco que não se paga.
+**Libraries:** —
+
+**Revisions:**
+- 2026-09-26 — Recorte da sidebar fixado: **4 vídeos por página, com "ver mais" carregando as próximas páginas**. Mesma Option A — origem e ordenação inalteradas (mesma categoria, `published_at` desc, excluindo o vídeo atual, rascunhos e `unlisted`); o que se acrescenta é o tamanho do recorte e a paginação, que a decisão original não fixava. O contrato do endpoint expõe offset/limit, seguindo o padrão de `video-channel-management/TD-06`. Rationale: resolve AMB-1 (/plan-validate) — sem o tamanho, o plan-build não escreveria nem o contrato nem o SI da sidebar. Consequência assumida: o estado visual de "ver mais" e o de sidebar carregando não existem no Figma e serão implementados seguindo os padrões da Fase 04 (ver OQ-3).
+
+### video-watch-page/TD-05
+
+**Recommendation:** **Option B**, com C como caminho declarado para quando houver mais de uma instância. Três razões. (1) **O problema real desta fase não é a ausência de limite, é o limite errado** — o default existe e já cobre o endpoint; o que não existe é distinção entre um orçamento de autenticação e um de navegação, e é exatamente isso que o `@Throttle()` resolve, com uma linha. (2) **O Redis resolveria um problema que a fase não tem ainda** — reinício e multi-instância são reais, mas o deploy é de instância única até a Fase 07 tratar produção; acoplar o caminho de request ao Redis agora obriga a decidir o comportamento em caso de queda, uma decisão sem informação hoje. Subir de B para C depois é trocar o `storage` do módulo, sem tocar nas rotas. (3) **A Option D é desproporcional a uma métrica que o próprio `TD-03` decidiu não ser exata** — gastar contrato dos dois lados para encarecer, sem impedir, uma inflação de contador contradiz a escolha já feita. A Option A é defensável se a resposta for "a contagem não importa a ponto de justificar uma linha", mas então o 429 no meio da reprodução do usuário legítimo continua, e esse é um custo de produto, não de métrica.
+**Libraries:** —
+
+### video-watch-page/TD-06
+
+**Recommendation:** **Option A como base, com C aplicada a um único E2E de fumaça.** O raciocínio é que as duas perguntas têm respostas diferentes e tentar uma resposta só é o que trava a decisão.
 **Libraries:** —
 
 ## Inherited Decisions Detail
