@@ -3,7 +3,7 @@ kind: phase
 name: phase-05-video-watch-page
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T21:56:42-03:00"
+  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T22:05:51-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-01-configuracao-base/context.md: "2026-06-29T19:03:26-03:00"
