@@ -2,11 +2,17 @@
 kind: phase
 name: phase-05-video-watch-page
 status: dirty
-issue_count: 0
+issue_count: 2
 sources_mtime:
-  docs/phases/phase-05-video-watch-page/context.md: "2026-09-26T21:34:33-03:00"
-  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T21:18:14-03:00"
+  docs/phases/phase-05-video-watch-page/context.md: "2026-09-26T22:09:00-03:00"
+  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T22:05:51-03:00"
 issues:
+  - id: IC-1
+    status: open
+    summary: "Verbo do inventário cita limiar de 5 s; o TD-03 revisado diz 10 s"
+  - id: IC-2
+    status: open
+    summary: "TD-04 revisado pagina a sidebar; o inventário não tem verbo nem controle de 'ver mais'"
   - id: AMB-1
     status: resolved
     summary: "Quantidade de sugestões na sidebar não é definida por nenhuma fonte"
@@ -62,49 +68,79 @@ advisories: []
 
 ## Findings
 
-_Todas as 10 issues abertas foram resolvidas no `/plan-resolve` de 2026-09-26 e migraram para `## Resolved Issues`. O campo `status` continua `dirty` por contrato — só o `/plan-validate` emite veredito; rode-o para reconfirmar._
+_Quarta rodada, contra o `context.md` pós-`/plan-resolve`. As 12 issues das rodadas anteriores continuam resolvidas e preservadas em `## Resolved Issues`._
+
+_**Duas issues novas, ambas criadas pelas próprias resoluções.** Isso é o comportamento previsto pela semântica de rerun do skill ("may find new issues introduced by the resolution"), não uma falha do resolve. As duas têm a mesma origem: o `/plan-resolve` **não edita arquivos de inventário** — é regra explícita —, então revisões que mudam o que a tela faz deixam o digest do inventário defasado._
+
+_Check 8 suprimido (1 slice). Nenhuma regra customizada em `docs/rules/plan-validate/`._
 
 ### Inconsistencies
 
-_None._
+- **IC-1** — **O verbo do inventário cita 5 s; o TD-03 agora diz 10 s.** O `## UI Inventory → UI ↔ Capability Join` traz o verbo verbatim: _"Registrar uma visualização após **5 s** de reprodução efetiva"_. A revisão de 2026-09-26 no `video-watch-page/TD-03`, aplicada pelo `/plan-resolve` ao fechar a `OQ-6`, alterou o limiar para **10 s**. Duas fontes do mesmo `context.md` afirmam números diferentes para a mesma regra.
+
+  Isto não é cosmético: o verbo é campo load-bearing do Output Contract do `screen-inventory` e o `/plan-build` o consome **verbatim** no bloco `Verbs covered:` da UI Contract. Deixado como está, o plano final carrega 5 s na UI Contract e 10 s na decisão, e o implementador escolhe um dos dois.
+
+  Explicit choice: (a) rodar `/screen-inventory 05` em extension run para atualizar o verbo para 10 s — caro, porque exige cota do MCP do Figma; (b) declarar no `/plan-resolve` que o TD é a fonte autoritativa para o valor e que o `plan-build` deve usar 10 s, aceitando que o texto do inventário fica desatualizado nesse ponto; (c) reverter o limiar para 5 s, o que descartaria a decisão que você acabou de tomar.
+
+- **IC-2** — **O TD-04 revisado pagina a sidebar; o inventário descreve uma sidebar estática.** A revisão de 2026-09-26 no `video-watch-page/TD-04`, fechando a `AMB-1`, fixou **4 vídeos por página com "ver mais" carregando as próximas**. O inventário, porém, descreve a mesma superfície sem nenhum controle: o único verbo é _"Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted`"_, e `### Server-connected Components` lista apenas `VideoWatchPage`, `VideoPlayer` e `VideoCard` — não há controle de carregar-mais.
+
+  Duas fontes descrevem a mesma tela de formas diferentes. A consequência prática é no `/plan-build`: ele monta a UI Contract a partir dos verbos e da lista de componentes, então a interação de paginação não teria de onde ser derivada.
+
+  Vale registrar por que isto **não** é `UIG-N`: aquela checagem é por capability, e "Sugestões de vídeos da mesma categoria na sidebar" **tem** verbo. A lacuna é de interação dentro de uma capability já coberta — nível que o `UIG-N` não enxerga por construção.
+
+  Explicit choice: (a) rodar `/screen-inventory 05` em extension run para acrescentar o verbo de carregar-mais e o componente de controle; (b) declarar no `/plan-resolve` que o `plan-build` deriva a paginação da revisão do TD-04, tratando o inventário como incompleto nesse ponto; (c) reverter para lista fechada de 4, o que descartaria a resolução da `AMB-1`.
 
 ### Ambiguities
 
-_None._
+_None._ A `AMB-1` foi fechada pela revisão no `TD-04`, que fixou o recorte em 4 por página com paginação.
 
 ### Missing Decisions
 
-_None._
+_None._ Os seis TDs da fase estão decididos.
+
+**Nota sobre as quatro capabilities sem TD em `## Capability Coverage`** _(inalterada desde a segunda rodada)_. O sub-tipo mecânico "uncovered bullet" encontraria quatro linhas com `—`, mas nenhuma é decisão faltante, e o `context.md` carrega a justificativa na própria célula: "Layout da página" é composição de primitivos; "Descrição do vídeo com expansão/recolhimento" é comportamento de UI sem alternativa relevante; "Acesso anônimo" e "Vídeos unlisted" são resolvidas por `video-channel-management/TD-02`, já implementado.
+
+**Decisão #29 — não dispara, mas por julgamento, e a ressalva permanece.** A cobertura substantiva é inequívoca: `next-frontend-openapi-typing/TD-01..TD-05` decidem a cadeia inteira, e desde a PR #8 existe um workflow de CI que falha o build quando spec e tipos divergem. **Lida ao pé da letra, porém, a checagem dispararia:** a condição 3 exige um TD com `Scope: Cross-layer | Repo-wide`, e os cinco do `openapi-typing` são `Scope: Frontend`. Pior, o `## Inherited Decisions Detail` **não carrega coluna de Scope**, então o estágio não teria como aplicar esse filtro a TDs herdados nem que quisesse. Não emiti a `MD` porque seria falso positivo; registro a fragilidade pela terceira rodada seguida.
 
 ### Dependency Gaps
 
 _None._
 
-**Limite declarado deste check, preservado da rodada anterior.** Este estágio lê apenas o `context.md`. Toda conclusão de Dependency Gap aqui é derivada de documento, não do disco — e a rodada anterior já produziu um falso "já existe" sobre a cadeia do `openapi-typing` e seu CI. As dependências devem ser reconfirmadas contra o repositório no `plan-build`.
+Reverificado com os dois TDs novos decididos: o `@nestjs/throttler` que o `TD-05` usa está instalado e configurado desde a Fase 02 — e, como o `ICC-1` estabeleceu, seu guard já é global; o `@playwright/test` que o `TD-06` usa está instalado no `next-frontend`, com 9 specs E2E em `tests/`; a fundação de MSW está decidida em `next-frontend-msw-foundation`. `views_count` existe desde a Fase 04; a assinatura de URL já respeita rascunho e visibilidade.
+
+**Limite declarado deste check, mantido das rodadas anteriores.** Este estágio lê apenas o `context.md`. Toda conclusão aqui é derivada de documento, não do disco — e a segunda rodada já produziu um falso "já existe" sobre a cadeia do `openapi-typing` e seu CI. As dependências devem ser reconfirmadas contra o repositório no `plan-build`.
 
 ### Inherited Constraint Conflicts
 
 _None._
 
+A `ICC-1` foi fechada pela revisão anexada ao `phase-02-auth/TD-08`. Reexaminados os seis TDs decididos contra as convenções e os TDs herdados: o `TD-05` agora **concorda** com o `TD-08` corrigido, porque adota o mesmo `@nestjs/throttler` e parte do escopo global real. O `TD-02` elevar a validade da URL para 6 h sobre o `upload-processing/TD-08` segue não sendo conflito — aquele TD decidiu o mecanismo e explicitamente não fixou prazo.
+
 ### Unresolved Open Questions
 
 _None._
+
+Os seis TDs estão decididos, então a sub-checagem de TD pendente não produz nada. As cinco Open Questions do inventário continuam no digest do `context.md` — o resolve não edita arquivos de inventário —, mas todas as cinco constam como `resolved` no frontmatter desta revisão, então a regra de merge do Step 3 as descarta em vez de reemiti-las.
 
 ### UI Coverage Gaps
 
 _None._
 
+Reexaminada contra os seis TDs decididos. As três capabilities cobertas por TD decidido — "Player de vídeo…", "Contagem de visualizações" e "Sugestões de vídeos da mesma categoria na sidebar" — têm verbo no join. "Botão de download do vídeo", coberta pelo `TD-02`, também tem. As quatro sem TD não satisfazem a condição 1.
+
+O caso do "ver mais" **não** cai aqui, pelo motivo explicado em `IC-2`: a capability tem verbo; o que falta é uma interação dentro dela.
+
 ## Resolved Issues
 
-- **MD-1** _(resolved_by video-watch-page/TD-05)_ — Endpoint público de contagem sem decisão de proteção contra abuso. Fechada pelo `/research` de 2026-09-26. A investigação derrubou a premissa da issue: o endpoint **já estava protegido** pelo throttler global herdado da Fase 02; a decisão real passou a ser se o limite de 10/60 s, calibrado para login, serve a um endpoint de navegação.
-- **MD-2** _(resolved_by video-watch-page/TD-06)_ — Sem decisão de como os testes fingem os bytes de vídeo do object storage. Fechada pelo `/research` de 2026-09-26. A investigação mostrou que o problema é de camada, não de configuração: o MSW do E2E roda no Node do Next e nunca veria uma requisição feita pelo navegador, e o `jsdom` instalado define `play()`, `pause()` e `load()` como `notImplementedMethod` sem disparar `timeupdate`.
-- **OQ-7** _(resolved_by video-watch-page/TD-05)_ — TD-05 decidido: **Option B**, `@Throttle()` dedicado na rota com storage em memória, a **30 req/60 s por IP**, sobrepondo o default global de 10/60 s. A Option C (Redis) fica declarada como o caminho para quando houver mais de uma instância — é uma troca do `storage` do módulo, sem tocar nas rotas. Os 30/60 s entram no doc marcados como premissa a confirmar.
-- **OQ-8** _(resolved_by video-watch-page/TD-06)_ — TD-06 decidido: **Option A + C**. A fachada de mídia injetável é a base e cobre o gatilho de reprodução do TD-03 na camada de componente, de forma determinística; o `page.route()` na origem do storage se aplica a **um único** E2E de fumaça, não à suíte inteira. Limite aceito junto com a decisão: a fachada é superfície de produção existindo em parte para o teste.
-- **AMB-1** _(resolved_by video-watch-page/TD-04)_ — Recorte da sidebar fixado em **4 vídeos por página, com "ver mais" paginando**, registrado como revisão no TD-04 (mesma Option A — origem e ordenação inalteradas). O contrato do endpoint expõe offset/limit, seguindo o padrão de `video-channel-management/TD-06`. Consequência assumida e encaminhada em OQ-3: o estado de "ver mais" e o de sidebar carregando não existem no Figma.
-- **ICC-1** _(resolved_by phase-02-auth/TD-08)_ — Revisão anexada ao `phase-02-auth/TD-08` corrigindo a premissa factual: `APP_GUARD` é global independentemente do módulo que o declara, e o escopo efetivo do throttler sempre foi a aplicação inteira. Mesma Option A, sem mudança de decisão. Fecha o ciclo do erro que induziu a MD-1 desta fase.
-- **OQ-6** _(resolved_by video-watch-page/TD-02, video-watch-page/TD-03)_ — Os dois valores marcados como premissa foram tratados: a validade de **6 h** da URL pré-assinada foi **confirmada** e deixa de ser premissa (revisão no TD-02); o limiar de reprodução efetiva foi **revisado de 5 s para 10 s** (revisão no TD-03). O critério dos 10 s: exige intenção real de assistir sem penalizar vídeo curto, ao contrário dos 30 s da referência clássica, que zeraria a contagem de qualquer vídeo mais curto que isso.
-- **OQ-1** _(resolved_by clarification)_ — Re-extração do Figma **aceita como dívida registrada, sem bloquear a fase**. O `/implement` consome a URL da tela, que existe e está correta; node-ids de filhos não são campo do Output Contract. A re-extração acontece quando a cota do MCP voltar.
-- **OQ-2** _(resolved_by clarification)_ — Cobertura por componente **Local-interactive é válida sem verbo de intenção**. A ausência está correta: verbo de intenção descreve ida ao servidor, e expandir texto não vai a lugar nenhum. A tensão com a regra do `screen-inventory` fica registrada, mas não vira trabalho nesta fase.
-- **OQ-3** _(resolved_by clarification)_ — Os estados sem desenho serão **implementados seguindo os padrões da Fase 04**, sem passar pelo Figma. São cinco: descrição expandida, sidebar vazia, sidebar paginando (novo, vindo da resolução de AMB-1), loading do player e erro de carregamento. Custo assumido: entram em produção sem revisão visual, e o "ver mais" é interação nova, não variação de componente existente.
-- **OQ-4** _(resolved_by clarification)_ — O `not-found-card` **reusa `components/ui/card.tsx`**. Pode exigir override de classe para o radius 16 e a largura 520 do desenho.
-- **OQ-5** _(resolved_by clarification)_ — Rótulo da sidebar: **"MAIS EM {CATEGORIA}"** nas sete categorias nomeadas, e **"MAIS VÍDEOS"** quando a categoria é o catch-all "Outros" — "MAIS EM OUTROS" é construção esquisita em pt-BR.
+- **MD-1** _(resolved_by video-watch-page/TD-05)_ — Endpoint público de contagem sem decisão de proteção contra abuso. Fechada pelo `/research` de 2026-09-26. A investigação derrubou a premissa da issue: o endpoint **já estava protegido** pelo throttler global herdado da Fase 02.
+- **MD-2** _(resolved_by video-watch-page/TD-06)_ — Sem decisão de como os testes fingem os bytes de vídeo do object storage. Fechada pelo `/research` de 2026-09-26. O problema era de camada, não de configuração: o MSW do E2E roda no Node do Next e nunca veria uma requisição do navegador, e o `jsdom` define `play()`, `pause()` e `load()` como `notImplementedMethod`.
+- **OQ-7** _(resolved_by video-watch-page/TD-05)_ — TD-05 decidido: **Option B**, `@Throttle()` na rota a 30 req/60 s por IP, storage em memória. Redis declarado como caminho para multi-instância.
+- **OQ-8** _(resolved_by video-watch-page/TD-06)_ — TD-06 decidido: **Option A + C**. Fachada de mídia injetável cobre o gatilho na camada de componente; `page.route()` na origem do storage em **um único** E2E de fumaça.
+- **AMB-1** _(resolved_by video-watch-page/TD-04)_ — Recorte da sidebar fixado em 4 por página com "ver mais" paginando, por revisão no TD-04. _Efeito colateral que virou `IC-2` nesta rodada: o inventário não descreve o controle de paginação._
+- **ICC-1** _(resolved_by phase-02-auth/TD-08)_ — Revisão anexada corrigindo a premissa factual: `APP_GUARD` é global independentemente do módulo que o declara. Fecha o ciclo do erro que induziu a MD-1.
+- **OQ-6** _(resolved_by video-watch-page/TD-02, video-watch-page/TD-03)_ — Validade de 6 h **confirmada**; limiar de reprodução **revisado de 5 s para 10 s**. _Efeito colateral que virou `IC-1` nesta rodada: o verbo do inventário ainda cita 5 s._
+- **OQ-1** _(resolved_by clarification)_ — Re-extração do Figma aceita como dívida registrada, sem bloquear a fase.
+- **OQ-2** _(resolved_by clarification)_ — Cobertura por componente Local-interactive é válida sem verbo de intenção.
+- **OQ-3** _(resolved_by clarification)_ — Estados sem desenho implementados seguindo os padrões da Fase 04. São cinco, incluindo a sidebar paginando, acrescentada pela resolução da AMB-1.
+- **OQ-4** _(resolved_by clarification)_ — O `not-found-card` reusa `components/ui/card.tsx`.
+- **OQ-5** _(resolved_by clarification)_ — Rótulo "MAIS EM {CATEGORIA}" nas sete categorias nomeadas, "MAIS VÍDEOS" no catch-all "Outros".
