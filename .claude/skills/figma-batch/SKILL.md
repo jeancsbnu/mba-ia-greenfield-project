@@ -12,6 +12,8 @@ This skill exists because of a hard constraint: the project's Figma account is o
 ## The two rules
 
 1. **One `use_figma` call per task.** Not one per screen, not one per concern. Compose the whole read (and any writes) into a single script and return one structured payload.
+
+   **Reconciling with `figma-use`'s "≤10 logical operations per call".** That limit exists to keep *writes* debuggable, and it is not in conflict with this rule once the two halves are separated: **reads batch without limit** — a tree walk over N frames is one logical operation regardless of N — while **writes stay small**, under the 10-operation ceiling. When a task needs more writing than that, split the writes across calls and attach the harvest to the last one. `use_figma` is **atomic**: a script that errors executes nothing, so a failed batch costs one call and leaves the file clean.
 2. **Cache to disk, read from disk.** A second consumer of the same nodes must not touch the MCP. The cache is committed, so the quota is spent once for the whole repository and survives across sessions.
 
 Everything below serves those two rules.
@@ -66,6 +68,17 @@ A stale cache is not automatically wrong. Node ids and component structure are s
 
 The harvest script template is in `references/harvest.js`. Read it, substitute the header constants, and pass the whole thing as `code`.
 
+**Syntax-check locally before spending the call.** A `SyntaxError` costs a full call and returns nothing. The check is free:
+
+```bash
+# wrap as an async function body — use_figma injects the code that way,
+# so top-level await and return are valid there but not in a bare module
+python -c "import io;s=io.open('script.js',encoding='utf-8').read();io.open('_chk.mjs','w',encoding='utf-8').write('const figma={};export default async function(){'+s+'}')"
+node --check _chk.mjs
+```
+
+This is not hypothetical: the first real call made from this skill was burned on `await` inside a non-`async function`, which `node --check` catches in milliseconds.
+
 The script returns one JSON object:
 
 ```
@@ -97,6 +110,8 @@ The Plugin API gotchas that bite here, all confirmed in this project:
 
 Persist each harvested node to `docs/figma-cache/<fileKey>/<nodeId>.json`, and the file-level blocks to `docs/figma-cache/<fileKey>/_file.json`.
 
+**Write the node id in URL form (`66-42`), not API form (`66:42`).** A colon is invalid in a Windows filename, and this project runs on Windows. Convert on the way out and back on the way in — the API calls take `66:42`.
+
 ```yaml
 # each node file carries this envelope
 fileKey: FetKyb1V02WS5D6VCatK6t
@@ -115,6 +130,16 @@ Screenshots are written as separate `.png` files next to the JSON, not embedded 
 State plainly, every run: how many MCP calls were spent, what the cache served, and what a future run can skip. This is what keeps the discipline visible instead of aspirational.
 
 > Harvest: 1 `use_figma` call. 2 nodes, blocks `tree` + `screenshots`. Cached to `docs/figma-cache/FetKyb…/`. A re-run of `/screen-inventory 05` now costs 0 calls.
+
+## Confirmed in practice (2026-09-29)
+
+One call did all of this, with `errors: []`:
+
+- created a control that a TD required but no one had drawn (2 nodes),
+- walked both phase-05 frames to depth 6 — 2 screens, ~90 nodes,
+- returned both rendered screenshots inline.
+
+Two things the run proved that were previously assumptions: `await node.screenshot()` **is** available in this sandbox and returns the image inline, and `node.query('FRAME[name=…]')` resolves reliably enough to target a write without a prior inspect call — which is what made the write-plus-harvest combination possible in one call instead of two.
 
 ## What this skill does not do
 

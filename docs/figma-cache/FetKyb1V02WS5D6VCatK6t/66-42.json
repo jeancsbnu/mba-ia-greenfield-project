@@ -1,0 +1,413 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "66:42",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=66-42",
+    "fetched_at": "2026-09-29T22:48:31Z",
+    "blocks": ["tree", "screenshot"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 6
+  },
+  "id": "66:42", "name": "assistir-video", "type": "FRAME",
+  "size": { "w": 1100, "h": 1045 },
+  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0] },
+  "fills": [{ "type": "SOLID", "color": "#f8fafc", "opacity": 1 }],
+  "radius": 24,
+  "children": [
+    {
+      "id": "66:43", "name": "top-decorative-strip", "type": "FRAME",
+      "size": { "w": 1100, "h": 32 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.03137255 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "dash": [6, 4]
+    },
+    {
+      "id": "66:44", "name": "navbar", "type": "FRAME",
+      "size": { "w": 1100, "h": 76 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [20, 48, 20, 48] },
+      "fills": [],
+      "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+      "children": [
+        {
+          "id": "66:45", "name": "brand-logo", "type": "FRAME",
+          "size": { "w": 183, "h": 36 },
+          "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "66:46", "name": "logo-box", "type": "FRAME",
+              "size": { "w": 36, "h": 36 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+              "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "66:47", "name": "play-icon", "type": "FRAME",
+                  "size": { "w": 16, "h": 16 },
+                  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0] },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "66:48", "name": "play", "type": "FRAME",
+                      "size": { "w": 16, "h": 16 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "66:49", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 11, "h": 12 }, "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "66:50", "name": "EstúdioCriador", "type": "TEXT",
+              "size": { "w": 135, "h": 22 },
+              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "characters": "EstúdioCriador", "font": "Inter Extra Bold", "fontSize": 18
+            }
+          ]
+        },
+        {
+          "id": "66:51", "name": "user-menu", "type": "FRAME",
+          "size": { "w": 74, "h": 33 },
+          "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "66:52", "name": "sair-button", "type": "FRAME",
+              "size": { "w": 74, "h": 33 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16] },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "66:53", "name": "Entrar", "type": "TEXT",
+                  "size": { "w": 42, "h": 17 },
+                  "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                  "characters": "Entrar", "font": "Inter Semi Bold", "fontSize": 14
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "67:42", "name": "main-dashed-container", "type": "FRAME",
+      "size": { "w": 1100, "h": 937 },
+      "layout": { "mode": "HORIZONTAL", "gap": 24, "padding": [48, 48, 48, 48] },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.03 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "dash": [8, 6],
+      "children": [
+        {
+          "id": "67:43", "name": "watch-column", "type": "FRAME",
+          "size": { "w": 745, "h": 681 },
+          "layout": { "mode": "VERTICAL", "gap": 16, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "67:44", "name": "video-player", "type": "FRAME",
+              "size": { "w": 745, "h": 420 },
+              "layout": { "mode": "VERTICAL", "gap": 0, "padding": [16, 16, 16, 16] },
+              "fills": [{ "type": "SOLID", "color": "#0f0f0f", "opacity": 1 }],
+              "radius": 12,
+              "children": [
+                {
+                  "id": "67:45", "name": "player-controls", "type": "FRAME",
+                  "size": { "w": 713, "h": 16 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0] },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "67:46", "name": "play-icon", "type": "FRAME",
+                      "size": { "w": 16, "h": 16 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "67:47", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 9, "h": 11 },
+                          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "67:48", "name": "progress-track", "type": "FRAME",
+                      "size": { "w": 590, "h": 4 },
+                      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 0.3 }],
+                      "radius": 2,
+                      "children": [
+                        {
+                          "id": "67:49", "name": "progress-played", "type": "RECTANGLE",
+                          "size": { "w": 240, "h": 4 },
+                          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                          "radius": 2
+                        }
+                      ]
+                    },
+                    {
+                      "id": "67:50", "name": "volume-icon", "type": "FRAME",
+                      "size": { "w": 16, "h": 16 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "67:51", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 5, "h": 10 },
+                          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                        },
+                        {
+                          "id": "67:52", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 1, "h": 4 }, "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "67:53", "name": "time-text", "type": "TEXT",
+                      "size": { "w": 55, "h": 13 },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                      "characters": "2:47 / 8:12", "font": "Inter Regular", "fontSize": 11
+                    }
+                  ]
+                },
+                {
+                  "id": "67:54", "name": "play-affordance", "type": "ELLIPSE",
+                  "size": { "w": 64, "h": 64 }, "absolute": true,
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 0.16 }]
+                },
+                {
+                  "id": "67:55", "name": "play-glyph", "type": "FRAME",
+                  "size": { "w": 24, "h": 24 }, "absolute": true, "fills": [],
+                  "children": [
+                    {
+                      "id": "67:56", "name": "Vector", "type": "VECTOR",
+                      "size": { "w": 14, "h": 17 },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "67:57", "name": "video-heading", "type": "FRAME",
+              "size": { "w": 745, "h": 49 },
+              "layout": { "mode": "VERTICAL", "gap": 6, "padding": [0, 0, 0, 0] },
+              "fills": [],
+              "children": [
+                {
+                  "id": "67:58", "name": "video-title", "type": "TEXT",
+                  "size": { "w": 745, "h": 27 },
+                  "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                  "characters": "Tour pelo estúdio — setup 2026",
+                  "font": "Inter Extra Bold", "fontSize": 22
+                },
+                {
+                  "id": "67:59", "name": "video-meta", "type": "TEXT",
+                  "size": { "w": 199, "h": 16 },
+                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "characters": "1.284 visualizações · 28 jul 2026",
+                  "font": "Inter Regular", "fontSize": 13
+                }
+              ]
+            },
+            {
+              "id": "67:60", "name": "channel-row", "type": "FRAME",
+              "size": { "w": 745, "h": 74 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [16, 0, 16, 0] },
+              "fills": [],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "children": [
+                {
+                  "id": "67:61", "name": "channel-identity", "type": "FRAME",
+                  "size": { "w": 125, "h": 40 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0] },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "67:102", "name": "channel-avatar", "type": "ELLIPSE",
+                      "size": { "w": 40, "h": 40 },
+                      "fills": [{ "type": "IMAGE", "scaleMode": "FILL" }],
+                      "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }]
+                    },
+                    {
+                      "id": "67:63", "name": "channel-text", "type": "FRAME",
+                      "size": { "w": 73, "h": 34 },
+                      "layout": { "mode": "VERTICAL", "gap": 2, "padding": [0, 0, 0, 0] },
+                      "fills": [],
+                      "children": [
+                        {
+                          "id": "67:64", "name": "channel-name", "type": "TEXT",
+                          "size": { "w": 73, "h": 17 },
+                          "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                          "characters": "Joana Cria", "font": "Inter Bold", "fontSize": 14
+                        },
+                        {
+                          "id": "67:65", "name": "channel-nickname", "type": "TEXT",
+                          "size": { "w": 68, "h": 15 },
+                          "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                          "characters": "@joana_cria", "font": "Inter Regular", "fontSize": 12
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "67:66", "name": "download-button", "type": "FRAME",
+                  "size": { "w": 138, "h": 33 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 8, "padding": [8, 16, 8, 16] },
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                  "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+                  "radius": 10,
+                  "children": [
+                    {
+                      "id": "67:68", "name": "download-icon", "type": "FRAME",
+                      "size": { "w": 14, "h": 14 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "67:69", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 10, "h": 11 }, "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "67:67", "name": "download-label", "type": "TEXT",
+                      "size": { "w": 84, "h": 17 },
+                      "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                      "characters": "Baixar vídeo", "font": "Inter Semi Bold", "fontSize": 14
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "67:70", "name": "description-collapsed", "type": "FRAME",
+              "size": { "w": 745, "h": 90 },
+              "layout": { "mode": "VERTICAL", "gap": 8, "padding": [16, 16, 16, 16] },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 12,
+              "children": [
+                {
+                  "id": "67:71", "name": "description-text", "type": "TEXT",
+                  "size": { "w": 711, "h": 32 },
+                  "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                  "characters": "Neste vídeo mostro todos os detalhes do meu setup atualizado de 2026 para gravação de conteúdo — câmera, áudio, iluminação e a mesa. Também explico por que troquei o microfone e o que mudou na captação depois…",
+                  "font": "Inter Regular", "fontSize": 13
+                },
+                {
+                  "id": "67:72", "name": "description-toggle", "type": "FRAME",
+                  "size": { "w": 101, "h": 16 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 6, "padding": [0, 0, 0, 0] },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "67:73", "name": "toggle-label", "type": "TEXT",
+                      "size": { "w": 83, "h": 16 },
+                      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                      "characters": "Mostrar mais", "font": "Inter Semi Bold", "fontSize": 13
+                    },
+                    {
+                      "id": "67:74", "name": "chevron-down", "type": "FRAME",
+                      "size": { "w": 12, "h": 12 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "67:75", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 6, "h": 3 }, "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "67:76", "name": "suggestions-sidebar", "type": "FRAME",
+          "size": { "w": 233, "h": 839 },
+          "layout": { "mode": "VERTICAL", "gap": 14, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "67:77", "name": "sidebar-heading", "type": "TEXT",
+              "size": { "w": 125, "h": 15 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "MAIS EM EDUCAÇÃO", "font": "Inter Bold", "fontSize": 12
+            },
+            {
+              "id": "67:78", "name": "video-card", "type": "INSTANCE",
+              "size": { "w": 233, "h": 180 }, "fills": [], "instance": true,
+              "mainComponent": { "id": "59:88", "name": "video-card", "key": "b83ba216599b79ce06b46c040f12217e10b6f5ae" },
+              "children": [
+                { "id": "I67:78;59:89", "name": "thumbnail", "type": "RECTANGLE", "size": { "w": 233, "h": 131 }, "fills": [{ "type": "IMAGE", "scaleMode": "FILL" }], "radius": 8 },
+                { "id": "I67:78;59:90", "name": "duration-badge", "type": "RECTANGLE", "size": { "w": 40, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#0f0f0f", "opacity": 0.82 }], "radius": 4 },
+                { "id": "I67:78;59:91", "name": "duration-text", "type": "TEXT", "size": { "w": 31, "h": 13 }, "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }], "characters": "14:47", "font": "Inter Bold", "fontSize": 11 },
+                { "id": "I67:78;59:92", "name": "title", "type": "TEXT", "size": { "w": 233, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }], "characters": "Renderizando com FFmpeg — bastidores", "font": "Inter Bold", "fontSize": 15 },
+                { "id": "I67:78;59:93", "name": "meta", "type": "TEXT", "size": { "w": 233, "h": 15 }, "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }], "characters": "312 visualizações · há 2 meses", "font": "Inter Regular", "fontSize": 12 }
+              ]
+            },
+            {
+              "id": "67:84", "name": "video-card", "type": "INSTANCE",
+              "size": { "w": 233, "h": 180 }, "fills": [], "instance": true,
+              "mainComponent": { "id": "59:88", "name": "video-card", "key": "b83ba216599b79ce06b46c040f12217e10b6f5ae" },
+              "children": [
+                { "id": "I67:84;59:89", "name": "thumbnail", "type": "RECTANGLE", "size": { "w": 233, "h": 131 }, "fills": [{ "type": "IMAGE", "scaleMode": "FILL" }], "radius": 8 },
+                { "id": "I67:84;59:90", "name": "duration-badge", "type": "RECTANGLE", "size": { "w": 40, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#0f0f0f", "opacity": 0.82 }], "radius": 4 },
+                { "id": "I67:84;59:91", "name": "duration-text", "type": "TEXT", "size": { "w": 26, "h": 13 }, "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }], "characters": "5:30", "font": "Inter Bold", "fontSize": 11 },
+                { "id": "I67:84;59:92", "name": "title", "type": "TEXT", "size": { "w": 233, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }], "characters": "Como editar uma thumbnail personalizada", "font": "Inter Bold", "fontSize": 15 },
+                { "id": "I67:84;59:93", "name": "meta", "type": "TEXT", "size": { "w": 233, "h": 15 }, "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }], "characters": "208 visualizações · há 3 meses", "font": "Inter Regular", "fontSize": 12 }
+              ]
+            },
+            {
+              "id": "67:90", "name": "video-card", "type": "INSTANCE",
+              "size": { "w": 233, "h": 180 }, "fills": [], "instance": true,
+              "mainComponent": { "id": "59:88", "name": "video-card", "key": "b83ba216599b79ce06b46c040f12217e10b6f5ae" },
+              "children": [
+                { "id": "I67:90;59:89", "name": "thumbnail", "type": "RECTANGLE", "size": { "w": 233, "h": 131 }, "fills": [{ "type": "IMAGE", "scaleMode": "FILL" }], "radius": 8 },
+                { "id": "I67:90;59:90", "name": "duration-badge", "type": "RECTANGLE", "size": { "w": 40, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#0f0f0f", "opacity": 0.82 }], "radius": 4 },
+                { "id": "I67:90;59:91", "name": "duration-text", "type": "TEXT", "size": { "w": 26, "h": 13 }, "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }], "characters": "9:05", "font": "Inter Bold", "fontSize": 11 },
+                { "id": "I67:90;59:92", "name": "title", "type": "TEXT", "size": { "w": 233, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }], "characters": "Roteiro de vídeo em 20 minutos", "font": "Inter Bold", "fontSize": 15 },
+                { "id": "I67:90;59:93", "name": "meta", "type": "TEXT", "size": { "w": 233, "h": 15 }, "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }], "characters": "154 visualizações · há 4 meses", "font": "Inter Regular", "fontSize": 12 }
+              ]
+            },
+            {
+              "id": "67:96", "name": "video-card", "type": "INSTANCE",
+              "size": { "w": 233, "h": 180 }, "fills": [], "instance": true,
+              "mainComponent": { "id": "59:88", "name": "video-card", "key": "b83ba216599b79ce06b46c040f12217e10b6f5ae" },
+              "children": [
+                { "id": "I67:96;59:89", "name": "thumbnail", "type": "RECTANGLE", "size": { "w": 233, "h": 131 }, "fills": [{ "type": "IMAGE", "scaleMode": "FILL" }], "radius": 8 },
+                { "id": "I67:96;59:90", "name": "duration-badge", "type": "RECTANGLE", "size": { "w": 40, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#0f0f0f", "opacity": 0.82 }], "radius": 4 },
+                { "id": "I67:96;59:91", "name": "duration-text", "type": "TEXT", "size": { "w": 24, "h": 13 }, "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }], "characters": "6:18", "font": "Inter Bold", "fontSize": 11 },
+                { "id": "I67:96;59:92", "name": "title", "type": "TEXT", "size": { "w": 233, "h": 18 }, "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }], "characters": "Áudio limpo sem tratamento caro", "font": "Inter Bold", "fontSize": 15 },
+                { "id": "I67:96;59:93", "name": "meta", "type": "TEXT", "size": { "w": 233, "h": 15 }, "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }], "characters": "97 visualizações · há 5 meses", "font": "Inter Regular", "fontSize": 12 }
+              ]
+            },
+            {
+              "_new_in": "2026-09-29 — criado nesta colheita para fechar IC-2 (TD-04 paginou a sidebar, o controle nunca fora desenhado)",
+              "id": "72:62", "name": "sidebar-load-more", "type": "FRAME",
+              "size": { "w": 233, "h": 34 },
+              "layout": { "mode": "HORIZONTAL", "gap": 8, "padding": [8, 16, 8, 16] },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "72:63", "name": "load-more-label", "type": "TEXT",
+                  "size": { "w": 55, "h": 16 },
+                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "characters": "Ver mais", "font": "Inter Semi Bold", "fontSize": 13
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

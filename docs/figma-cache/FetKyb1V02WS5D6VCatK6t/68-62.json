@@ -1,0 +1,168 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "68:62",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=68-62",
+    "fetched_at": "2026-09-29T22:48:31Z",
+    "blocks": ["tree", "screenshot"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 6
+  },
+  "id": "68:62", "name": "video-nao-encontrado", "type": "FRAME",
+  "size": { "w": 1100, "h": 620 },
+  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0] },
+  "fills": [{ "type": "SOLID", "color": "#f8fafc", "opacity": 1 }],
+  "radius": 24,
+  "children": [
+    {
+      "id": "68:63", "name": "top-decorative-strip", "type": "FRAME",
+      "size": { "w": 1100, "h": 32 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.03137255 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "dash": [6, 4]
+    },
+    {
+      "id": "68:64", "name": "navbar", "type": "FRAME",
+      "size": { "w": 1100, "h": 76 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [20, 48, 20, 48] },
+      "fills": [],
+      "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+      "children": [
+        {
+          "id": "68:65", "name": "brand-logo", "type": "FRAME",
+          "size": { "w": 183, "h": 36 },
+          "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "68:66", "name": "logo-box", "type": "FRAME",
+              "size": { "w": 36, "h": 36 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+              "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "68:67", "name": "play-icon", "type": "FRAME",
+                  "size": { "w": 16, "h": 16 },
+                  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0] },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "68:68", "name": "play", "type": "FRAME",
+                      "size": { "w": 16, "h": 16 }, "fills": [],
+                      "children": [
+                        {
+                          "id": "68:69", "name": "Vector", "type": "VECTOR",
+                          "size": { "w": 11, "h": 12 }, "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "68:70", "name": "EstúdioCriador", "type": "TEXT",
+              "size": { "w": 135, "h": 22 },
+              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "characters": "EstúdioCriador", "font": "Inter Extra Bold", "fontSize": 18
+            }
+          ]
+        },
+        {
+          "id": "68:71", "name": "user-menu", "type": "FRAME",
+          "size": { "w": 74, "h": 33 },
+          "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [0, 0, 0, 0] },
+          "fills": [],
+          "children": [
+            {
+              "id": "68:72", "name": "sair-button", "type": "FRAME",
+              "size": { "w": 74, "h": 33 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16] },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "68:73", "name": "Entrar", "type": "TEXT",
+                  "size": { "w": 42, "h": 17 },
+                  "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                  "characters": "Entrar", "font": "Inter Semi Bold", "fontSize": 14
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "68:74", "name": "main-dashed-container", "type": "FRAME",
+      "size": { "w": 1100, "h": 512 },
+      "layout": { "mode": "VERTICAL", "gap": 0, "padding": [96, 48, 96, 48] },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.03 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "dash": [8, 6],
+      "children": [
+        {
+          "id": "68:75", "name": "not-found-card", "type": "FRAME",
+          "size": { "w": 520, "h": 318 },
+          "layout": { "mode": "VERTICAL", "gap": 20, "padding": [48, 48, 48, 48] },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+          "radius": 16,
+          "children": [
+            {
+              "id": "68:76", "name": "not-found-badge", "type": "FRAME",
+              "size": { "w": 64, "h": 64 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0] },
+              "fills": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 32,
+              "children": [
+                {
+                  "id": "68:77", "name": "video-off-icon", "type": "FRAME",
+                  "size": { "w": 28, "h": 28 }, "fills": [],
+                  "children": [
+                    { "id": "68:78", "name": "Vector", "type": "VECTOR", "size": { "w": 16, "h": 13 }, "fills": [], "strokes": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }] },
+                    { "id": "68:79", "name": "Vector", "type": "VECTOR", "size": { "w": 5, "h": 9 }, "fills": [], "strokes": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }] },
+                    { "id": "68:80", "name": "Vector", "type": "VECTOR", "size": { "w": 22, "h": 20 }, "fills": [], "strokes": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }] }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "68:81", "name": "not-found-heading", "type": "TEXT",
+              "size": { "w": 422, "h": 29 },
+              "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+              "characters": "VÍDEO NÃO ENCONTRADO", "font": "Inter Extra Bold", "fontSize": 24
+            },
+            {
+              "id": "68:82", "name": "not-found-body", "type": "TEXT",
+              "size": { "w": 422, "h": 34 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "Este vídeo não existe, foi removido, ou ainda não foi publicado pelo canal. Confira o endereço e tente de novo.",
+              "font": "Inter Regular", "fontSize": 14
+            },
+            {
+              "id": "68:83", "name": "back-home-button", "type": "FRAME",
+              "size": { "w": 158, "h": 33 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16] },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "68:84", "name": "Voltar para o início", "type": "TEXT",
+                  "size": { "w": 126, "h": 17 },
+                  "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                  "characters": "Voltar para o início", "font": "Inter Semi Bold", "fontSize": 14
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
