@@ -27,7 +27,7 @@
 | EntrarButton (`sair-button` `66:52`) | Local-interactive | ✓ | `components/ui/button.tsx` | Herdado da fase 04. Navegação client-side (`<Link>`) para `/login`; não dispara mutation |
 | main-dashed-container (`67:42`) | Presentational | ✗ | new | Container tracejado, padding 48, gap 24; puro DOM de layout |
 | watch-column (`67:43`) | Presentational | ✗ | new | Coluna esquerda (FILL, 747); puro DOM de layout |
-| VideoPlayer (`video-player` `67:44`) | Server-connected | ✗ | `components/videos/video-player.tsx (new)` | `<video controls>` nativo (TD-01) com `src` na URL pré-assinada (TD-02). É também o dono do disparo da contagem de visualização após 5 s de reprodução efetiva (TD-03), o que exige `"use client"` |
+| VideoPlayer (`video-player` `67:44`) | Server-connected | ✗ | `components/videos/video-player.tsx (new)` | `<video controls>` nativo (TD-01) com `src` na URL pré-assinada (TD-02). É também o dono do disparo da contagem de visualização após 10 s de reprodução efetiva (TD-03, revisado em 2026-09-26), o que exige `"use client"` |
 | Controles nativos (`player-controls` `67:45`, `progress-track` `67:48`, `progress-played` `67:49`, `play-affordance` `67:54`, `play-glyph` `67:55`, `volume-icon` `67:50`, `time-text` `67:53`) | Presentational | ✗ | new | **Não são componentes a autorar.** Por TD-01 os controles são os do navegador; esses nós existem no Figma apenas para comunicar a área do player e ficam fora do DOM da implementação |
 | video-heading (`67:57`) | Presentational | ✗ | new | Bloco de título + metadados; puro DOM |
 | video-title (`67:58`) | Presentational | ✗ | new | `<h1>` 22 Extra Bold |
