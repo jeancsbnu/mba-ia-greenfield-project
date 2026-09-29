@@ -1,0 +1,26 @@
+{
+  "fileKey": "FetKyb1V02WS5D6VCatK6t",
+  "fileName": "Videos",
+  "page": { "id": "0:1", "name": "Seus vídeos" },
+  "harvested_at": "2026-09-29T22:48:31Z",
+  "harvested_by": "figma-batch",
+  "mcp_calls_spent": 1,
+  "blocks": ["tree", "screenshots"],
+  "maxDepth": 6,
+  "nodes": {
+    "66:42": { "name": "assistir-video", "file": "66-42.json", "screenshot": "66-42.png" },
+    "68:62": { "name": "video-nao-encontrado", "file": "68-62.json", "screenshot": "68-62.png" }
+  },
+  "write_in_same_call": {
+    "note": "sidebar-load-more criado",
+    "createdNodeIds": ["72:62", "72:63"],
+    "mutatedNodeIds": ["67:76"],
+    "reason": "video-watch-page/TD-04 (revisão 2026-09-26) paginou a sidebar com 'ver mais', mas o controle nunca foi desenhado. Fechava IC-2 do plan-validate."
+  },
+  "notes": [
+    "Node ids são gravados em forma de URL (66-42) e não de API (66:42): ':' é inválido em nome de arquivo no Windows.",
+    "O arquivo não declara Variable collections nem text styles — toda cor e tipografia é hex/valor direto. Consumidores não devem procurar tokens.",
+    "Este arquivo não foi colhido com o bloco 'variables'; a afirmação acima vem de inspeções anteriores da Fase 04/05."
+  ],
+  "errors": []
+}
