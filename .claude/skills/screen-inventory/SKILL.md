@@ -1,6 +1,6 @@
 ---
 name: screen-inventory
-description: "Generate a screen inventory for a project phase or task. Infers which screens need to be built or updated from the phase's capabilities (phase mode) or from the task's scope prose (task mode), asks the user for the corresponding Figma URLs, then extracts each screen's components via the Figma MCP, classifies them by behavior (Presentational / Local-interactive / Server-connected), and maps server-connected components to capabilities or scope. Use whenever the user asks to inventory screens, extract components from Figma for planning, or prepare the front-end inputs before /plan-context — including variations like 'inventariar as telas', 'inventário de telas da fase NN', 'screen inventory NN', 'screen inventory <task-slug>', 'extrair componentes do Figma', or any mention of connecting Figma screens to planning before plan-context runs. Accepts a phase number (integer) OR a task slug (string), optionally with an upfront list of Figma URLs."
+description: "Generate a screen inventory for a project phase or task. Infers which screens need to be built or updated from the phase's capabilities (phase mode) or from the task's scope prose (task mode), asks the user for the corresponding Figma URLs, then extracts each screen's components from the committed Figma cache (`docs/figma-cache/`), harvesting from the Figma MCP in a single `figma-batch` call only for the nodes the cache does not cover, classifies them by behavior (Presentational / Local-interactive / Server-connected), and maps server-connected components to capabilities or scope. Use whenever the user asks to inventory screens, extract components from Figma for planning, or prepare the front-end inputs before /plan-context — including variations like 'inventariar as telas', 'inventário de telas da fase NN', 'screen inventory NN', 'screen inventory <task-slug>', 'extrair componentes do Figma', or any mention of connecting Figma screens to planning before plan-context runs. Accepts a phase number (integer) OR a task slug (string), optionally with an upfront list of Figma URLs."
 disable-model-invocation: true
 ---
 
@@ -73,6 +73,7 @@ Skip criteria apply equally in phase and task mode. In task mode, the "phase is 
    **Cross-phase promotion of `(new)` markers.** When the parent finds a component in a prior inventory with `In DS?: ✗` AND a `Reuse?` path carrying the `(new)` suffix (form 2), AND that path is present in the **step-6 filesystem snapshot** built below (i.e., the prior phase's planned component has since been authored in-repo), **override the inherited entry before passing it to the sub-agent**: emit `In DS?: ✓` AND the `Reuse?` path **with the `(new)` suffix stripped** (form 1). Without this promotion, a planned component that was implemented in a later phase would persist forever as `(new)` in every subsequent inventory, and `phase-b.md` § B2.6 would re-emit a redundant bootstrap SI for an already-existing file. The promotion only fires for **form-2 inherited entries** with a path; form-3 inherited entries (bare `new`, pure-DOM) never have a path to compare against and pass through verbatim.
 5. **Figma inputs** — the phase number is required at the start of the session. Figma URLs with nodeIds are collected during "Figma inputs" below: either provided upfront by the user as a shortcut, or gathered after Step 1 screen inference. Both paths converge on the same reconciled screen list before any Figma MCP call is made.
 6. **Filesystem DS snapshot — canonical `In DS?` source.** `Glob <frontend-subproject>/components/**/*.{tsx,ts}` to build the set of paths that actually exist in-repo. `<frontend-subproject>` resolves from the slice's phase-scope decisions doc (phase mode) or the task's `context.md` (task mode); role-to-directory disambiguation follows the canonical hierarchy used elsewhere in this skill (inspect directory layout → cross-reference `docs/project-plan.md` § Subprojects → ask via `AskUserQuestion` on ambiguity — do not guess). The resulting set is the **canonical source of truth for `In DS? ✓` vs `✗`** and is passed to every dispatched sub-agent via the "Filesystem-existing DS paths" bullet of the prompt template (see "What the parent passes to each sub-agent" below). When the directory is empty (greenfield) or missing entirely, the set is empty; sub-agents then mark every Reuse? path with the `(new)` suffix per Output Contract item 4 form 2. This step closes the gap where Figma's Code Connect map could falsely suggest a component exists in-repo when the file has not yet been authored.
+7. **Figma cache** — `docs/figma-cache/<fileKey>/` holds trees and screenshots already harvested by the `figma-batch` skill, committed to the repo. It is the **first** place this skill looks for a screen's structure; the MCP is the fallback, not the default. The probe cannot run here (the `fileKey:nodeId` pairs are only settled in Figma inputs Step 3), so it has its own section — see `### Step 3.5: Figma cache — probe before spending quota`, inside the Figma inputs flow. Read that section before dispatching any sub-agent.
 
 ## Session state — progress file and resume
 
@@ -119,6 +120,7 @@ Run these checks before Figma inputs Step 1 — stop and ask rather than guessin
 - **Phase exists in `docs/project-plan.md`** (the `### Fase NN — …` section matching the phase number). If not, stop.
 - **Look for an existing progress file.** If found:
   - Read the Reconciled screen list → skip Figma inputs Steps 1–4 entirely (screens, URLs, parsed IDs, and file headers all already exist). The parent still reads the phase section of `docs/project-plan.md` here so it has the capabilities to pass to the sub-agents it's about to dispatch — only the inference and URL-collection work is skipped.
+  - Run the **Step 3.5** cache probe for the rows still `pending`/`in_progress` — skipping Figma inputs Steps 1–4 does not skip this. A resumed run that re-harvests what the cache already holds spends quota for nothing.
   - Run the **Token drift detection** subsection below — pass any `fileKey:nodeId` from the reconciled list (all entries reference the same file-level variable collections).
   - Resume from the first screen whose status is `pending` or `in_progress`, and tell the user: `"Encontrado progress file com X/Y telas completas. Retomando a partir de: <screen name>."`
   - If all screens are `completed` but `Status` is still `in_progress`, skip screen processing and go straight to the Final sections flow (which runs the cross-screen Validation section first, then builds the Reconciliation summary and Open questions), then mark `completed`.
@@ -131,7 +133,7 @@ Run these checks before Figma inputs Step 1 — stop and ask rather than guessin
 
 An extension run happens when the user adds a new screen to an inventory that is already `Status: completed` — either because the screen was out-of-scope at first and is now being brought in, or because new Figma designs were produced after the original run.
 
-1. **Collect the new screen's URL** (Figma inputs Steps 2–3 for that screen only). Parse fileKey and nodeId.
+1. **Collect the new screen's URL** (Figma inputs Steps 2–3 for that screen only). Parse fileKey and nodeId, then run the **Step 3.5** cache probe for that one node — a screen that was out of scope before may already be in the cache from a harvest that covered the whole frame.
 2. **Update the progress file.** Append a new row to the Reconciled screen list with status `pending`. Update `Screens: N/(N+1) completed`. Keep `Status: completed` — do not revert to `in_progress`.
 3. **Flip the inventory file `Status` from `Validated` to `Pending`** — it is no longer validated until all post-addition steps finish.
 4. **Dispatch the sub-agent** for the new screen, following the sub-agent prompt template. Pass already-classified components from ALL existing screens in the inventory (not just the new one) using the extended format including `In DS?`.
@@ -146,7 +148,7 @@ Advisory, read-only check: warns if Figma design tokens have drifted from the fr
 
 **When:** during Preflight on a resume run, or right after Figma inputs Step 3 on a fresh run (before Step 4 creates the files, so aborting is cheap).
 
-**How:** pick any `fileKey:nodeId` from the reconciled screen list → call `mcp__plugin_figma_figma__get_variable_defs` → compare returned tokens against the matching blocks in `globals.css` (`--color-*` → `@theme inline`; `--radius-*`, `--spacing-*`, and semantic theme tokens → `:root` / `.dark`). If drift is found, warn: `"Detectados N tokens com drift entre Figma e globals.css. Recomendo rodar 'figma-audit-tokens' antes de inventariar. Prosseguir mesmo assim?"`. If no drift, stay silent.
+**How:** pick any `fileKey:nodeId` from the reconciled screen list. **Read `docs/figma-cache/<fileKey>/_file.json` first.** If it carries a `variables` block, compare against that and spend no MCP call. If its `notes` (or `errors`) record that the file declares no local Variable collections — the harvest writes that explicitly, because a design of flat hex values is a finding and not an error — **skip the check entirely and say so**: there are no tokens to drift against. Only when the cache is absent or silent on variables do you call `mcp__plugin_figma_figma__get_variable_defs`, and even then prefer folding the `variables` block into the Step 3.5 harvest so both needs cost one call instead of two. Compare returned tokens against the matching blocks in `globals.css` (`--color-*` → `@theme inline`; `--radius-*`, `--spacing-*`, and semantic theme tokens → `:root` / `.dark`). If drift is found, warn: `"Detectados N tokens com drift entre Figma e globals.css. Recomendo rodar 'figma-audit-tokens' antes de inventariar. Prosseguir mesmo assim?"`. If no drift, stay silent.
 
 **The one non-obvious rule:** never invoke `figma-audit-tokens` inline — if the user aborts, they run it separately.
 
@@ -217,7 +219,58 @@ Once the final screen → URL list is settled, parse each URL. Acceptable forms:
 
 For each URL, extract `fileKey` and `nodeId`. Convert `nodeId` from URL form (`123-456`) to MCP form (`123:456`). If any URL is missing a `nodeId`, stop and ask — the skill inventories a specific screen node, not an entire file. If the user provides a screen name without a URL (e.g., "the /my-videos page"), ask for the exact URL; resolving screen names from a file is guesswork and produces wrong inventories.
 
-Before moving on to Step 4, run the **Token drift detection** subsection (under "Session state — progress file and resume" above). On a fresh run, this is the point where `fileKey:nodeId` pairs first become available — the drift check must fire here so the user can abort and run `figma-audit-tokens` before the inventory and progress files are created.
+Before moving on to Step 4, run two things in this order, both of which need the `fileKey:nodeId` pairs that only become available here:
+
+1. **Step 3.5 — `Figma cache — probe before spending quota`** (immediately below) — probe the cache, judge freshness, and harvest the missing nodes in one call if there are any. It runs first because its harvest can also carry the `variables` block the drift check wants, turning two calls into one.
+2. **Token drift detection** (under "Session state — progress file and resume" above) — the check must fire here so the user can abort and run `figma-audit-tokens` before the inventory and progress files are created.
+
+Both run before Step 4 for the same reason: aborting is cheap while there is no state on disk.
+
+### Step 3.5: Figma cache — probe before spending quota
+
+The Figma account on this project is on the free Starter plan, whose MCP quota is a rolling window that has been exhausted twice mid-task. `figma-batch` exists to spend it once and commit the result. This section is the consuming half of that contract: **a re-run over already-harvested screens must cost zero MCP calls.**
+
+It sits between Step 3 and Step 4 for two reasons: the `fileKey:nodeId` pairs only exist from Step 3 onward, and deciding to harvest is cheaper before Step 4 puts any state on disk.
+
+#### Probe
+
+For every row in the reconciled screen list, convert the nodeId to **URL form** (`66:42` → `66-42`; a colon is invalid in a Windows filename) and test:
+
+- `docs/figma-cache/<fileKey>/<nodeId>.json` — the component tree
+- `docs/figma-cache/<fileKey>/<nodeId>.png` — the rendered screenshot
+- `docs/figma-cache/<fileKey>/_file.json` — file-level blocks and harvest provenance
+
+Classify each screen **hit** or **miss**. A hit requires the tree; a missing `.png` alone is a partial hit — the tree carries the structure, and classification runs on the tree, so treat the screenshot as nice-to-have and record its absence in the screen's Observations rather than re-harvesting for it.
+
+#### Freshness — judge it, and record the judgment
+
+A stale cache is not automatically wrong. Node ids and component structure survive cosmetic edits, and on this plan the risk of reusing a week-old tree is usually lower than the risk of a blocked quota. Re-harvest only when one of these holds, and **say which one**:
+
+- the cache is missing a node the run needs;
+- the frames are known to have changed in Figma since `_envelope.fetched_at` — the user says so, or a write happened in this session;
+- `_envelope.maxDepth` is shallower than the screen needs and the tree shows `truncated` counts on nodes the inventory must classify.
+
+"I am not sure it is current" is not on that list. Uncertainty resolves by asking the user, which is free, before it resolves by spending a call.
+
+#### Harvest on miss — one call for every missing node at once
+
+When at least one screen misses, do **not** let each sub-agent fetch its own screen. Load the `figma-batch` skill and compose **one** `use_figma` call covering **every** missing node in the run, plus any file-level block the run still needs (`variables` for the drift check). Syntax-check it locally before spending it — `node --check` catches in milliseconds the `SyntaxError` that otherwise costs a full call and returns nothing.
+
+Write the result to `docs/figma-cache/<fileKey>/` per `figma-batch` Step 4, and commit it. From that point the run proceeds exactly as a full-hit run: every sub-agent reads disk.
+
+If the quota is already exhausted, the MCP returns an error instead of data. Then: use the cache even if stale and declare its `fetched_at` in the inventory; if there is no cache at all, **stop** and tell the user — do not dispatch sub-agents that will invent a tree. A blocked harvest is a known state; a fabricated inventory is a silent one.
+
+#### What the cache does not carry
+
+The harvest returns the Plugin API's view of the frame: ids, names, types, sizes, auto-layout, fills, strokes, radii, text content and font, and — for instances — the main component. It does **not** carry Figma's **Code Connect map**, which `get_design_context` would have supplied.
+
+This costs less than it sounds like, and the loss must still be stated rather than glossed: `In DS?` has been canonically decided by the **filesystem snapshot** (Context step 6) since before this section existed, and Code Connect only ever contributed a *path candidate*. On a cache hit, that candidate instead comes from the component's name matched against the filesystem snapshot. Where no existing file matches, the sub-agent proposes the path the implementer will create and marks it `(new)` — which is the same output Code Connect would have produced for a component it does not know. Precedence rule 2 below is written for both sources.
+
+#### Report the cost
+
+Every run states plainly: how many screens the cache served, how many MCP calls were spent, and what a re-run now costs. This is what keeps the discipline visible instead of aspirational.
+
+> Cache: 2/2 screens served from `docs/figma-cache/FetKyb…/` (harvested 2026-09-29). MCP calls spent: 0. A re-run costs 0.
 
 ### Step 4: Create the inventory and progress files
 
@@ -253,7 +306,9 @@ Only after both files exist do you move on to "How to extract structure from Fig
 
 ## How to extract structure from Figma
 
-Figma extraction is **always delegated to sub-agents via the `Agent` tool**, one per screen that still needs extraction (all screens on a fresh run; just the `pending`/`in_progress` rows on resume). For multi-screen phases, spawn them in parallel in a single turn (multiple `Agent` tool calls in one message). Each sub-agent has its own context window, so the raw output of `get_design_context` + `get_screenshot` never enters the parent's context — the parent only sees the sub-agent's structured return, a markdown block ready to paste into the inventory file.
+Figma extraction is **always delegated to sub-agents via the `Agent` tool**, one per screen that still needs extraction (all screens on a fresh run; just the `pending`/`in_progress` rows on resume). For multi-screen phases, spawn them in parallel in a single turn (multiple `Agent` tool calls in one message). Each sub-agent has its own context window, so the raw component tree never enters the parent's context — the parent only sees the sub-agent's structured return, a markdown block ready to paste into the inventory file.
+
+**Sub-agents read the cache; they never call the Figma MCP.** By the time they are dispatched, Step 3.5 has guaranteed every screen's tree is on disk — either it was already there or the parent harvested it in one call. This is not only about quota: a sub-agent that hits an exhausted quota has no user to ask and no fallback, which is how an earlier run in this project ended with a blocked extractor. Reading a committed file cannot fail that way.
 
 ### Sub-agent contract
 
@@ -261,7 +316,8 @@ The parent is the only entity that talks to the user, reads files, writes files,
 
 **What the parent passes to each sub-agent:**
 
-1. **The Figma target:** `fileKey`, `nodeId` (in MCP form), and the full URL.
+1. **The Figma target:** `fileKey`, `nodeId` (in MCP form), and the full URL — for the `**Figma:**` line of the screen section, which stays a live URL regardless of where the tree was read from.
+1b. **The cache paths:** `docs/figma-cache/<fileKey>/<nodeId-url-form>.json` (the tree, required) and `.../<nodeId-url-form>.png` (the screenshot, when present), plus the `_envelope.fetched_at` the parent read from the JSON so the sub-agent can state the provenance in Observations.
 2. **The phase capabilities, quoted verbatim** from the relevant `### Fase NN — …` section of `docs/project-plan.md`. Sub-agents do NOT read project-plan.md themselves — the parent reads it once (during Figma inputs Step 1 on a fresh run, or during preflight on a resume) and passes the relevant slice to every sub-agent it dispatches.
 3. **A pointer to the classification rules:** the sub-agent is instructed to read the sections "How to classify components", "How to derive verbs of intent", and "Output structure" from `.claude/skills/screen-inventory/SKILL.md`. These rules are too long to restate in every prompt and change rarely, so pointing to them keeps the prompt short; only the short extraction-time rules are still restated inline in the template below.
 4. **Already-classified components the sub-agent should reuse**, aggregated by the parent from two sources: (a) screens already appended to the current inventory file — only populated when a new parent resumes a partially-completed run from an existing progress file; (b) components found unchanged in prior-phase inventories under `docs/inventories/` — populated when the parent identified cross-phase reuse candidates while reading that directory in the Context step. Format: `ComponentName → Type, In DS?: ✓/✗[, reuse path][, source: current | phase-NN]`. When building this list, read the corresponding row in the Component inventory table of the existing inventory and extract: Type, In DS?, Reuse?, and any "see screen:" Notes. Do not omit `In DS?` — it is the most critical field for cross-screen consistency. If In DS? is `✗`, keep it `✗` even if Reuse? has a path value (the path is planned, not yet implemented) — **except** when the Cross-phase promotion rule fires (see Context step 4: a form-2 inherited entry whose path is now present in the step-6 filesystem snapshot is overridden to `In DS?: ✓` with the `(new)` suffix stripped).
@@ -277,7 +333,8 @@ A markdown block matching the Output structure template: `## Screen: …`, the `
 - Ask the user anything — sub-agents are non-interactive.
 - Invent components not present in the Figma output.
 - Define API contracts, endpoint shapes, or HTTP details. Verbs only.
-- Silently fill in components visible in the screenshot but absent from `get_design_context` — these MUST be flagged in the Observations subsection instead.
+- Silently fill in components visible in the screenshot but absent from the cached tree — these MUST be flagged in the Observations subsection instead.
+- Call any Figma MCP tool. The tree is on disk before they are dispatched; see Step 3.5.
 
 ### Sub-agent prompt template
 
@@ -293,8 +350,8 @@ URL: [full URL]
 
 Your task:
 1. Read .claude/skills/screen-inventory/SKILL.md, sections "How to classify components", "How to derive verbs of intent", and "Output structure" (for the exact screen section format to emit). These are the rules you must follow.
-2. Call mcp__plugin_figma_figma__get_design_context with the fileKey and nodeId above.
-3. Call mcp__plugin_figma_figma__get_screenshot with the same.
+2. Read the cached component tree at [cache JSON path]. This file is the committed harvest of this exact node; its `_envelope` records fileKey, nodeId, fetched_at and the maxDepth it was walked to. Do NOT call any Figma MCP tool — not get_design_context, not get_screenshot, not get_metadata. The tree on disk is your only source, and it is complete for this node by construction of the harvest.
+3. Look at the rendered screenshot at [cache PNG path] when one exists. If the path is absent, work from the tree alone and note the absence in Observations.
 4. List every component in the tree. Classify each as Presentational, Local-interactive, or Server-connected, using evidence from BOTH the Figma output AND the phase capabilities listed below.
 5. For each Server-connected component, derive one or more verbs of intent and map each verb to exactly one capability from the list below (quote the capability verbatim).
 
@@ -318,7 +375,7 @@ Filesystem-existing DS paths (canonical `In DS?` source — built by the parent 
 
 1. **Inherited list** — If a component appears in the "Already-classified components" list, inherit its `In DS?` and `Reuse?` values exactly as given — do NOT re-derive them from the Figma output, the Filesystem-existing DS paths set, or any inference about the codebase. If the record says `In DS?: ✗`, keep `✗` in your output even if a path seems to exist elsewhere. **For planned-but-not-yet-created components** (the second `Reuse?` form per Output Contract item 4 — `<path> (new)`), keep `In DS?: ✗` AND emit the path with the literal ` (new)` suffix preserved byte-verbatim — the suffix is the load-bearing detection signal for `phase-b.md` § B2.6 (bootstrap SI synthesis). Never strip it, never normalize it, never substitute the bare literal `new`.
 
-2. **Filesystem-existing DS paths** — If the component is NOT in the inherited list AND Figma's `get_design_context` (Code Connect map) emits a `Reuse?` path candidate, check the path against the "Filesystem-existing DS paths" set above. **In set → emit the path verbatim with `In DS?: ✓`. NOT in set → emit the SAME path with the literal ` (new)` suffix appended AND `In DS?: ✗`.** This is the canonical mechanism that prevents Code Connect's lag-behind-reality from leaking into the inventory as false-positive `✓` rows (e.g., a Code Connect entry for `components/ui/button.tsx` while the file has not yet been authored on disk).
+2. **Filesystem-existing DS paths** — If the component is NOT in the inherited list AND a `Reuse?` path candidate exists for it, check the path against the "Filesystem-existing DS paths" set above. The candidate comes from whichever source the run had: Figma's Code Connect map when the tree was fetched live, or — on a cache read, which carries no Code Connect data — the component's name matched against that same set, falling back to the path the implementer would create under the project's naming convention. **In set → emit the path verbatim with `In DS?: ✓`. NOT in set → emit the SAME path with the literal ` (new)` suffix appended AND `In DS?: ✗`.** This is the canonical mechanism that prevents Code Connect's lag-behind-reality from leaking into the inventory as false-positive `✓` rows (e.g., a Code Connect entry for `components/ui/button.tsx` while the file has not yet been authored on disk).
 
 3. **No path emitted by Figma** — If Figma's output suggests no DS-path target for the component (genuinely new pure-DOM element like `<h1>`, `<p>`, helper text, inline link), emit the bare literal `new` (no path) with `In DS?: ✗`.
 
@@ -333,7 +390,8 @@ Rules:
 - Do NOT invent components not present in the Figma output.
 - Do NOT define API contracts, endpoints, or HTTP specifics. Verbs are intents, not endpoints.
 - Do NOT ask questions — return ambiguities as markers instead.
-- Components visible only in the screenshot but absent from get_design_context MUST be flagged in the Observations subsection, not silently filled in.
+- Components visible only in the screenshot but absent from the cached tree MUST be flagged in the Observations subsection, not silently filled in.
+- If a node in the tree carries a `truncated` count, the harvest stopped at its depth limit and that node has unlisted children. Say so in Observations, naming the node and the count — never infer what the missing children are.
 ```
 
 ### Parent processing after sub-agents return
@@ -408,7 +466,7 @@ Per-screen validation (component classification ambiguity, verb without matching
 **Figma completeness:**
 
 - Screens referenced in project-plan.md (explicit mentions or Step 1 inferences) that the user did not supply URLs for during Step 2, if any slipped past reconciliation.
-- Components flagged in any screen's Observations subsection as "visible in screenshot but absent from `get_design_context`" — ask whether they are in scope, need a new Figma extraction, or should stay as notes.
+- Components flagged in any screen's Observations subsection as visible in the screenshot but absent from the tree, and nodes flagged with a `truncated` child count — ask whether they are in scope, need a deeper harvest, or should stay as notes. A deeper harvest costs one MCP call: re-run the `figma-batch` script with a higher `maxDepth` covering every node that needs it, in one call.
 
 **Residual decision dependencies:**
 
@@ -436,6 +494,7 @@ The inventory is a single markdown file per phase. Follow this template.
 > **Status:** Pending | Validated
 > **Date:** [YYYY-MM-DD]
 > **Screens in scope:** N
+> **Figma source:** cache `docs/figma-cache/<fileKey>/` (harvested YYYY-MM-DD) | live harvest of YYYY-MM-DD, N MCP call(s)
 
 ---
 
@@ -513,3 +572,10 @@ These rules crystallize invariants implicit in the canonical workflow plan-conte
 - **Never invoke `/plan-context`, `/plan-validate`, `/plan-resolve`, `/plan-build`, or `/implement` from within screen-inventory.** Skill is non-orchestrative — user is sole orchestrator of the pipeline. Abort-with-command pattern always returns control to the user.
 - **Never touch `docs/decisions/`.** Decisions docs are owned by `/research` (create) and `plan-resolve` (mutate `**Decision:**` fields). Screen-inventory only reads ad-hoc docs with `Scope: Frontend | Cross-layer` as classification hints, never writes.
 - **Never invoke `figma-audit-tokens` inline.** Drift check (existing behavior) is advisory non-blocking — always delegates the decision to the user.
+
+## Hard rules (Figma quota)
+
+- **Never let a sub-agent call the Figma MCP.** Sub-agents read `docs/figma-cache/`. They have no user to ask when the quota blocks them, so a call from inside one turns a recoverable stop into a silent failure or an invented tree.
+- **Never spend more than one MCP call per run.** Every missing node and every file-level block the run needs go into a single `figma-batch` harvest. Two calls doing one call's work is the failure this whole path exists to prevent.
+- **Never re-harvest a node the cache already covers** without naming which freshness criterion fired. "Just to be safe" is not one of them.
+- **Never fabricate a tree.** No cache and no quota means stop and tell the user. The inventory's value is that every node in it came from the design.

@@ -112,14 +112,28 @@ Persist each harvested node to `docs/figma-cache/<fileKey>/<nodeId>.json`, and t
 
 **Write the node id in URL form (`66-42`), not API form (`66:42`).** A colon is invalid in a Windows filename, and this project runs on Windows. Convert on the way out and back on the way in — the API calls take `66:42`.
 
-```yaml
-# each node file carries this envelope
-fileKey: FetKyb1V02WS5D6VCatK6t
-nodeId: "66:42"
-fetched_at: "2026-09-29T10:00:00-03:00"
-blocks: [tree, screenshot]
-harvested_by: figma-batch
+The layout below is a **contract**, not a suggestion: `/screen-inventory` reads these files instead of calling the MCP, and keys it does not find are calls it has to spend.
+
+Each node file is the harvested tree at its root, with the provenance in a reserved `_envelope` key beside it:
+
+```json
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "66:42",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=66-42",
+    "fetched_at": "2026-09-29T22:48:31Z",
+    "blocks": ["tree", "screenshot"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 6
+  },
+  "id": "66:42", "name": "assistir-video", "type": "FRAME",
+  "size": { "w": 1100, "h": 1045 },
+  "children": [ "…" ]
+}
 ```
+
+`_file.json` carries what belongs to the file rather than to one node: `fileKey`, `fileName`, `page`, `harvested_at`, `harvested_by`, `mcp_calls_spent`, `blocks`, `maxDepth`, the `nodes` list, `notes`, `errors`, and — when the call also wrote — a `write_in_same_call` record naming the created and mutated node ids and why. Add `variables` and `styles` here when those blocks were harvested; their **absence** means "not harvested", never "the file has none". A file that genuinely declares no Variable collections is recorded as an explicit entry in `notes`, because that is a finding a consumer must be able to read without guessing.
 
 Commit the cache. It is derived data, but on a free plan the quota it saves is worth more than the diff noise, and a committed cache means a fresh clone does not re-spend the budget.
 
@@ -144,7 +158,7 @@ Two things the run proved that were previously assumptions: `await node.screensh
 ## What this skill does not do
 
 - **It does not invent design.** A harvest returns what is in the frame. If a component was never drawn, the tree will not contain it, and no amount of batching changes that — the design gap has to be closed in Figma first. This has already bitten this project: a control decided in a TD but never drawn cannot be inventoried.
-- **It does not replace `/screen-inventory`.** That skill owns classification (Presentational / Local-interactive / Server-connected), verbs of intent, and the Output Contract. This one feeds it raw material.
+- **It does not replace `/screen-inventory`.** That skill owns classification (Presentational / Local-interactive / Server-connected), verbs of intent, and the Output Contract. This one feeds it raw material — and since 2026-09-29 it feeds it **through the cache**: `/screen-inventory` probes `docs/figma-cache/` first, dispatches sub-agents that read only from disk, and reaches the MCP solely through a single harvest composed by its parent for the nodes the cache does not cover. Changing the on-disk shape in Step 4 breaks that consumer.
 - **It does not judge cache freshness for you.** Step 2 gives the criteria; the decision, and its justification, belong in the run's report.
 
 ## Fallback when the quota is already exhausted
