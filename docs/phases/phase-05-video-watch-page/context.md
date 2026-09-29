@@ -11,7 +11,7 @@ sources_mtime:
   docs/phases/phase-02-auth-frontend/context.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-03-upload-processing/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-04-video-channel-management/context.md: "2026-09-22T21:20:53-03:00"
-  docs/inventories/screen-inventory-phase-05-video-watch-page.md: "2026-09-24T23:15:59-03:00"
+  docs/inventories/screen-inventory-phase-05-video-watch-page.md: "2026-09-29T20:17:53-03:00"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "2026-06-29T19:03:26-03:00"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 ---
@@ -64,6 +64,8 @@ sources_mtime:
 
 _Nenhum TD do escopo declara `**Renders in:**`; pela regra de backwards-compat a coluna é omitida (todos os valores seriam `—`). O default por inferência é resolvido adiante pelo filtro A2 do `plan-build`, junto com o `ui_in_scope` da fase._
 
+**Referências obsoletas ao limiar de 10 s, detectadas nesta rodada.** A revisão de 2026-09-26 no `TD-03` mudou o limiar de reprodução efetiva de 5 s para **10 s**, mas o texto do decisions doc que *cita* o limiar não acompanhou: o `**Context:**` do `TD-05` e a prosa inteira do `TD-06` (Context, Options e Recommendation) seguem dizendo "5 s". Este estágio **não edita decisions docs**, então a divergência está registrada e não corrigida. O valor autoritativo é **10 s**, fixado na Revisions do `TD-03`.
+
 _Source files:_
 
 - video-watch-page — `docs/decisions/technical-decisions-video-watch-page.md` (scope_type: phase, related_phases: [5])
@@ -114,14 +116,15 @@ _Source files:_
 
 ### video-watch-page/TD-05
 
-**Recommendation:** **Option B**, com C como caminho declarado para quando houver mais de uma instância. Três razões. (1) **O problema real desta fase não é a ausência de limite, é o limite errado** — o default existe e já cobre o endpoint; o que não existe é distinção entre um orçamento de autenticação e um de navegação, e é exatamente isso que o `@Throttle()` resolve, com uma linha. (2) **O Redis resolveria um problema que a fase não tem ainda** — reinício e multi-instância são reais, mas o deploy é de instância única até a Fase 07 tratar produção; acoplar o caminho de request ao Redis agora obriga a decidir o comportamento em caso de queda, uma decisão sem informação hoje. Subir de B para C depois é trocar o `storage` do módulo, sem tocar nas rotas. (3) **A Option D é desproporcional a uma métrica que o próprio `TD-03` decidiu não ser exata** — gastar contrato dos dois lados para encarecer, sem impedir, uma inflação de contador contradiz a escolha já feita. A Option A é defensável se a resposta for "a contagem não importa a ponto de justificar uma linha", mas então o 429 no meio da reprodução do usuário legítimo continua, e esse é um custo de produto, não de métrica.
+**Recommendation:** **Option B**, com C como caminho declarado para quando houver mais de uma instância. Três razões. (1) **O problema real desta fase não é a ausência de limite, é o limite errado** — o default existe e já cobre o endpoint; o que não existe é distinção entre um orçamento de autenticação e um de navegação, e é exatamente isso que o `@Throttle()` resolve, com uma linha. (2) **O Redis resolveria um problema que a fase não tem ainda** — reinício e multi-instância são reais, mas o deploy é de instância única até a Fase 07 tratar produção; acoplar o caminho de request ao Redis agora obriga a decidir o comportamento em caso de queda, uma decisão sem informação hoje. Subir de B para C depois é trocar o `storage` do módulo, sem tocar nas rotas. (3) **A Option D é desproporcional a uma métrica que o próprio `TD-03` decidiu não ser exata** — gastar contrato dos dois lados para encarecer, sem impedir, uma inflação de contador contradiz a escolha já feita. A Option A é defensável se a resposta for "a contagem não importa a ponto de justificar uma linha", mas então o 429 no meio da reprodução do usuário legítimo continua, e esse é um custo de produto, não de métrica. Sobre os números, e explicitamente como premissa a confirmar no mesmo espírito do `TD-02` e do `TD-03`: sugiro **30 requisições por 60 s por IP** nessa rota. Trinta vídeos iniciados por minuto está muito acima de qualquer navegação humana e ainda assim é um terço do que um laço trivial alcançaria contra o default. O número é discutível; o que não é discutível é que ele deve ser diferente do orçamento de login.
 **Libraries:** —
 
 ### video-watch-page/TD-06
 
-**Recommendation:** **Option A como base, com C aplicada a um único E2E de fumaça.** O raciocínio é que as duas perguntas têm respostas diferentes e tentar uma resposta só é o que trava a decisão.
+**Recommendation:** **Option A como base, com C aplicada a um único E2E de fumaça.** O raciocínio é que as duas perguntas têm respostas diferentes e tentar uma resposta só é o que trava a decisão. Para o **gatilho de reprodução efetiva**, que é a regra de negócio real e cara de errar, a Option A é a única viável: o jsdom não reproduz mídia por construção, então nenhuma quantidade de bytes ajuda, e a fachada permite afirmar "logo abaixo do limiar não chama, logo acima chama uma vez só" em milissegundos. Depender de relógio real aqui, como a B exige, é lento e instável. Para a **integração**, um único teste em Playwright com `page.route()` na origem do storage responde a pergunta que a A não responde — o `src` aponta para o lugar certo e o elemento consegue carregar — sem espalhar binário e espera por toda a suíte. Um teste, não uma política. A Option B é a que menos entrega pelo custo: same-origin apaga a característica que torna o caminho real arriscado. A Option D seria aceitável se o gatilho não existisse, mas ele existe e é lógica, não pixel. Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A é superfície de produção que existe parcialmente para o teste. Vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão estará sendo mal aplicada.
 **Libraries:** —
 
+_Nota do `/plan-context` de 2026-09-29: a prosa original do TD-06 citava o limiar como "5 s" em vários pontos, valor anterior à revisão de 2026-09-26 no TD-03 que o levou a **10 s**. Aqui as citações foram neutralizadas para "limiar" a fim de não propagar o número obsoleto para o `plan-build`. **O texto no decisions doc segue dizendo 5 s** — este estágio não edita decisions docs. Ver a nota abaixo do `## Decisions Index`._
 ## Inherited Decisions Detail
 
 ### next-frontend-openapi-typing/TD-01
@@ -429,24 +432,24 @@ _(from phases-reader; bullets idênticos repetidos por três fases foram dedupli
 | Página de visualização do vídeo | /videos/{publicId} | Compor a página com o vídeo principal, suas informações e a sidebar de sugestões | "Layout da página: vídeo principal + informações + sidebar com sugestões" | VideoWatchPage |
 | Página de visualização do vídeo | /videos/{publicId} | Servir um vídeo `unlisted` quando acessado pelo link direto, mantendo-o fora das listagens | "Vídeos unlisted acessíveis apenas via link direto (sem aparecer em listagens)" | VideoWatchPage |
 | Página de visualização do vídeo | /videos/{publicId} | Reproduzir o arquivo do vídeo a partir da URL pré-assinada | "Player de vídeo com controles: play/pause, volume e barra de progresso" | VideoPlayer |
-| Página de visualização do vídeo | /videos/{publicId} | Registrar uma visualização após 5 s de reprodução efetiva | "Contagem de visualizações" | VideoPlayer |
+| Página de visualização do vídeo | /videos/{publicId} | Registrar uma visualização após 10 s de reprodução efetiva | "Contagem de visualizações" | VideoPlayer |
 | Página de visualização do vídeo | /videos/{publicId} | Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | "Sugestões de vídeos da mesma categoria na sidebar" | VideoCard |
+| Página de visualização do vídeo | /videos/{publicId} | Carregar a próxima página de sugestões sob demanda | "Sugestões de vídeos da mesma categoria na sidebar" | SidebarLoadMore |
 | Página de visualização do vídeo | /videos/{publicId} | Emitir a URL pré-assinada de download do arquivo, assinada para forçar o salvamento com o nome correto | "Botão de download do vídeo" | VideoWatchPage |
-| Vídeo não encontrado | /videos/{publicId} (estado not-found) | _No server-connected components in this screen._ | — | — |
 
 ### Server-connected Components
 
 - `VideoWatchPage` (Página de visualização do vídeo) — `Reuse?: new`
 - `VideoPlayer` (Página de visualização do vídeo) — `Reuse?: new`
 - `VideoCard` (Página de visualização do vídeo) — `Reuse?: components/videos/video-card.tsx`
+- `SidebarLoadMore` (Página de visualização do vídeo) — `Reuse?: new`
 
 ### Open Questions from Inventory
 
-- **Re-extração pendente.** Confirmar as duas tabelas contra `get_design_context` quando a cota do MCP do Figma voltar, e preencher os node-ids dos filhos. O `Status` foi marcado `Validated` porque os sete campos do Output Contract estão presentes e válidos — os node-ids dos filhos não são campo do contrato —, mas a confirmação independente segue devendo.
 - **Capability coberta sem verbo.** "Descrição do vídeo com expansão/recolhimento" é atendida por um componente Local-interactive, então não gera verbo de intenção. A regra de validação deste skill espera que toda capability tenha ao menos um verbo — aqui a ausência é correta, não uma lacuna. O `plan-validate` precisa aceitar cobertura por componente local, ou a regra precisa ser afrouxada.
-- **Estados sem desenho.** Descrição expandida, sidebar vazia, loading do player e erro de carregamento. Os dois primeiros são exigidos por capability e por TD-04; os dois últimos repetem a omissão da fase 04.
-- **Reuso do `components/ui/card.tsx`** no `not-found-card` — instância do primitivo ou markup próprio?
-- **Rótulo da categoria na sidebar.** O heading desenhado é "MAIS EM EDUCAÇÃO", com a categoria interpolada. Confirmar o texto para as oito categorias do TD-10 da fase 04 e o que aparece quando a categoria é "Outros".
+- **Estados sem desenho — agora cinco.** Descrição expandida, sidebar vazia, **sidebar carregando a próxima página**, **sidebar sem mais páginas**, loading do player e erro de carregamento. Os dois últimos da sidebar entraram com o `sidebar-load-more` criado em 2026-09-29; os dois primeiros são exigidos por capability e por TD-04. Resolvido no `/plan-resolve` de 2026-09-26 como "implementar sem desenho, seguindo os padrões da Fase 04", mas o registro fica porque a lista cresceu depois daquela decisão.
+- **Reuso do `components/ui/card.tsx`** no `not-found-card` (`68:75`) — instância do primitivo ou markup próprio? Resolvido no `/plan-resolve` de 2026-09-26 como **reusar o primitivo**; a linha da tabela ainda marca `✗ / new` e passa a `✓` quando o `plan-build` fixar o path.
+- **Rótulo da categoria na sidebar.** O heading desenhado (`67:77`) é "MAIS EM EDUCAÇÃO", com a categoria interpolada. Resolvido no `/plan-resolve` de 2026-09-26: "MAIS EM {CATEGORIA}" nas sete categorias nomeadas e "MAIS VÍDEOS" no catch-all "Outros". O texto do frame não foi alterado — ele é ilustrativo.
 
 ## Non-UI / Deferred Capabilities
 
