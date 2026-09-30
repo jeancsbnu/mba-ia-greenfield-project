@@ -7,6 +7,8 @@
 
 > **Proveniência — re-extração de 2026-09-29, confirmada.** A lacuna registrada nas rodadas anteriores está **fechada**. As duas telas foram colhidas do Figma por uma chamada `use_figma` que percorreu a árvore até profundidade 6 e devolveu os screenshots renderizados; o resultado está commitado em `docs/figma-cache/FetKyb1V02WS5D6VCatK6t/`. **Os node-ids dos filhos agora estão registrados** em toda a tabela. Duas ressalvas de método, ditas por inteiro: (a) a colheita **não** usou `get_design_context` — usou `use_figma`, que executa a Plugin API e devolve a mesma árvore com mais profundidade e por uma chamada só, conforme a skill `figma-batch`; (b) a mesma chamada **criou** o `sidebar-load-more`, que o `video-watch-page/TD-04` exigia desde a revisão de 2026-09-26 mas ninguém havia desenhado — ele é novo no frame, não uma descoberta. Nada aqui é suposição: cada nó listado veio da árvore devolvida pelo Figma.
 
+> **Emenda de 2026-09-29 — limiar de reprodução efetiva: 10 s → 5 s.** O `video-watch-page/TD-03` foi **revertido** para 5 s no `/plan-resolve` de 2026-09-29, ao fechar a `IC-3`. Este inventário dizia 10 s em dois lugares — o verbo de intenção e a célula `Notes` do `VideoPlayer` — e ambos foram alinhados. **Nenhuma chamada ao Figma foi gasta:** o limiar é um valor de decisão, não um atributo do frame, então a árvore não precisou ser reconsultada. Fecha a `IC-4` do `/plan-validate`.
+
 ---
 
 ## Screen: Página de visualização do vídeo
@@ -27,7 +29,7 @@
 | EntrarButton (`sair-button` `66:52`) | Local-interactive | ✓ | `components/ui/button.tsx` | Herdado da fase 04. Navegação client-side (`<Link>`) para `/login`; não dispara mutation |
 | main-dashed-container (`67:42`) | Presentational | ✗ | new | Container tracejado, padding 48, gap 24; puro DOM de layout |
 | watch-column (`67:43`) | Presentational | ✗ | new | Coluna esquerda (FILL, 747); puro DOM de layout |
-| VideoPlayer (`video-player` `67:44`) | Server-connected | ✗ | `components/videos/video-player.tsx (new)` | `<video controls>` nativo (TD-01) com `src` na URL pré-assinada (TD-02). É também o dono do disparo da contagem de visualização após 10 s de reprodução efetiva (TD-03, revisado em 2026-09-26), o que exige `"use client"` |
+| VideoPlayer (`video-player` `67:44`) | Server-connected | ✗ | `components/videos/video-player.tsx (new)` | `<video controls>` nativo (TD-01) com `src` na URL pré-assinada (TD-02). É também o dono do disparo da contagem de visualização após 5 s de reprodução efetiva (TD-03, revertido em 2026-09-29), o que exige `"use client"` |
 | Controles nativos (`player-controls` `67:45`, `progress-track` `67:48`, `progress-played` `67:49`, `play-affordance` `67:54`, `play-glyph` `67:55`, `volume-icon` `67:50`, `time-text` `67:53`) | Presentational | ✗ | new | **Não são componentes a autorar.** Por TD-01 os controles são os do navegador; esses nós existem no Figma apenas para comunicar a área do player e ficam fora do DOM da implementação |
 | video-heading (`67:57`) | Presentational | ✗ | new | Bloco de título + metadados; puro DOM |
 | video-title (`67:58`) | Presentational | ✗ | new | `<h1>` 22 Extra Bold |
@@ -54,7 +56,7 @@
 | Compor a página com o vídeo principal, suas informações e a sidebar de sugestões | VideoWatchPage (`66:42`) | "Layout da página: vídeo principal + informações + sidebar com sugestões" |
 | Servir um vídeo `unlisted` quando acessado pelo link direto, mantendo-o fora das listagens | VideoWatchPage (`66:42`) | "Vídeos unlisted acessíveis apenas via link direto (sem aparecer em listagens)" |
 | Reproduzir o arquivo do vídeo a partir da URL pré-assinada | VideoPlayer | "Player de vídeo com controles: play/pause, volume e barra de progresso" |
-| Registrar uma visualização após 10 s de reprodução efetiva | VideoPlayer | "Contagem de visualizações" |
+| Registrar uma visualização após 5 s de reprodução efetiva | VideoPlayer | "Contagem de visualizações" |
 | Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | VideoCard na suggestions-sidebar | "Sugestões de vídeos da mesma categoria na sidebar" |
 | Carregar a próxima página de sugestões sob demanda | SidebarLoadMore | "Sugestões de vídeos da mesma categoria na sidebar" |
 | Emitir a URL pré-assinada de download do arquivo, assinada para forçar o salvamento com o nome correto | VideoWatchPage (`66:42`) | "Botão de download do vídeo" |
