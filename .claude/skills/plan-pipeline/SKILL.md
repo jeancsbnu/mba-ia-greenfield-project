@@ -124,19 +124,36 @@ Every stage skill needs the slug for its artifacts. Under the slicing model, **�
 2. Target directory: `docs/tasks/task-{slug}/`.
 3. Decisions doc may or may not exist (research is optional in task mode).
 
-## Shared convention — Staleness via `sources_mtime`
+## Shared convention — Staleness via `sources_mtime` + `sources_hash`
 
-Every artifact (`context.md`, `validation.md`, `library-refs.md`) carries a `sources_mtime:` dict in its frontmatter listing every upstream file it was built from, with the source's mtime at build time.
+Every artifact (`context.md`, `validation.md`, `library-refs.md`) carries a `sources_mtime:` dict in its frontmatter listing every upstream file it was built from with that file's mtime at build time, and a parallel `sources_hash:` dict with the same file's **content hash** at the same moment. The two dicts always carry the same key set.
 
-**Before any stage reads a prior artifact, it checks `sources_mtime`:**
+**Why two fields.** `mtime` is cheap and catches every real edit, but it is not a statement about content: `git` rewrites `mtime` on every checkout, merge and branch switch, so a file nobody touched comes back looking newer. In this repository that false positive fired **three times on the same file**, each time proposing a full regeneration that would have changed nothing. The hash decides whether a source really drifted; the mtime only decides whether it is worth computing the hash.
 
-- For each key, `stat` the file and compare mtime against the recorded value.
-- If **any** source has a newer mtime than recorded → abort with:
-  `"{artifact} is stale relative to {source} (recorded: X, current: Y). Run /plan-context NN to regenerate context before proceeding."`
+**Before any stage reads a prior artifact:**
+
+1. For each key in `sources_mtime`, `stat` the file and compare against the recorded value **truncated to whole seconds**. `stat` reports sub-second precision and a recorded ISO-8601 stamp usually does not, so comparing at full precision marks *every* source as newer — a failure that looks like total staleness and is really a formatting mismatch.
+2. **Not newer → fresh.** Stop here. This is the common case and costs no hashing.
+3. **Newer → hash the file** and compare against `sources_hash`:
+   - **Hash recorded and equal** → **not stale**. Only the mtime moved. Proceed — and **say so in the run's output**, naming the file. Staying silent would hide a real failure mode behind a check that merely looks like it passed.
+   - **Hash recorded and different** → stale. Abort.
+   - **No hash recorded** (artifact predates this convention) → fall back to the mtime verdict: stale, abort. Legacy artifacts keep exactly the old behavior; nothing needs migrating before it is next regenerated.
+
+Abort message, unchanged in shape:
+`"{artifact} is stale relative to {source} (recorded: X, current: Y). Run /plan-context NN to regenerate context before proceeding."`
 
 **Never auto-regenerate.** Staleness always aborts with an explicit next-command. This keeps every regeneration user-triggered and predictable — the user's original pain was silent re-reads; this rule prevents them.
 
-Populate `sources_mtime` by running `stat -c '%y' <file>` (or `ls -l --time=full`) when building each artifact and recording ISO-8601 timestamps.
+**A read-only stage must not repair the stamp.** `plan-validate` and `plan-build` do not write `context.md`; when step 3 clears a source by hash, they report it and continue, leaving the stale mtime in place. The stamp is refreshed by the next stage that legitimately writes the artifact. Repairing it from a read-only stage would be a silent write to an upstream artifact, which the pipeline forbids for a reason.
+
+**Populating both fields** when building an artifact — for every source, both commands:
+
+```bash
+stat -c '%y' <file>                 # → sources_mtime, ISO-8601
+sha256sum <file> | cut -c1-12       # → sources_hash, first 12 hex chars of SHA-256
+```
+
+`sha256sum` hashes **raw bytes**, so it is indifferent to the CRLF line endings most docs in this repo use and to any `git` filter configuration — which is exactly the property `git hash-object` lacks and the reason it is not used here. Twelve hex characters is 48 bits: far beyond what an accidental collision between two revisions of the same planning document needs, and short enough to read in a diff.
 
 ## Shared convention — `status: clean|dirty` gate
 
@@ -296,6 +313,8 @@ kind: phase | task         # authoritative when present
 name: phase-NN-{slug} | task-{slug}
 sources_mtime:
   path/to/source.md: ISO-8601-timestamp
+sources_hash:                      # same key set as sources_mtime; see the staleness convention
+  path/to/source.md: 12-hex-chars-of-sha256
 state: <transient-state-marker>   # OPTIONAL — present only while artifact is in a named transient state (see below)
 ```
 
@@ -338,7 +357,7 @@ Both follow the minimum frontmatter shape above.
 
 **Decisions docs** (in `docs/decisions/`) are managed by `research` and follow their own frontmatter schema — `scope_type`, `related_phases`, `status`, `date`, `scope_description` — documented in `research/SKILL.md`. They are not subject to the `kind:` / `name:` minimum above; their identity is carried by the filename slug and the `related_phases` array. This shape is **unchanged** by the task-mode generalization — `scope_type: ad-hoc` with `related_phases: []` already covered task-mode research natively (Decisão #18).
 
-**Exception — `library-refs.md`.** This is a scope-agnostic library-docs cache owned by `plan-resolve`, not a planning artifact. It deliberately omits `kind:` / `name:` / `phase:` from its frontmatter (carrying only `libs:` + `sources_mtime:`) so the same file can be byte-copied across phase or task directories when an ad-hoc decisions doc with multiple `related_phases` introduces a shared library. Consumers of `library-refs.md` (only `plan-build`) treat it as content addressable by directory location, not by self-declared identity.
+**Exception — `library-refs.md`.** This is a scope-agnostic library-docs cache owned by `plan-resolve`, not a planning artifact. It deliberately omits `kind:` / `name:` / `phase:` from its frontmatter (carrying only `libs:` + `sources_mtime:` + `sources_hash:`) so the same file can be byte-copied across phase or task directories when an ad-hoc decisions doc with multiple `related_phases` introduces a shared library. Consumers of `library-refs.md` (only `plan-build`) treat it as content addressable by directory location, not by self-declared identity.
 
 **Exception — `inventory.md` / `screen-inventory-phase-NN-*.md`.** These are owned by `screen-inventory`, not by `plan-*` stages. They carry their own frontmatter schema (`Status: Pending | Validated`, `Date`, `Screens in scope: N`) documented inside `screen-inventory/SKILL.md`. Treated as external source files from the pipeline's perspective — the `inventory-digest-reader` subagent wraps reads; no `plan-*` stage writes them.
 

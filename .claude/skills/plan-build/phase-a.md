@@ -55,7 +55,7 @@ Build a per-subsection in-memory list of applicable TD refs for use in A4.
 
 ## A3. Write scaffold with sentinela placeholders
 
-Write `{target_path}` with the full skeleton via a single `Write` call. Populate `sources_mtime` by running `stat -c '%y' <file>` via Bash for each source listed in context.md's `sources_mtime` and recording ISO-8601 timestamps.
+Write `{target_path}` with the full skeleton via a single `Write` call. Populate `sources_mtime` and `sources_hash` by running `stat -c '%y' <file>` and `sha256sum <file> | cut -c1-12` via Bash for each source listed in context.md's `sources_mtime`, recording the ISO-8601 timestamp and the 12-hex-char hash under the same key in each dict.
 
 **Frontmatter emission rules:**
 
@@ -79,6 +79,10 @@ sources_mtime:
   {target_dir}/context.md: "ISO-8601-timestamp"
   {target_dir}/library-refs.md: "ISO-8601-timestamp"  # only if present
   docs/decisions/technical-decisions-{slug}.md: "ISO-8601-timestamp"  # if exists
+sources_hash:            # same key set as sources_mtime (sha256sum <file> | cut -c1-12)
+  {target_dir}/context.md: "12-hex-chars"
+  {target_dir}/library-refs.md: "12-hex-chars"        # only if present
+  docs/decisions/technical-decisions-{slug}.md: "12-hex-chars"        # if exists
   # one per decisions doc listed in context.md's sources_mtime
 ---
 

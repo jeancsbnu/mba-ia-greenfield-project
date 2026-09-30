@@ -19,7 +19,7 @@ Append-mode reads `progress.md` (to classify each delta against per-SI status) a
 
 Read the plan file's frontmatter `sources_mtime` block. For each `<path>: <ISO-8601 timestamp>` entry that points to a `docs/decisions/technical-decisions-*.md` file:
 
-1. Run `stat -c '%y' <path>` to get current mtime.
+1. Run `stat -c '%y' <path>` to get current mtime, and `sha256sum <path> | cut -c1-12` when the mtime drifted — per `plan-pipeline/SKILL.md` → Staleness, an equal hash means the source did not change and the delta must not fire.
 2. If current mtime > recorded mtime → file edited since last build; mark as **dirty source**.
 
 For each dirty source:
@@ -110,7 +110,7 @@ For each accepted change, Edit the plan file:
 
 ## C5. Refresh `sources_mtime`
 
-After all Edits applied, refresh `sources_mtime` entries in the plan file's frontmatter for each dirty source processed: `stat -c '%y' <path>` → write ISO-8601 timestamp. This prevents the same deltas from re-firing on the next `/plan-build` invocation.
+After all Edits applied, refresh `sources_mtime` and `sources_hash` entries in the plan file's frontmatter for each dirty source processed: `stat -c '%y' <path>` → ISO-8601 timestamp, `sha256sum <path> | cut -c1-12` → hash. This prevents the same deltas from re-firing on the next `/plan-build` invocation.
 
 **Modern-mode interaction with specs.** O refresh do `sources_mtime` torna `mtime(plan) > Last sync(spec)` para todo spec PRESERVED existente — o que dispararia falso STALE no `/implement` preflight. Por isso, em modo modern (frontmatter declara `test_specs_aware: true`), após `/plan-build` append-mode terminar, o user **deve** rodar `/plan-test-specs <slug>`, que re-stampa `Last sync` dos PRESERVED + processa NEW (placeholders adicionados na C2). O hint condicional do C7 (vide `SKILL.md` § "Output contract → Phase C7") emite essa instrução automaticamente quando aplicável; phase-c.md NÃO duplica o template do output — o conditional emit vive **exclusivamente** em `SKILL.md`.
 

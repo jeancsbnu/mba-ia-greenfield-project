@@ -29,7 +29,7 @@ One argument: the target phase number `NN` (integer, phase mode) OR a task slug 
 
 4.5. **Partial context.md detection (Decisão #28, task mode only).** From the frontmatter just read in step 4, if `state: partial-awaiting-inventory` is present, abort immediately: `"context.md for task {slug} is partial (state: partial-awaiting-inventory — plan-context wrote minimum scope-only context for screen-inventory to read). Run /screen-inventory {slug} to create inventory, then rerun /plan-context {slug} to complete context.md."` This check runs before any body read of context.md — do not try to validate a partial artifact.
 
-5. **context.md staleness** (shared convention). For each key in context.md's `sources_mtime`, `stat` the source and compare. If any source is newer than recorded → abort: `"context.md is stale relative to {source}. Run /plan-context <arg> to regenerate, then retry /plan-validate <arg>."`
+5. **context.md staleness** (shared convention). For each key in context.md's `sources_mtime`, apply the two-step check of `plan-pipeline/SKILL.md` → Staleness (mtime truncated to seconds as pre-filter; on drift, `sources_hash` decides, and an equal hash means **not stale** — report it and continue). Only a genuine content drift aborts: `"context.md is stale relative to {source}. Run /plan-context <arg> to regenerate, then retry /plan-validate <arg>."` This stage is read-only on context.md, so a source cleared by hash leaves the stale mtime in place — do not repair it here.
 
 6. **Prior validation.md** (optional). If `validation.md` already exists, read its frontmatter to recover the `issues:` list. The markdown body will be fully regenerated; the frontmatter preserves the audit trail.
 
@@ -304,6 +304,9 @@ sources_mtime:
   docs/{phases|tasks}/{dir}/context.md: "ISO-8601-timestamp"
   docs/decisions/technical-decisions-{slug}.md: "ISO-8601-timestamp"   # if exists
   # one per decisions doc listed in context.md's _Source files:_ subsection
+sources_hash:            # same key set as sources_mtime (sha256sum <file> | cut -c1-12)
+  docs/{phases|tasks}/{dir}/context.md: "12-hex-chars"
+  docs/decisions/technical-decisions-{slug}.md: "12-hex-chars"   # if exists
 issues:
   - id: AMB-1
     status: open
