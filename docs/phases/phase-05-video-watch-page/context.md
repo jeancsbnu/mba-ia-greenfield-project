@@ -3,7 +3,7 @@ kind: phase
 name: phase-05-video-watch-page
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T22:05:51-03:00"
+  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-29T21:14:52-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-01-configuracao-base/context.md: "2026-06-29T19:03:26-03:00"
@@ -56,15 +56,18 @@ sources_mtime:
 | video-watch-page/TD-02 | phase | Cross-layer | Validade da URL pré-assinada diante da duração da reprodução | decided | A (prazo longo cobrindo a reprodução) | — |
 |     └─ Last revision: 2026-09-26 — Validade de 6 h confirmada; deixa de ser premissa e passa a valor firme. Mesma… | | | | | | |
 | video-watch-page/TD-03 | phase | Cross-layer | Momento e critério de contagem de uma visualização | decided | B (endpoint dedicado após limiar de reprodução) | — |
-|     └─ Last revision: 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o… | | | | | | |
+|     └─ Last revision: 2026-09-29 — Limiar **revertido de 10 s para 5 s**, desfazendo a revisão de 2026-09-26… | | | | | | |
 | video-watch-page/TD-04 | phase | Cross-layer | Origem e critério das sugestões da sidebar | decided | A (mesma categoria, mais recentes primeiro) | — |
 |     └─ Last revision: 2026-09-26 — Recorte da sidebar fixado: **4 vídeos por página, com "ver mais" carregando as… | | | | | | |
 | video-watch-page/TD-05 | phase | Cross-layer | Proteção contra abuso do endpoint público de contagem | decided | B (`@Throttle()` dedicado na rota, storage em memória) | — |
+|     └─ Last revision: 2026-09-29 — **30 requisições por 60 s por IP confirmadas**; deixa de ser premissa… | | | | | | |
 | video-watch-page/TD-06 | phase | Frontend | Como os testes simulam os bytes do vídeo | decided | A + C (fachada de mídia injetável + E2E de fumaça com `page.route()`) | — |
 
 _Nenhum TD do escopo declara `**Renders in:**`; pela regra de backwards-compat a coluna é omitida (todos os valores seriam `—`). O default por inferência é resolvido adiante pelo filtro A2 do `plan-build`, junto com o `ui_in_scope` da fase._
 
-**Referências obsoletas ao limiar de 10 s, detectadas nesta rodada.** A revisão de 2026-09-26 no `TD-03` mudou o limiar de reprodução efetiva de 5 s para **10 s**, mas o texto do decisions doc que *cita* o limiar não acompanhou: o `**Context:**` do `TD-05` e a prosa inteira do `TD-06` (Context, Options e Recommendation) seguem dizendo "5 s". Este estágio **não edita decisions docs**, então a divergência está registrada e não corrigida. O valor autoritativo é **10 s**, fixado na Revisions do `TD-03`.
+**Limiar de reprodução efetiva: 5 s** (revertido em 2026-09-29, `TD-03`). A revisão de 2026-09-26 havia levado o valor a 10 s, mas o `**Context:**` do `TD-05` e a prosa do `TD-06` nunca acompanharam; o `/plan-resolve` de 2026-09-29 resolveu a `IC-3` alinhando as três fontes **em 5 s**, revertendo o `TD-03`. O decisions doc está internamente consistente.
+
+**Divergência aberta, em sentido inverso ao da rodada anterior.** O verbo do inventário e o `### UI ⇔ Capability Join` abaixo dizem **10 s** — foram atualizados na re-extração de 2026-09-29, antes desta reversão. O `/plan-resolve` **não edita inventário**, então a correção exige um extension run do `/screen-inventory`. O valor autoritativo é **5 s**, fixado na Revisions do `TD-03`.
 
 _Source files:_
 
@@ -105,6 +108,7 @@ _Source files:_
 
 **Revisions:**
 - 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o mecanismo continua sendo o endpoint dedicado disparado pelo player, só o valor muda. Rationale: resolve OQ-6 (/plan-validate) — os 5 s eram premissa, não recomendação; 10 s exige intenção real de assistir sem penalizar vídeo curto, ao contrário dos 30 s da referência clássica de mercado, que zeraria a contagem de qualquer vídeo mais curto que isso.
+- 2026-09-29 — Limiar **revertido de 10 s para 5 s**, desfazendo a revisão acima. Mesma Option B: o mecanismo não muda, só o valor. Rationale: resolve IC-3 (/plan-validate) — o `**Context:**` do `TD-05` e a prosa inteira do `TD-06` nunca acompanharam a mudança para 10 s e seguiam citando 5 s; das duas formas de alinhar as três fontes, a escolhida foi trazer o `TD-03` de volta ao valor que as outras duas já usavam. **Consequência assumida:** o verbo do inventário e o digest do `context.md` passam a dizer 10 s contra os 5 s desta decisão — o `/plan-resolve` não edita inventário, então fechar isso exige um extension run do `/screen-inventory`.
 
 ### video-watch-page/TD-04
 
@@ -116,15 +120,26 @@ _Source files:_
 
 ### video-watch-page/TD-05
 
-**Recommendation:** **Option B**, com C como caminho declarado para quando houver mais de uma instância. Três razões. (1) **O problema real desta fase não é a ausência de limite, é o limite errado** — o default existe e já cobre o endpoint; o que não existe é distinção entre um orçamento de autenticação e um de navegação, e é exatamente isso que o `@Throttle()` resolve, com uma linha. (2) **O Redis resolveria um problema que a fase não tem ainda** — reinício e multi-instância são reais, mas o deploy é de instância única até a Fase 07 tratar produção; acoplar o caminho de request ao Redis agora obriga a decidir o comportamento em caso de queda, uma decisão sem informação hoje. Subir de B para C depois é trocar o `storage` do módulo, sem tocar nas rotas. (3) **A Option D é desproporcional a uma métrica que o próprio `TD-03` decidiu não ser exata** — gastar contrato dos dois lados para encarecer, sem impedir, uma inflação de contador contradiz a escolha já feita. A Option A é defensável se a resposta for "a contagem não importa a ponto de justificar uma linha", mas então o 429 no meio da reprodução do usuário legítimo continua, e esse é um custo de produto, não de métrica. Sobre os números, e explicitamente como premissa a confirmar no mesmo espírito do `TD-02` e do `TD-03`: sugiro **30 requisições por 60 s por IP** nessa rota. Trinta vídeos iniciados por minuto está muito acima de qualquer navegação humana e ainda assim é um terço do que um laço trivial alcançaria contra o default. O número é discutível; o que não é discutível é que ele deve ser diferente do orçamento de login.
+**Recommendation:** **Option B**, com C como caminho declarado para quando houver mais de uma instância. Três razões. (1) **O problema real desta fase não é a ausência de limite, é o limite errado** — o default existe e já cobre o endpoint; o que não existe é distinção entre um orçamento de autenticação e um de navegação, e é exatamente isso que o `@Throttle()` resolve, com uma linha. (2) **O Redis resolveria um problema que a fase não tem ainda** — reinício e multi-instância são reais, mas o deploy é de instância única até a Fase 07 tratar produção; acoplar o caminho de request ao Redis agora obriga a decidir o comportamento em caso de queda, uma decisão sem informação hoje. Subir de B para C depois é trocar o `storage` do módulo, sem tocar nas rotas. (3) **A Option D é desproporcional a uma métrica que o próprio `TD-03` decidiu não ser exata** — gastar contrato dos dois lados para encarecer, sem impedir, uma inflação de contador contradiz a escolha já feita. A Option A é defensável se a resposta for "a contagem não importa a ponto de justificar uma linha", mas então o 429 no meio da reprodução do usuário legítimo continua, e esse é um custo de produto, não de métrica.
+
+Sobre os números, e explicitamente como premissa a confirmar no mesmo espírito do `TD-02` e do `TD-03`: sugiro **30 requisições por 60 s por IP** nessa rota. Trinta vídeos iniciados por minuto está muito acima de qualquer navegação humana e ainda assim é um terço do que um laço trivial alcançaria contra o default. O número é discutível; o que não é discutível é que ele deve ser diferente do orçamento de login.
 **Libraries:** —
+
+**Revisions:**
+- 2026-09-29 — **30 requisições por 60 s por IP confirmadas**; deixa de ser premissa e passa a valor firme. Mesma Option B, nenhuma mudança de mecanismo. Rationale: resolve OQ-9 (/plan-validate) — o número foi fixado por premissa na redação original, no mesmo espírito do `TD-02` e do `TD-03`, e o usuário o confirmou explicitamente no /plan-resolve.
 
 ### video-watch-page/TD-06
 
-**Recommendation:** **Option A como base, com C aplicada a um único E2E de fumaça.** O raciocínio é que as duas perguntas têm respostas diferentes e tentar uma resposta só é o que trava a decisão. Para o **gatilho de reprodução efetiva**, que é a regra de negócio real e cara de errar, a Option A é a única viável: o jsdom não reproduz mídia por construção, então nenhuma quantidade de bytes ajuda, e a fachada permite afirmar "logo abaixo do limiar não chama, logo acima chama uma vez só" em milissegundos. Depender de relógio real aqui, como a B exige, é lento e instável. Para a **integração**, um único teste em Playwright com `page.route()` na origem do storage responde a pergunta que a A não responde — o `src` aponta para o lugar certo e o elemento consegue carregar — sem espalhar binário e espera por toda a suíte. Um teste, não uma política. A Option B é a que menos entrega pelo custo: same-origin apaga a característica que torna o caminho real arriscado. A Option D seria aceitável se o gatilho não existisse, mas ele existe e é lógica, não pixel. Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A é superfície de produção que existe parcialmente para o teste. Vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão estará sendo mal aplicada.
-**Libraries:** —
+**Recommendation:** **Option A como base, com C aplicada a um único E2E de fumaça.** O raciocínio é que as duas perguntas têm respostas diferentes e tentar uma resposta só é o que trava a decisão.
 
-_Nota do `/plan-context` de 2026-09-29: a prosa original do TD-06 citava o limiar como "5 s" em vários pontos, valor anterior à revisão de 2026-09-26 no TD-03 que o levou a **10 s**. Aqui as citações foram neutralizadas para "limiar" a fim de não propagar o número obsoleto para o `plan-build`. **O texto no decisions doc segue dizendo 5 s** — este estágio não edita decisions docs. Ver a nota abaixo do `## Decisions Index`._
+Para o **gatilho dos 5 s**, que é a regra de negócio real e cara de errar, a Option A é a única viável: o jsdom não reproduz mídia por construção, então nenhuma quantidade de bytes ajuda, e a fachada permite afirmar "aos 4,9 s não chama, aos 5,1 s chama uma vez só" em milissegundos. Depender de relógio real aqui, como a B exige, é lento e instável.
+
+Para a **integração**, um único teste em Playwright com `page.route()` na origem do storage responde a pergunta que a A não responde — o `src` aponta para o lugar certo e o elemento consegue carregar — sem espalhar binário e espera por toda a suíte. Um teste, não uma política.
+
+A Option B é a que menos entrega pelo custo: same-origin apaga a característica que torna o caminho real arriscado. A Option D seria aceitável se o gatilho dos 5 s não existisse, mas ele existe e é lógica, não pixel.
+
+Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A é superfície de produção que existe parcialmente para o teste. Vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão estará sendo mal aplicada.
+**Libraries:** —
 ## Inherited Decisions Detail
 
 ### next-frontend-openapi-typing/TD-01

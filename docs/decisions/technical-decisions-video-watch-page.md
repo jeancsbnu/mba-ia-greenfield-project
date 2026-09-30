@@ -140,10 +140,11 @@ Consequência para o frontend, registrada no inventário da fase: o botão de do
 
 **Decision:** B (endpoint dedicado após limiar de reprodução)
 
-**Limiar (revisado em 2026-09-26 — ver Revisions):** `POST /videos/{publicId}/view` é disparado pelo player após **10 segundos contínuos de reprodução efetiva** (tempo de mídia avançado, não tempo de página aberta). O valor é baixo o bastante para não perder visualizações legítimas curtas e alto o bastante para descartar pré-carregamento, robô que não executa mídia e abertura acidental. Sem deduplicação nesta fase, conforme a opção escolhida.
+**Limiar (revertido em 2026-09-29 — ver Revisions):** `POST /videos/{publicId}/view` é disparado pelo player após **5 segundos contínuos de reprodução efetiva** (tempo de mídia avançado, não tempo de página aberta). O valor é baixo o bastante para não perder visualizações legítimas curtas e alto o bastante para descartar pré-carregamento, robô que não executa mídia e abertura acidental. Sem deduplicação nesta fase, conforme a opção escolhida.
 
 **Revisions:**
 - 2026-09-26 — Limiar de reprodução efetiva alterado de **5 s para 10 s**. Mesma Option B: o mecanismo continua sendo o endpoint dedicado disparado pelo player, só o valor muda. Rationale: resolve OQ-6 (/plan-validate) — os 5 s eram premissa, não recomendação; 10 s exige intenção real de assistir sem penalizar vídeo curto, ao contrário dos 30 s da referência clássica de mercado, que zeraria a contagem de qualquer vídeo mais curto que isso.
+- 2026-09-29 — Limiar **revertido de 10 s para 5 s**, desfazendo a revisão acima. Mesma Option B: o mecanismo não muda, só o valor. Rationale: resolve IC-3 (/plan-validate) — o `**Context:**` do `TD-05` e a prosa inteira do `TD-06` nunca acompanharam a mudança para 10 s e seguiam citando 5 s; das duas formas de alinhar as três fontes, a escolhida foi trazer o `TD-03` de volta ao valor que as outras duas já usavam. **Consequência assumida:** o verbo do inventário e o digest do `context.md` passam a dizer 10 s contra os 5 s desta decisão — o `/plan-resolve` não edita inventário, então fechar isso exige um extension run do `/screen-inventory`.
 
 ---
 
@@ -231,7 +232,10 @@ Sobre os números, e explicitamente como premissa a confirmar no mesmo espírito
 
 _Sem biblioteca nova: o `@nestjs/throttler` já está instalado e decidido em `phase-02-auth/TD-08`, e o decorator `@Throttle()` vem dele._
 
-**Parâmetros (premissa a confirmar):** **30 requisições por 60 s por IP** nessa rota, sobrepondo o default global de 10/60 s. O storage permanece em memória; subir para a Option C (Redis) fica declarado como o caminho para quando houver mais de uma instância da API, e é uma troca do `storage` do módulo, sem tocar nas rotas.
+**Parâmetros (confirmados em 2026-09-29 — ver Revisions):** **30 requisições por 60 s por IP** nessa rota, sobrepondo o default global de 10/60 s. O storage permanece em memória; subir para a Option C (Redis) fica declarado como o caminho para quando houver mais de uma instância da API, e é uma troca do `storage` do módulo, sem tocar nas rotas.
+
+**Revisions:**
+- 2026-09-29 — **30 requisições por 60 s por IP confirmadas**; deixa de ser premissa e passa a valor firme. Mesma Option B, nenhuma mudança de mecanismo. Rationale: resolve OQ-9 (/plan-validate) — o número foi fixado por premissa na redação original, no mesmo espírito do `TD-02` e do `TD-03`, e o usuário o confirmou explicitamente no /plan-resolve.
 
 ---
 

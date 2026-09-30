@@ -2,20 +2,23 @@
 kind: phase
 name: phase-05-video-watch-page
 status: dirty
-issue_count: 3
+issue_count: 0
 sources_mtime:
   docs/phases/phase-05-video-watch-page/context.md: "2026-09-29T20:24:13-03:00"
   docs/decisions/technical-decisions-video-watch-page.md: "2026-09-26T22:05:51-03:00"
 issues:
   - id: IC-3
-    status: open
+    status: resolved
     summary: "TD-05 Context e a prosa do TD-06 ainda citam 5 s; o TD-03 revisado diz 10 s"
+    resolved_by: video-watch-page/TD-03
   - id: OQ-9
-    status: open
+    status: resolved
     summary: "TD-05 declara 30 req/60 s como premissa a confirmar e nunca foi confirmada"
+    resolved_by: video-watch-page/TD-05
   - id: OQ-10
-    status: open
+    status: resolved
     summary: "Dois estados novos da sidebar sem desenho, posteriores a resolucao da OQ-3"
+    resolved_by: clarification
   - id: IC-1
     status: resolved
     summary: "Verbo do inventário cita limiar de 5 s; o TD-03 revisado diz 10 s"
@@ -87,13 +90,7 @@ _Check 8 suprimido: `S_phase ∩ S_NN` devolveu exatamente 1 slice (`video-watch
 
 ### Inconsistencies
 
-- **IC-3** — **O `**Context:**` do `TD-05` e a prosa inteira do `TD-06` ainda dizem "5 s"; o valor decidido é 10 s.** A revisão de 2026-09-26 no `video-watch-page/TD-03` mudou o limiar de reprodução efetiva de 5 s para **10 s**. O texto que *cita* o limiar não acompanhou: o Context do `TD-05` abre com _"disparado pelo player após **5 s**, sem deduplicação"_, e o `TD-06` repete o número **8 vezes** ao longo de Context, Options e Recommendation.
-
-  Duas decisões vigentes do mesmo escopo afirmam números diferentes para a mesma regra de negócio. O `context.md` já registra a divergência numa nota sob o `## Decisions Index` e o `/plan-context` neutralizou as citações copiadas para o `## Decisions Detail` — então **o número obsoleto não chega ao `plan-build`**, e nenhuma ocorrência operativa de "5 s" sobrou no `context.md` (as quatro que restam são descrições históricas da própria mudança).
-
-  O que continua errado é o **registro permanente**. O decisions doc é a fonte que uma pessoa abre para entender a decisão, e hoje ele contradiz a si mesmo em oito pontos. A mitigação no `context.md` protege o pipeline, não o leitor.
-
-  Explicit choice: (a) `/plan-resolve video-watch-page` aplicando o primitivo **Append revision** ao `TD-06` (e ao `TD-05`), corrigindo as citações para 10 s e registrando o motivo — a Decision de ambos não muda, só o texto que cita o `TD-03`; (b) aceitar o texto do decisions doc como histórico e tratar a nota do `context.md` como o ponteiro autoritativo — barato, mas deixa o registro permanente errado; (c) reverter o `TD-03` para 5 s, o que descartaria uma decisão já tomada e confirmada.
+_None._
 
 ### Ambiguities
 
@@ -117,17 +114,7 @@ _None._
 
 ### Unresolved Open Questions
 
-- **OQ-9** — **O `TD-05` fixa 30 requisições por 60 s por IP como premissa a confirmar, e ninguém confirmou.** A Recommendation diz, com todas as letras: _"explicitamente como premissa a confirmar no mesmo espírito do `TD-02` e do `TD-03`: sugiro **30 requisições por 60 s por IP**"_. O `**Decision:**` do `TD-05` registra só o mecanismo — `B (@Throttle() dedicado na rota, storage em memória)` — e o TD **não tem bloco `**Revisions:**`**.
-
-  Esta é exatamente a forma que gerou a `OQ-6` na terceira rodada, para o prazo de 6 h do `TD-02` e o limiar do `TD-03`. Aqueles dois foram confirmados por revisão; este nasceu depois, no `/plan-resolve` que fechou a `MD-1`, e herdou a mesma pendência sem passar pelo mesmo crivo. Sem confirmação, o `plan-build` escreve o `@Throttle()` com um número que ninguém ratificou — ou, pior, sem número nenhum, já que ele não está na Decision.
-
-  Resolution: `/plan-resolve video-watch-page` — confirmar 30/60 s ou escolher outro valor, aplicando **Append revision** ao `TD-05` para que o número saia da prosa e entre na decisão.
-
-- **OQ-10** — **Dois estados novos da sidebar continuam sem desenho, e são posteriores à decisão que fechou a `OQ-3`.** O bullet do inventário registra cinco estados sem desenho; três deles (descrição expandida, sidebar vazia, loading/erro do player) foram cobertos pela resolução de 2026-09-26 — _"implementar sem desenho, seguindo os padrões da Fase 04"_. Os outros dois — **sidebar carregando a próxima página** e **sidebar sem mais páginas** — só passaram a existir em 2026-09-29, quando o `sidebar-load-more` foi criado no Figma para fechar a `IC-2`. O próprio inventário diz por que o registro permanece: _"a lista cresceu depois daquela decisão"_.
-
-  Não trato como já resolvida porque a resolução da `OQ-3` não podia ter contemplado estados que ainda não existiam. Pode muito bem receber a mesma resposta — provavelmente receberá —, mas isso é uma decisão sua, não uma inferência minha.
-
-  Resolution: `/plan-resolve video-watch-page` — estender a decisão da `OQ-3` aos dois estados novos, ou desenhá-los no Figma antes do `plan-build`.
+_None._
 
 ### UI Coverage Gaps
 
@@ -141,6 +128,9 @@ _(nenhuma regra carregada — `docs/rules/plan-validate/` não existe)_
 
 ## Resolved Issues
 
+- **IC-3** _(resolved_by video-watch-page/TD-03)_ — as três fontes foram alinhadas **em 5 s**, revertendo o `TD-03`. Revision de 2026-09-29 anexada ao `TD-03` desfazendo a de 2026-09-26. O `**Context:**` do `TD-05` e a prosa do `TD-06` já diziam 5 s e não precisaram de edição — o decisions doc ficou internamente consistente. **Abriu uma divergência em sentido inverso:** o verbo do inventário e o digest do `context.md` dizem 10 s, e o `/plan-resolve` não edita inventário.
+- **OQ-9** _(resolved_by video-watch-page/TD-05)_ — **30 requisições por 60 s por IP confirmadas**; deixam de ser premissa e passam a valor firme, registradas num bloco `**Revisions:**` novo no `TD-05`. Mesmo tratamento que o `TD-02` e o `TD-03` receberam na `OQ-6`.
+- **OQ-10** _(resolved_by clarification)_ — os dois estados novos da sidebar (carregando a próxima página, sem mais páginas) seguem a decisão da `OQ-3`: implementar sem desenho, seguindo os padrões da Fase 04. Nenhum TD editado — a Revision de 2026-09-26 do `TD-04` já antecipava esta consequência ao fixar a paginação.
 - **IC-1** _(resolved_by screen-inventory re-extração 2026-09-29)_ — o verbo do inventário citava 5 s contra os 10 s do `TD-03` revisado. A re-extração corrigiu o verbo para _"Registrar uma visualização após 10 s de reprodução efetiva"_. Fechada **fora do `/plan-resolve`**: quem a resolveu foi o `/screen-inventory`, que é o único que pode editar inventário — por isso ela ainda constava `open` no frontmatter anterior.
 - **IC-2** _(resolved_by screen-inventory re-extração 2026-09-29)_ — o `TD-04` revisado paginava a sidebar e o inventário não tinha nem verbo nem componente para isso. A mesma chamada ao Figma **desenhou** o `sidebar-load-more` (`72:62`) e a re-extração o registrou: novo verbo _"Carregar a próxima página de sugestões sob demanda"_ e `SidebarLoadMore` em `### Server-connected Components`.
 - **AMB-1** _(resolved_by video-watch-page/TD-04)_ — tamanho do recorte da sidebar fixado em 4 vídeos por página com "ver mais".
