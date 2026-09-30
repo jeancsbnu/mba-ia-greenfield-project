@@ -3,7 +3,7 @@ kind: phase
 name: phase-05-video-watch-page
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-29T21:14:52-03:00"
+  docs/decisions/technical-decisions-video-watch-page.md: "2026-09-29T21:26:00-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-01-configuracao-base/context.md: "2026-06-29T19:03:26-03:00"
@@ -11,9 +11,22 @@ sources_mtime:
   docs/phases/phase-02-auth-frontend/context.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-03-upload-processing/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-04-video-channel-management/context.md: "2026-09-22T21:20:53-03:00"
-  docs/inventories/screen-inventory-phase-05-video-watch-page.md: "2026-09-29T20:17:53-03:00"
+  docs/inventories/screen-inventory-phase-05-video-watch-page.md: "2026-09-29T22:17:18-03:00"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "2026-06-29T19:03:26-03:00"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
+sources_hash:
+  docs/project-plan.md: "18d6466649bb"
+  docs/decisions/technical-decisions-video-watch-page.md: "8cde965b9bd0"
+  docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "dce35a1a5901"
+  docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
+  docs/phases/phase-01-configuracao-base/context.md: "0d4a7f0ea3f4"
+  docs/phases/phase-02-auth/context.md: "2f6ccb7eaebc"
+  docs/phases/phase-02-auth-frontend/context.md: "3f0f1efff30f"
+  docs/phases/phase-03-upload-processing/context.md: "d10c73e13267"
+  docs/phases/phase-04-video-channel-management/context.md: "71811d3a87ee"
+  docs/inventories/screen-inventory-phase-05-video-watch-page.md: "24a8d81faa2d"
+  .claude/skills/testing-guide-nestjs-project/SKILL.md: "f302b87517e4"
+  .claude/skills/testing-guide-next-frontend/SKILL.md: "9942ebfdb06d"
 ---
 
 # phase-05-video-watch-page — Context
@@ -65,9 +78,7 @@ sources_mtime:
 
 _Nenhum TD do escopo declara `**Renders in:**`; pela regra de backwards-compat a coluna é omitida (todos os valores seriam `—`). O default por inferência é resolvido adiante pelo filtro A2 do `plan-build`, junto com o `ui_in_scope` da fase._
 
-**Limiar de reprodução efetiva: 5 s** (revertido em 2026-09-29, `TD-03`). A revisão de 2026-09-26 havia levado o valor a 10 s, mas o `**Context:**` do `TD-05` e a prosa do `TD-06` nunca acompanharam; o `/plan-resolve` de 2026-09-29 resolveu a `IC-3` alinhando as três fontes **em 5 s**, revertendo o `TD-03`. O decisions doc está internamente consistente.
-
-**Divergência aberta, em sentido inverso ao da rodada anterior.** O verbo do inventário e o `### UI ⇔ Capability Join` abaixo dizem **10 s** — foram atualizados na re-extração de 2026-09-29, antes desta reversão. O `/plan-resolve` **não edita inventário**, então a correção exige um extension run do `/screen-inventory`. O valor autoritativo é **5 s**, fixado na Revisions do `TD-03`.
+**Limiar de reprodução efetiva: 5 s**, e as três fontes concordam. O `TD-03` foi revertido a 5 s em 2026-09-29 (`/plan-resolve`, fechando a `IC-3`); o `**Context:**` do `TD-05` e a prosa do `TD-06` já usavam esse valor; e o inventário foi alinhado na emenda de 2026-09-29, fechando a `IC-4`. A divergência que atravessou quatro rodadas de validate está encerrada.
 
 _Source files:_
 
@@ -140,6 +151,7 @@ A Option B é a que menos entrega pelo custo: same-origin apaga a característic
 
 Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A é superfície de produção que existe parcialmente para o teste. Vale enquanto for um ponto fino de indireção sobre o elemento; se começar a reimplementar o player, a decisão estará sendo mal aplicada.
 **Libraries:** —
+
 ## Inherited Decisions Detail
 
 ### next-frontend-openapi-typing/TD-01
@@ -447,8 +459,8 @@ _(from phases-reader; bullets idênticos repetidos por três fases foram dedupli
 | Página de visualização do vídeo | /videos/{publicId} | Compor a página com o vídeo principal, suas informações e a sidebar de sugestões | "Layout da página: vídeo principal + informações + sidebar com sugestões" | VideoWatchPage |
 | Página de visualização do vídeo | /videos/{publicId} | Servir um vídeo `unlisted` quando acessado pelo link direto, mantendo-o fora das listagens | "Vídeos unlisted acessíveis apenas via link direto (sem aparecer em listagens)" | VideoWatchPage |
 | Página de visualização do vídeo | /videos/{publicId} | Reproduzir o arquivo do vídeo a partir da URL pré-assinada | "Player de vídeo com controles: play/pause, volume e barra de progresso" | VideoPlayer |
-| Página de visualização do vídeo | /videos/{publicId} | Registrar uma visualização após 10 s de reprodução efetiva | "Contagem de visualizações" | VideoPlayer |
-| Página de visualização do vídeo | /videos/{publicId} | Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | "Sugestões de vídeos da mesma categoria na sidebar" | VideoCard |
+| Página de visualização do vídeo | /videos/{publicId} | Registrar uma visualização após 5 s de reprodução efetiva | "Contagem de visualizações" | VideoPlayer |
+| Página de visualização do vídeo | /videos/{publicId} | Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | "Sugestões de vídeos da mesma categoria na sidebar" | VideoCard na suggestions-sidebar |
 | Página de visualização do vídeo | /videos/{publicId} | Carregar a próxima página de sugestões sob demanda | "Sugestões de vídeos da mesma categoria na sidebar" | SidebarLoadMore |
 | Página de visualização do vídeo | /videos/{publicId} | Emitir a URL pré-assinada de download do arquivo, assinada para forçar o salvamento com o nome correto | "Botão de download do vídeo" | VideoWatchPage |
 
