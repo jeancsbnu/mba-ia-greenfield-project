@@ -79,7 +79,7 @@ Entregar a página pública de visualização do vídeo: player com controles na
 ### SI-05.2 — Endpoint público de detalhe do vídeo
 
 **Route:** GET /videos/{publicId}/public
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `nestjs-project/specs/videos-public-detail.plan.md`
 **Authorization:** Anonymous para vídeo publicado (`public` ou `unlisted`); Owner para rascunho
 
 **Description:** Servir os dados do vídeo a visitante anônimo — o que nenhuma rota existente faz, já que `GET /videos/{publicId}` é dono-apenas.
@@ -113,7 +113,7 @@ Entregar a página pública de visualização do vídeo: player com controles na
 ### SI-05.3 — Endpoint de contagem de visualização
 
 **Route:** POST /videos/{publicId}/view
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `nestjs-project/specs/videos-view-count.plan.md`
 **Authorization:** Anonymous
 
 **Description:** Primeiro endpoint de escrita público do projeto — incrementa `views_count` quando o player informa que houve reprodução efetiva.
@@ -148,7 +148,7 @@ Entregar a página pública de visualização do vídeo: player com controles na
 ### SI-05.4 — Endpoint de sugestões da sidebar
 
 **Route:** GET /videos/{publicId}/suggestions
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `nestjs-project/specs/videos-suggestions.plan.md`
 **Authorization:** Anonymous
 
 **Description:** Listar vídeos da mesma categoria para a sidebar, paginados, com as exclusões que o TD-04 fixou.
@@ -278,7 +278,7 @@ Sem linha de E2E: estes SIs de Route Handler são cobertos por teste de integra�
 
 ### SI-05.6b — Tela de visualização do vídeo (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/video-watch-page.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Página de visualização do vídeo`
 
 **Technical actions:**
