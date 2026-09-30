@@ -17,6 +17,8 @@
 
 ## Decisions log
 
+- ✓ 2026-09-29 — Emenda de valor, fora dos fluxos definidos pela skill (não é fresh run nem extension run): limiar de reprodução efetiva alinhado de **10 s para 5 s** no verbo e na célula `Notes` do `VideoPlayer`, acompanhando a reversão do `TD-03`. Sem re-dispatch de sub-agente e sem chamada ao Figma — o valor vem do TD, não da árvore.
+
 - Token drift detection: dispensada — a inspeção do arquivo nesta mesma sessão retornou `localVariableCollections: 0` e nenhum text style, então não há tokens do Figma contra os quais comparar `globals.css`.
 - Sub-agentes das duas telas retornaram BLOQUEADOS: get_design_context recusado pelo limite do plano Starter. Ambos se comportaram corretamente e nao inventaram componentes. As secoes foram montadas pelo parent a partir do script use_figma que criou os frames nesta sessao (ver nota de proveniencia no inventario). **Status do inventario permanece Pending** ate a re-extracao.
 - [OK] [DECISION: DownloadButton e Local-interactive ou Server-connected?] - RESOLVIDO em 2026-09-24: Local-interactive. TD-02 ganhou clarification de duas URLs pre-assinadas (stream + download com content-disposition), ambas emitidas juntas com o detalhe do video. Motivo: o atributo download do HTML e ignorado em cross-origin.
