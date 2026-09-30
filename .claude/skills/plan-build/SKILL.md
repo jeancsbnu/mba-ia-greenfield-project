@@ -58,7 +58,7 @@ Check `{target_dir}/validation.md`. Abort with `"validation.md not found for {ph
 
 ### Gate 5 — validation.md freshness
 
-Bounded Read of the top `---` frontmatter block only. For every key in `sources_mtime`, `stat` and compare. Drift aborts: `"validation.md is stale relative to {source}. Run /plan-validate <arg> to reconfirm status before building."`
+Bounded Read of the top `---` frontmatter block only. For every key in `sources_mtime`, apply the two-step check of `plan-pipeline/SKILL.md` → Staleness (mtime truncated to seconds as pre-filter; on drift, `sources_hash` decides, and an equal hash means **not stale** — report it and continue). Only a genuine content drift aborts: `"validation.md is stale relative to {source}. Run /plan-validate <arg> to reconfirm status before building."`
 
 ### Gate 6 — Status gate
 
@@ -110,7 +110,7 @@ Interpret (the four pattern tests below are mutually exclusive by token-anchor c
 - **≥1 match** — bounded read of the section body, then test the body content against two independent pattern tests:
   - **Body matches `_No screen inventory —[^_]*deferred[^_]*_`** → `ui_in_scope: deferred`; skip the staleness check (deferred state is legitimate).
   - **Body matches `_Frontend-runtime only —[^_]*_`** → `ui_in_scope: logic-only`; skip the staleness check (logic-only state is legitimate, parallel to deferred — user opted out of inventory because the phase only introduces FE-runtime architectural-transversal TDs and no UI surface). The token-anchor `_Frontend-runtime only —` is mutually exclusive with the deferred placeholder's `_No screen inventory —` token by construction (per `plan-context/SKILL.md` Step 0.5).
-  - **Body has populated digest** (neither placeholder matched) → `ui_in_scope: true`. Extract the `**Source:** \`{path}\`` line via bounded read; `stat` that path; compare against `sources_mtime` entry in context.md frontmatter for the same key. If inventory file mtime is newer → abort: `"Screen inventory at {path} has been updated since context.md was generated. Run /plan-context <arg> to regenerate."`.
+  - **Body has populated digest** (neither placeholder matched) → `ui_in_scope: true`. Extract the `**Source:** \`{path}\`` line via bounded read; apply the same two-step check to that path against context.md's `sources_mtime` / `sources_hash` entries for the same key. Only a genuine content drift aborts: `"Screen inventory at {path} has been updated since context.md was generated. Run /plan-context <arg> to regenerate."`. **This is the exact path where the mtime-only rule misfired three times** — the inventory is rewritten by every `git` checkout that touches it, so a bare mtime comparison reports drift on a file whose bytes never changed.
 
 After this gate, `ui_in_scope` is one of `true | false | deferred | logic-only` and is held in memory through every phase.
 

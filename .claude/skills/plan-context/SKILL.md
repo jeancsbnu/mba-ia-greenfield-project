@@ -224,9 +224,9 @@ For each subproject in scope where a `testing-guide-*` skill exists, use the `Sk
 
 If no testing guide exists for a subproject in scope, note it in the context.md as `_No testing guide available — layer requirements deferred to implementation._`.
 
-### Step 6 — Record `sources_mtime`
+### Step 6 — Record `sources_mtime` and `sources_hash`
 
-For every file contributing to context.md, run `stat -c '%y' <file>` (or equivalent) to capture ISO-8601 mtimes. Sources include:
+For every file contributing to context.md, run **both** `stat -c '%y' <file>` (ISO-8601 mtime) and `sha256sum <file> | cut -c1-12` (content hash). The two dicts carry the same key set — a key present in one and missing from the other silently downgrades that source to mtime-only staleness. Sources include:
 
 **Phase mode:**
 - `docs/project-plan.md`.
@@ -326,6 +326,10 @@ sources_mtime:
   docs/project-plan.md: "ISO-8601-timestamp"                    # phase mode only
   docs/decisions/technical-decisions-{slug}.md: "ISO-8601-timestamp"   # if exists
   # one line per ad-hoc decisions doc contributing via related_phases (phase mode)
+sources_hash:            # same key set as sources_mtime (sha256sum <file> | cut -c1-12)
+  docs/project-plan.md: "12-hex-chars"                          # phase mode only
+  docs/decisions/technical-decisions-{slug}.md: "12-hex-chars"  # if exists
+  # one line per key present in sources_mtime — the two dicts never diverge
   # one line per correlator-confirmed decisions doc (both modes)
   # one line per prior-phase context.md read via phases-reader
   # one line per testing-guide skill file read
