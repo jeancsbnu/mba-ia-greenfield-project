@@ -169,6 +169,36 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
 
 5. **`decisions-detail-reader` TD count match (FUNCTIONAL hard gate, runs only when decisions-detail-reader was dispatched).** First, derive `kept_files` from the agent's `## Filter Trace` table: collect the `File` column values of every row whose `Decision == kept`, then prepend `docs/decisions/` to each basename to get the full file paths. Then compute ground truth: `expected = sum over kept_files of: grep -cE '^\*\*Decision:\*\* [A-Z]' <kept_file>` (counts decided TDs only — pending TDs start with `_[pending]_`, excluded by the `[A-Z]` anchor). Compute actual: `actual = grep -cE '^### [a-z0-9-]+/TD-[0-9]+' <agent_output>`. On `actual != expected`, abort: `"decisions-detail-reader TD count mismatch: expected={expected} decided TDs across kept files, agent emitted {actual}. Re-dispatch decisions-detail-reader."` Superseded TDs (`<!-- status: superseded-by: ... -->` marker) are not yet present in this project; when the first one appears, extend `expected` to also subtract superseded count.
 
+5b. **`decisions-detail-reader` Recommendation completeness (FUNCTIONAL hard gate, runs only when decisions-detail-reader was dispatched).** Step 5 counts `### {slug}/TD-NN` headings, so it passes a TD whose Recommendation prose came back truncated — the heading is there, the content is not. This has happened three times in this project; the worst case lost **1128 of 1304 characters (86%)** of a TD-06 Recommendation while every count-based check reported success. Measure the content.
+
+   Write the agent's output verbatim to a scratch file, then run the **same** counter over both the kept decisions docs and that file. The script normalizes identically on both sides — it strips the `Option X — ` prefix the agent is contracted to remove, trims leading/trailing spaces, and counts characters **excluding newlines**, so soft-wrap differences do not register:
+
+   ```awk
+   # recommendation-chars.awk — prints "<td> <chars>" per Recommendation block.
+   # Normaliza a chave dos dois lados: a fonte escreve "## TD-01: Titulo"
+   # (com dois-pontos) e o agente escreve "### {slug}/TD-01". Sem isto o join
+   # por TD nao casa e a gate compara listas desalinhadas.
+   /^### [a-z0-9-]+\/TD-[0-9]+/ { td=$2; sub(/^.*\//,"",td); sub(/:$/,"",td); next }
+   /^## TD-/ { td=$2; sub(/:$/,"",td); next }
+   /^\*\*Recommendation:\*\*/ {
+     line=$0; sub(/^\*\*Recommendation:\*\* */,"",line)
+     sub(/^\*\*?Option [A-Z][^—]*\*\*? *— */,"",line)
+     sub(/^Option [A-Z] *— */,"",line)
+     n=length(line); inrec=1; next
+   }
+   inrec && (/^\*\*[A-Za-z]/ || /^---/ || /^### / || /^## /) { print td, n; inrec=0 }
+   inrec { gsub(/^ +| +$/,""); n+=length($0) }
+   END { if (inrec) print td, n }
+   ```
+
+   Compare per TD, matching the agent's `{slug}/TD-NN` against the source's `TD-NN` within that slug's file. **The counts must be equal** — the normalization is the same on both sides, so this is an exact check, not a tolerance band. On any mismatch, abort naming every offending TD:
+
+   `"decisions-detail-reader truncated Recommendation prose: {slug}/TD-NN source={X} chars, emitted={Y} chars (lost {X-Y}). Re-dispatch decisions-detail-reader and instruct it that Recommendation is a verbatim copy, never a summary."`
+
+   An emitted count **larger** than the source is equally a failure — it means prose was invented or a neighbouring field bled in. Report it with the same message; the numbers make the direction obvious.
+
+   This gate reads only integers into the main thread: the prose stays on disk and in the scratch file, so it costs nothing in context.
+
 6. **Cosmetic detection (SOFT — warn to terminal, never abort).** Run only when decisions-detail-reader was dispatched.
    a. **Preamble.** Count chars before the first `## Decisions Detail for` line in agent output (`awk '/^## Decisions Detail for/{exit} {len+=length($0)+1} END{print len}'`). If `> 0`, emit to terminal: `"WARN [cosmetic]: decisions-detail-reader emitted {N} chars of preamble before the '## Decisions Detail for' heading."`
    b. **Option-X prefix retention.** Count Recommendation lines that retain the option marker (bolded OR plain): `prefix_kept = grep -cE '^\*\*Recommendation:\*\* (\*\*)?Option [A-Z]' <agent_output>`. Total Recommendation lines: `prefix_total = grep -cE '^\*\*Recommendation:\*\*' <agent_output>`. If `prefix_kept > 0`, emit: `"WARN [cosmetic]: {prefix_kept} of {prefix_total} Recommendation lines retain 'Option X' prefix (bolded `**Option X (Name)** —` or plain `Option X — `)."`

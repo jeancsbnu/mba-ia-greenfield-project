@@ -263,6 +263,22 @@ For each spec file:
 
 5. **Edge case — non-content-touching specs (zero NEW + zero PRESERVED Edits).** Quando TODOS os cenários de um spec ficaram em **UPDATED / MANUAL / DELETED / ORPHAN** states, nenhum Edit content-bearing fire e o file mtime stays old → /implement preflight aborta STALE mesmo após /plan-test-specs ter rodado. **Mitigação obrigatória (aplica-se inclusive a all-MANUAL specs):** emit um **no-op Edit no frontmatter do spec** (substituição idempotente do próprio valor atual — ler o frontmatter, escolher uma linha estável, e substituí-la por ela mesma) só pra bumpar o file mtime. Exemplo: para um spec frontend, replace `subproject: frontend` por `subproject: frontend`; para um spec backend, replace `subproject: backend` por `subproject: backend`. **Use o valor atual do campo, não um literal hardcoded** — substituir `subproject: backend` por `subproject: frontend` corromperia o spec e quebraria a detecção de runner em `/implement` Step 3a. O frontmatter bump **não viola** a invariant "user is owner of MANUAL content" porque nenhum cenário tem seu corpo tocado — a única mudança é file metadata. Alternativa equivalente: `Bash touch <spec-path>`. Skill **escolhe o no-op Edit** (não requer dispatch de Bash). Esta é a mitigação canônica do **MANUAL deadlock**: sem ela, all-MANUAL specs causariam loop infinito (`/implement` aborta STALE → user roda `/plan-test-specs` → MANUAL skip silently → file mtime ainda velho → `/implement` aborta STALE de novo).
 
+6. **Final ordering bump — run last, always, on every spec this invocation touched or resolved.** Step 4 edits the **plano**, so when Stage 3 finishes the plan is newer than every spec written in steps 1-3. `/implement`'s preflight compares `PLAN_MTIME - SPEC_MTIME` against a 600 s grace window, so on a small phase the gap is a minute or two and nothing happens. On a large one it is not safe: the specs are authored sequentially by the LLM, so the **first** spec written can be many minutes behind the plan edit that closes the pass, and it alone trips `STALE` while its siblings pass. The failure scales with how much work the invocation did, which is exactly backwards.
+
+   Remove the dependence on wall-clock duration instead of trusting the window. After step 4, apply the same idempotent no-op frontmatter Edit from step 5 to **every** spec path resolved in this run — including the ones steps 1-3 already wrote. It is a byte-identical rewrite: content cannot change, only mtime. Then verify, so the guarantee is measured rather than assumed:
+
+   ```bash
+   PLAN_MTIME=$(stat -c %Y "$PLAN")
+   for SPEC in <every spec path resolved in Stage 1 Step 4>; do
+     SPEC_MTIME=$(stat -c %Y "$SPEC")
+     [ "$SPEC_MTIME" -ge "$PLAN_MTIME" ] || echo "ORDERING VIOLATION: $SPEC"
+   done
+   ```
+
+   Any line printed means a spec is still older than the plan and `/implement` may abort on it — re-apply the bump to that path before emitting Stage 4.
+
+   This makes the invariant `spec_mtime >= plan_mtime` hold at exit by construction, with no reliance on the grace window. It also survives the common follow-on: a `git` checkout or merge that rewrites the working tree tends to stamp all these files within the same second, and `>=` keeps holding.
+
 ### Stage 4 — Output summary
 
 Emit a single block:

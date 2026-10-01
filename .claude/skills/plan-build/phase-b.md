@@ -471,9 +471,26 @@ See "Template: Deliverables" below for the exact shape and the parameterized com
 
 `Edit` the Deliverables sentinela block per the same Edit protocol.
 
+## B6.5. Remove the `<!-- phase-a-complete -->` sentinela
+
+B4–B6 consume the three sentinelas A3 planted. The fourth — `<!-- phase-a-complete -->`, injected by A4.6 — has no consumer in Phase B and must be removed here, as the last edit before B7.
+
+Exact inverse of the A4.6 insertion, via a single `Edit`:
+
+- `old_string`: `<!-- phase-a-complete -->\n\n## Dependency Map`
+- `new_string`: `## Dependency Map`
+
+The anchor holds in both scaffold variants: A4.6 always inserts the sentinela immediately above `## Dependency Map`, whether or not `## Technical Specifications` was rendered. It also holds after B5, which replaces the Dep Map sentinela **below** that heading and leaves the heading itself intact.
+
+**Why this step exists.** Gate 10 keys entirely on sentinela presence, and SKILL.md § "Aborts replace writes" states the post-B7 artifact has **all sentinelas removed**. Skip this edit and the finished plan still carries `phase-a-complete` with the SIs sentinela gone — which is Gate 10 **case 4** ("Phase B started and replaced the SIs sentinela… mid-build"). The next `/plan-build` on that slug then routes to fresh Phase A, whose A3 `Write` **overwrites the completed plan**. The plan is destroyed silently: no abort, no prompt, no diff review before the write.
+
+That makes this the one step in Phase B whose omission loses work rather than degrading output. If a plan ever comes back from Gate 10 as case 4 and the file visibly contains SIs, a Dependency Map and Deliverables, it is this step that was skipped — the file is complete, not mid-build, and the sentinela should be removed by hand before rerunning anything.
+
 ## B7. Emit completion message
 
 Emit the literal `Successful completion (Phase B7)` block from SKILL.md § "Output contract". No prose preamble. No closing summary.
+
+Before emitting, verify the artifact carries **zero** sentinelas: `Grep -c '<!-- ' {target_path}` over the four canonical literals must return no matches. A surviving sentinela means B4, B5, B6 or B6.5 did not apply its Edit, and the completion message would claim a state the file does not have.
 
 ---
 
@@ -621,6 +638,18 @@ Prior to this migration, `/plan-build` emitted Tests entries like:
 ```
 
 For Xb / controller wiring / cross-layer SIs (the same three categories that receive the `**Test Specs:**` placeholder), **do NOT emit E2E Tests entries**. The E2E scenarios are authored externally by `/plan-test-specs` in the spec file referenced by `**Test Specs:**`. Unit / Integration / MSW handler test entries continue to be emitted inline as table rows in **SIs that own behavior tests** — Xb, controller wiring, cross-layer, FR Migration, FR Verification, backend SIs, bootstrap Groups B/C/D, **and frontend BFF Route Handler SIs** (carved out of the placeholder per § "Which SIs receive the placeholder" — they own an inline Integration/MSW row and never carried an E2E row, so the E2E-drop above is a no-op for them). **SIs that don't own behavior tests** — SI-Xa (single-owner invariant: Xb owns the Unit table for the screen's Client Components), Infra SIs, FR Setup SIs, bootstrap Group A — emit the empty form `_(empty — <reason>)_` per the "Tests format invariant" above instead of inline rows.
+
+#### Verification — the prose rule above is not self-enforcing
+
+This rule has been violated in a shipped plan. `phase-05-video-watch-page.md` emitted **five** E2E rows across **three** SIs that each carried `**Test Specs:**` (SI-05.2, SI-05.3, SI-05.4), and every one of those rows pointed at the same `test/videos.e2e-spec.ts` — **a file that does not exist in the subproject**, invented as a plausible-looking aggregate while that project's actual convention is one E2E file per flow (`videos-detail.e2e-spec.ts`, `videos-stream.e2e-spec.ts`, …). `/plan-test-specs` later wrote the real specs at their correct `target_file:` paths, so the plan shipped carrying three stale rows that contradicted the specs beside them. At `/implement` time this costs a judgement call per SI — duplicate the coverage into a file that does not exist, or deviate from the plan — on every SI, in a reader who has no cheap way to tell which of the two sources is current.
+
+Check it mechanically after B4 has written all SIs, before B5:
+
+1. `Grep -n '^\*\*Test Specs:\*\*' {target_path}` → the set of SIs that must have no E2E row.
+2. For each, bounded-read its block and scan the Tests table's `Layer` column for `E2E` (case-insensitive).
+3. Any hit is a build defect, not a style issue: remove the row before continuing. If removing it empties the table, the SI owns no behavior tests inline and takes the empty form per § "Tests format invariant".
+
+**And never invent a test-file path.** A `Test file` value is either a path that exists on disk today, or one this plan's own SIs create. Before emitting a path that does not exist, confirm its directory and naming match files already in that subproject — `Glob` the test directory and compare. One aggregate file per resource is a guess; most subprojects in this repo shard by flow. When the SI carries `**Test Specs:**`, the question does not arise: the external spec's `target_file:` is the only E2E path, and the row should not be there at all.
 
 ### Backwards-compat (planos legacy)
 
