@@ -135,7 +135,7 @@ Run a single grep covering both required sentinelas:
 
 `Grep -nE '^<!-- (SIs will be written in Phase B|phase-a-complete) -->$' {target_path}`
 
-The two sentinela strings are the **canonical literals** referenced from every phase file. Phase A (`phase-a.md` § A3) writes them; Phase A4.6 adds `<!-- phase-a-complete -->` (Phase A4.5 may inject `<!-- {rule-id}-pending -->` — canonical: `<!-- ccr-pending -->` — before A4.6 runs, when any rule from `docs/rules/plan-build/` aborts); Phase B (`phase-b.md` § B4-B6) consumes them. Any change to these literals must update Gate 10 AND every phase file together (validator flags inconsistency).
+The two sentinela strings are the **canonical literals** referenced from every phase file. Phase A (`phase-a.md` § A3) writes them; Phase A4.6 adds `<!-- phase-a-complete -->` (Phase A4.5 may inject `<!-- {rule-id}-pending -->` — canonical: `<!-- ccr-pending -->` — before A4.6 runs, when any rule from `docs/rules/plan-build/` aborts); Phase B consumes them: `phase-b.md` § B4-B6 replace the three A3 sentinelas, and § B6.5 removes `<!-- phase-a-complete -->`, which has no consumer and whose survival would make the finished plan read as Gate 10 case 4. Any change to these literals must update Gate 10 AND every phase file together (validator flags inconsistency).
 
 Resume to Phase B **only when both lines match**:
 - `<!-- SIs will be written in Phase B -->` — confirms Phase B has not started writing SIs (B4 replaces this on the first SI).
@@ -147,6 +147,7 @@ Branches:
 - Both sentinelas present → skip Phase A; proceed to Phase B (resume case 2; Edit existing file, replacing sentinelas).
 - Only `<!-- SIs will be written in Phase B -->` present (no `<!-- phase-a-complete -->`) → Phase A errored mid-A4 last run, OR a rule from `docs/rules/plan-build/` aborted with a `<!-- {rule-id}-pending -->` sentinel injected — partial Tech Specs are not trustworthy in either case (case 3); fresh Phase A (Write overwrites the half-built file, including any abort sentinel from the previous run; A4.5 then re-runs all rules against the freshly-rendered Tech Specs).
 - Only `<!-- phase-a-complete -->` present (no SIs sentinela) → Phase B started and replaced the SIs sentinela (case 4); the file is mid-build but Phase B partially advanced. Fresh Phase A (Write overwrites).
+  **Distinguish before trusting this reading:** a plan that already has SIs, a Dependency Map and Deliverables is *finished*, not mid-build — it reached B7 and § B6.5 failed to remove the sentinela. Routing it to fresh Phase A destroys it. Remove the stray sentinela by hand and re-read Gate 10 as case 5.
 - Neither sentinela present → file is a completed prior artifact (case 5); route to **Append-mode** (Phase C) by default, OR fresh Phase A when the user passed the `--rebuild` flag.
 
 No `AskUserQuestion`, no parsing of frontmatter, no extra staleness check (staleness of `context.md` is covered by Gates 1–9 via `validation.md`).
@@ -160,7 +161,7 @@ After Gate 10 determines the routing branch, Read the corresponding companion fi
 | Gate 10 outcome | Read | Then execute |
 |---|---|---|
 | Fresh Phase A (case 1) | `.claude/skills/plan-build/phase-a.md` | Phase A procedure (A1-A5) |
-| Resume Phase B (case 2) | `.claude/skills/plan-build/phase-b.md` | Phase B procedure (B1-B7) |
+| Resume Phase B (case 2) | `.claude/skills/plan-build/phase-b.md` | Phase B procedure (B1-B7, incl. B6.5 sentinela cleanup) |
 | Fresh Phase A (cases 3-4 — partial-artifact recovery) | `.claude/skills/plan-build/phase-a.md` | Phase A procedure (Write overwrites the half-built file) |
 | Append-mode (case 5, default) | `.claude/skills/plan-build/phase-c.md` | Phase C procedure (C1-C7) |
 | Fresh Phase A (case 5 with `--rebuild`) | `.claude/skills/plan-build/phase-a.md` | Phase A procedure as fresh build |

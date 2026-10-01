@@ -142,6 +142,20 @@ An extension run happens when the user adds a new screen to an inventory that is
 7. **Re-generate Reconciliation summary and Open questions in their entirety**, re-reading all screens (old and new). Do not patch individual rows — re-write both sections from scratch to avoid stale phrasing.
 8. **Flip statuses back**: set inventory `Status: Validated` and update progress file `Screens: (N+1)/(N+1) completed`.
 
+### Amendment run (correct a value inside an already-inventoried screen)
+
+Distinct from an extension run: no screen is added and no sub-agent is dispatched. A value already recorded for an existing screen turns out to be wrong, or a decision upstream changed it — a threshold, a label, a `Reuse?` path, a classification. This is a frequent, expected event: a TD revision can move a number that the inventory transcribed weeks earlier, and the inventory is then the stale copy.
+
+**Do not re-run the screen.** Re-dispatching a sub-agent to re-derive one value costs a Figma call for data already on disk, and risks rewriting unrelated rows the user has since curated.
+
+1. **Find every occurrence of the value, not the first one.** A single number routinely appears in more than one place for the same screen — the verb row, the `Notes` cell of the component that owns it, and sometimes an entry under `### Observations`. Grep the whole inventory for the old value and enumerate the hits before editing any of them; fixing one and leaving another is worse than not fixing it at all, because the two then disagree and the document stops being a source of truth.
+2. **Flip `Status: Validated` → `Pending`** before the first edit. The flag asserts the Output Contract was checked against the current content; while the file is mid-amendment that assertion is false.
+3. **Apply the edits**, and record the provenance inline — what changed, to what, and which decision authorizes it (e.g., `_Amended 2026-09-29: limiar 10 s → 5 s per video-watch-page/TD-03, Revisions de 2026-09-29._`). Without it the next reader cannot tell a correction from a transcription error.
+4. **Re-run the Inventory Output Contract Validation** in full, then flip `Status` back to `Validated`.
+5. **Propagate, or say you did not.** The inventory is an upstream source for `context.md` and for the plan. An amended value that already flowed downstream leaves those artifacts stale — `plan-validate` will surface it as an inconsistency on the next run, which is the designed safety net, but naming the affected artifacts now is cheaper than rediscovering them later.
+
+**Why this flow is written down.** Without it the amendment gets improvised, and the improvisation that comes naturally — edit the one line that was reported — is the one that leaves a second copy of the old value behind. That happened in this project with a 10 s → 5 s threshold: the value lived in two cells of the same screen and the mismatch bounced between the inventory and the TDs across three pipeline stages before both copies agreed.
+
 ### Token drift detection (non-blocking, advisory)
 
 Advisory, read-only check: warns if Figma design tokens have drifted from the frontend subproject's design-tokens CSS file, so the inventory is not classifying against stale CSS. Never blocks — only warns. Resolve the design-tokens CSS path from the frontend subproject's framework convention (e.g., Next.js App Router → `app/globals.css`; Vite/CRA → `src/index.css`). If the path cannot be resolved unambiguously, ask the user via `AskUserQuestion`.
