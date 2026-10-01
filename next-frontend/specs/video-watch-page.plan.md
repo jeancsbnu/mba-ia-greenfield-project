@@ -10,7 +10,7 @@ target_file: tests/video-watch-page.e2e-spec.ts
 
 ## Application Overview
 
-A watch page (`/videos/{publicId}`) é pública: qualquer visitante, sem autenticação, vê o vídeo, seus dados, a descrição e uma sidebar de sugestões. O Server Component busca `GET /api/videos/{publicId}` e recebe, na mesma resposta, as duas URLs pré-assinadas de 6 h (`video-watch-page/TD-02`, Clarification de 2026-09-24) — o `<video src>` e o `<a href>` de download apontam **direto ao storage**, que é outra origem.
+A watch page (`/videos/{publicId}`) é pública: qualquer visitante, sem autenticação, vê o vídeo, seus dados, a descrição e uma sidebar de sugestões. O Server Component busca `GET /api/videos/{publicId}/public` e recebe, na mesma resposta, as duas URLs pré-assinadas de 6 h (`video-watch-page/TD-02`, Clarification de 2026-09-24) — o `<video src>` e o `<a href>` de download apontam **direto ao storage**, que é outra origem.
 
 O player é `<video controls>` nativo (`video-watch-page/TD-01`): os controles são do navegador, não reimplementados, e os nós de controle no Figma são ilustrativos. É também a única fronteira `"use client"` obrigatória da tela, porque o disparo da contagem depende do evento `timeupdate` (`video-watch-page/TD-03`).
 

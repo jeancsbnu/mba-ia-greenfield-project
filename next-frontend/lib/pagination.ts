@@ -32,3 +32,11 @@ export function totalPages(total: number, pageSize: number): number {
   if (total <= 0 || pageSize <= 0) return 1
   return Math.ceil(total / pageSize)
 }
+
+/**
+ * Pagina da sidebar de sugestoes (video-watch-page/TD-04, Revisions de
+ * 2026-09-26). Mora aqui, e nao no componente, porque o Server Component da
+ * watch page tambem precisa dela: importar um valor de um modulo "use client"
+ * devolve uma referencia de cliente, nao o numero.
+ */
+export const SUGGESTIONS_PAGE_SIZE = 4

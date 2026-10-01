@@ -10,6 +10,9 @@ import {
 import { ChannelsService } from '../channels/channels.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateVideoDto } from './dto/update-video.dto';
+import { PLAYBACK_URL_TTL_SECONDS } from './videos.constants';
+import { PublicVideoDetailResponse } from './dto/public-video-detail-response.dto';
+import { SuggestedVideosPage } from './dto/suggested-videos-response.dto';
 import { Video, VideoStatus, VideoVisibility } from './entities/video.entity';
 
 @Injectable()
@@ -180,16 +183,99 @@ export class VideosService {
     return this.storageService.getPresignedUrl(
       video.storage_bucket as string,
       video.storage_key as string,
+      { expiresInSeconds: PLAYBACK_URL_TTL_SECONDS },
     );
   }
 
+  // O atributo download do HTML é ignorado cross-origin, então o nome do
+  // arquivo tem de vir na própria assinatura (TD-02, Clarification 2026-09-24).
   async getDownloadUrl(video: Video): Promise<string> {
     this.assertReady(video);
     return this.storageService.getPresignedUrl(
       video.storage_bucket as string,
       video.storage_key as string,
-      { responseContentDisposition: 'attachment' },
+      {
+        expiresInSeconds: PLAYBACK_URL_TTL_SECONDS,
+        responseContentDisposition: `attachment; filename="${buildDownloadFilename(
+          video,
+        )}"`,
+      },
     );
+  }
+
+  // Projeção pública da watch page. Monta campo a campo de propósito: um
+  // spread da entidade faria qualquer coluna nova de operação vazar para o
+  // visitante anônimo no dia em que fosse acrescentada.
+  async toPublicDetail(video: Video): Promise<PublicVideoDetailResponse> {
+    const channel = await this.channelsService.findByIdOrFail(video.channel_id);
+    const [streamUrl, downloadUrl, thumbnailUrl] = await Promise.all([
+      this.getStreamUrl(video),
+      this.getDownloadUrl(video),
+      this.resolveThumbnailUrl(video),
+    ]);
+
+    return {
+      publicId: video.public_id,
+      title: video.title,
+      description: video.description,
+      durationSeconds: video.duration_seconds,
+      category: video.category,
+      visibility: video.visibility,
+      publishedAt: video.published_at,
+      viewsCount: video.views_count,
+      thumbnailUrl,
+      channel: { nickname: channel.nickname, name: channel.name },
+      streamUrl,
+      downloadUrl,
+    };
+  }
+
+  // Incremento atômico no banco: um read-modify-write perderia contagens
+  // quando dois espectadores cruzam o limiar ao mesmo tempo.
+  async registerView(video: Video): Promise<void> {
+    await this.videoRepository.increment({ id: video.id }, 'views_count', 1);
+  }
+
+  // Sidebar da watch page: mesma categoria, mais recentes primeiro (TD-04).
+  // As exclusões são o que define a lista — o próprio vídeo, rascunhos e
+  // `unlisted`, este último porque "fora de listagens" é justamente o que
+  // `unlisted` significa. Lista vazia é resultado legítimo e frequente: a
+  // consulta exclui o vídeo de referência, então uma categoria com um único
+  // publicado devolve [].
+  async listSuggestions(
+    reference: Video,
+    offset: number,
+    limit: number,
+  ): Promise<SuggestedVideosPage> {
+    const [videos, total] = await this.videoRepository.findAndCount({
+      where: {
+        category: reference.category,
+        id: Not(reference.id),
+        published_at: Not(IsNull()),
+        visibility: VideoVisibility.PUBLIC,
+      },
+      relations: { channel: true },
+      order: { published_at: 'DESC' },
+      skip: offset,
+      take: limit,
+    });
+
+    const items = await Promise.all(
+      videos.map(async (video) => ({
+        publicId: video.public_id,
+        title: video.title,
+        thumbnailUrl: await this.resolveThumbnailUrl(video),
+        durationSeconds: video.duration_seconds,
+        viewsCount: video.views_count,
+        publishedAt: video.published_at as Date,
+        channel: {
+          nickname: video.channel.nickname,
+          name: video.channel.name,
+        },
+      })),
+    );
+
+    return { items, total };
   }
 
   private assertReady(video: Video): void {
@@ -197,4 +283,21 @@ export class VideosService {
       throw new VideoNotReadyException();
     }
   }
+}
+
+// Nome do arquivo que vai no content-disposition da URL de download. Deriva do
+// título para que o espectador salve algo legível em vez da chave de objeto;
+// a extensão vem da própria chave, que é quem sabe o formato real.
+function buildDownloadFilename(video: Video): string {
+  const slug = video.title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 100)
+    .replace(/-+$/, '');
+  const base = slug || video.public_id;
+  const extension = /\.([a-z0-9]+)$/i.exec(video.storage_key ?? '')?.[1];
+  return extension ? `${base}.${extension.toLowerCase()}` : base;
 }

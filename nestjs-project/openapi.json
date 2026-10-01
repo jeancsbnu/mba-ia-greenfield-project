@@ -739,6 +739,192 @@
         ]
       }
     },
+    "/videos/{publicId}/public": {
+      "get": {
+        "description": "Returns the display metadata of a published video plus two 6 h presigned storage URLs (inline playback and attachment download). Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also read their own drafts.",
+        "operationId": "VideosController_getPublicVideo",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicVideoDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found, or a draft requested by someone else",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Video is not ready for viewing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get a published video for public viewing",
+        "tags": [
+          "videos"
+        ]
+      }
+    },
+    "/videos/{publicId}/view": {
+      "post": {
+        "description": "Increments the view counter. Called by the player once per mount, after enough effective playback has accumulated. Accessible without authentication and takes no body. Rate limited to 30 requests per 60 s per IP.",
+        "operationId": "VideosController_registerView",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "View registered"
+          },
+          "404": {
+            "description": "Video not found, or a draft requested by someone else",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 30 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Register a view of a video",
+        "tags": [
+          "videos"
+        ]
+      }
+    },
+    "/videos/{publicId}/suggestions": {
+      "get": {
+        "description": "Returns published, public videos from the same category as the reference video, newest first, excluding the reference video itself, drafts and unlisted videos. Paginated with offset/limit; the default page is 4. An empty list is a legitimate result, not an error.",
+        "operationId": "VideosController_getSuggestions",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Quantas sugestões pular.",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantas sugestões retornar.",
+            "schema": {
+              "minimum": 1,
+              "default": 4,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggestions page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestedVideosPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "offset or limit outside the accepted range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reference video not found, or a draft requested by someone else",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List suggestions for the sidebar of the watch page",
+        "tags": [
+          "videos"
+        ]
+      }
+    },
     "/videos/{publicId}/stream": {
       "get": {
         "description": "Redirects to a presigned storage URL for the video file. Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also stream their own drafts.",
@@ -1309,6 +1495,98 @@
           "thumbnailUrl"
         ]
       },
+      "PublicVideoChannel": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome de exibição do canal."
+          }
+        },
+        "required": [
+          "nickname",
+          "name"
+        ]
+      },
+      "PublicVideoDetailResponse": {
+        "type": "object",
+        "properties": {
+          "publicId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationSeconds": {
+            "type": "number",
+            "nullable": true
+          },
+          "category": {
+            "enum": [
+              "Música",
+              "Jogos",
+              "Educação",
+              "Entretenimento",
+              "Notícias",
+              "Esportes",
+              "Tecnologia",
+              "Outros"
+            ],
+            "type": "string"
+          },
+          "visibility": {
+            "enum": [
+              "public",
+              "unlisted"
+            ],
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "viewsCount": {
+            "type": "number"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "channel": {
+            "$ref": "#/components/schemas/PublicVideoChannel"
+          },
+          "streamUrl": {
+            "type": "string",
+            "description": "URL pré-assinada de 6 h entregue inline; consumida pelo src do <video>."
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "URL pré-assinada de 6 h sobre a mesma chave, assinada com content-disposition attachment e filename. Vem junto com a página porque o atributo download do HTML é ignorado cross-origin."
+          }
+        },
+        "required": [
+          "publicId",
+          "title",
+          "description",
+          "durationSeconds",
+          "category",
+          "visibility",
+          "publishedAt",
+          "viewsCount",
+          "thumbnailUrl",
+          "channel",
+          "streamUrl",
+          "downloadUrl"
+        ]
+      },
       "OwnerVideoListItem": {
         "type": "object",
         "properties": {
@@ -1471,6 +1749,63 @@
           "total",
           "offset",
           "limit"
+        ]
+      },
+      "SuggestedVideoListItem": {
+        "type": "object",
+        "properties": {
+          "publicId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationSeconds": {
+            "type": "number",
+            "nullable": true
+          },
+          "viewsCount": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/PublicVideoChannel"
+          }
+        },
+        "required": [
+          "publicId",
+          "title",
+          "thumbnailUrl",
+          "durationSeconds",
+          "viewsCount",
+          "publishedAt",
+          "channel"
+        ]
+      },
+      "SuggestedVideosPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedVideoListItem"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de sugestões elegíveis, ignorando a página."
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ]
       }
     }

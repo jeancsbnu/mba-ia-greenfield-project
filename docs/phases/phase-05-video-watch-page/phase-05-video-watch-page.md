@@ -184,7 +184,7 @@ Entregar a página pública de visualização do vídeo: player com controles na
 
 ### SI-05.5 — Route Handlers BFF da watch page
 
-**Route:** GET /api/videos/{publicId} · POST /api/videos/{publicId}/view · GET /api/videos/{publicId}/suggestions
+**Route:** GET /api/videos/{publicId}/public · POST /api/videos/{publicId}/view · GET /api/videos/{publicId}/suggestions
 **Authorization:** Anonymous nas três
 
 **Description:** Expor as três rotas same-origin que o browser consome, fazendo proxy para o upstream NestJS server-side conforme o modelo strict-BFF.
@@ -211,7 +211,7 @@ Sem linha de E2E: estes SIs de Route Handler são cobertos por teste de integra�
 
 **Acceptance criteria:**
 
-- `GET /api/videos/{publicId}` devolve a mesma projeção pública do upstream, com `streamUrl` e `downloadUrl` presentes.
+- `GET /api/videos/{publicId}/public` devolve a mesma projeção pública do upstream, com `streamUrl` e `downloadUrl` presentes.
 - `POST /api/videos/{publicId}/view` devolve `204` no caminho feliz e repassa `429` sem transformá-lo.
 - `GET /api/videos/{publicId}/suggestions?offset=4&limit=4` repassa os parâmetros e devolve `{ items, total }`.
 - Nenhum dos três handlers expõe a URL do upstream ao cliente — `env.API_URL` é lido apenas server-side.
@@ -283,7 +283,7 @@ Sem linha de E2E: estes SIs de Route Handler são cobertos por teste de integra�
 
 **Technical actions:**
 
-1. **Estratégia de renderização** — `app/videos/[publicId]/page.tsx` fica Server Component: busca `GET /api/videos/{publicId}` server-side e recebe as duas URLs pré-assinadas. `VideoPlayer`, `VideoDescription` e `SidebarLoadMore` recebem `"use client"`; o player é a única fronteira de cliente **obrigatória**, porque o disparo da contagem depende do evento `timeupdate` (per `video-watch-page/TD-03`).
+1. **Estratégia de renderização** — `app/videos/[publicId]/page.tsx` fica Server Component: busca `GET /api/videos/{publicId}/public` server-side e recebe as duas URLs pré-assinadas. `VideoPlayer`, `VideoDescription` e `SidebarLoadMore` recebem `"use client"`; o player é a única fronteira de cliente **obrigatória**, porque o disparo da contagem depende do evento `timeupdate` (per `video-watch-page/TD-03`).
 2. **Gatilho da contagem** — no `VideoPlayer`, acumular tempo de **mídia avançada** (não tempo de página aberta) e disparar `POST /api/videos/{publicId}/view` **uma única vez por montagem** ao cruzar **5 s**. Implementar atrás de uma **fachada de mídia injetável** sobre o elemento, para que o teste possa afirmar "logo abaixo do limiar não chama, logo acima chama uma vez só" sem depender de relógio real (per `video-watch-page/TD-06`, Option A). A fachada é um ponto fino de indireção — se começar a reimplementar o player, a decisão está sendo mal aplicada.
 3. **Download sem chamada em tempo de clique** — o `DownloadButton` é um `<a>` sobre a `downloadUrl` que **já veio com a página**. Não emitir nada no clique (per `video-watch-page/TD-02`, Clarification de 2026-09-24).
 4. **Paginação da sidebar** — `SidebarLoadMore` busca `GET /api/videos/{publicId}/suggestions?offset&limit=4` e **acrescenta** cards; some ou fica inerte quando `items.length` acumulado atinge `total`. Rótulo do heading: "MAIS EM {CATEGORIA}" nas sete categorias nomeadas, "MAIS VÍDEOS" no catch-all "Outros".
@@ -467,7 +467,7 @@ Endpoint novo, per `video-watch-page/TD-04`. Mesma categoria do vídeo atual, `p
 
 **Nota de proveniência.** A cadeia de contrato do projeto é `openapi.json` → `lib/api/types.gen.ts` → `paths` (`next-frontend/CLAUDE.md`). Para `/stream` e `/download` as linhas `*(derived: project contract source)*` vêm do `openapi.json` commitado, que já os contém. Para os três endpoints **novos** desta fase, a fonte derivada é o **backend tier acima** — eles entram no `openapi.json` quando forem implementados, e o CI de frescor (`.github/workflows/openapi-freshness.yml`) passa a cobri-los a partir daí.
 
-#### GET /api/videos/{publicId} (SI-05.X)
+#### GET /api/videos/{publicId}/public (SI-05.X)
 
 **forwards-to:** `GET /videos/{publicId}/public` *(derived: project contract source — backend tier desta fase)*
 
@@ -508,7 +508,7 @@ Endpoint novo, per `video-watch-page/TD-04`. Mesma categoria do vídeo atual, `p
 
 ---
 
-_Não há rota BFF para stream nem para download._ As duas URLs pré-assinadas chegam ao cliente dentro de `GET /api/videos/{publicId}`, por decisão explícita do `video-watch-page/TD-02` (Clarification de 2026-09-24: "nenhuma chamada extra em tempo de clique"). O `<video src>` e o `<a href>` apontam **direto ao storage**, que é outra origem — o modelo strict-BFF do `next-frontend/CLAUDE.md` governa o tráfego para a **API**, e o `upload-processing/TD-08` já decidiu que os **bytes do vídeo** não passam pela API nem pelo BFF.
+_Não há rota BFF para stream nem para download._ As duas URLs pré-assinadas chegam ao cliente dentro de `GET /api/videos/{publicId}/public`, por decisão explícita do `video-watch-page/TD-02` (Clarification de 2026-09-24: "nenhuma chamada extra em tempo de clique"). O `<video src>` e o `<a href>` apontam **direto ao storage**, que é outra origem — o modelo strict-BFF do `next-frontend/CLAUDE.md` governa o tráfego para a **API**, e o `upload-processing/TD-08` já decidiu que os **bytes do vídeo** não passam pela API nem pelo BFF.
 
 ---
 
@@ -546,9 +546,9 @@ _Não há rota BFF para stream nem para download._ As duas URLs pré-assinadas c
 | VIDEO_NOT_FOUND | 404 | Vídeo inexistente, ou rascunho pedido por quem não é o dono, em qualquer das cinco rotas |
 | VIDEO_NOT_READY | 409 | Vídeo existe mas não está pronto para exibição (processamento incompleto) |
 | VALIDATION_ERROR | 400 | `offset` ou `limit` fora das Validation Rules em `/suggestions` |
-| _(sem código de domínio)_ | 429 | Mais de 30 requisições por 60 s por IP em `POST /videos/{publicId}/view` |
+| RATE_LIMIT_EXCEEDED | 429 | Mais de 30 requisições por 60 s por IP em `POST /videos/{publicId}/view` |
 
-**Lacuna conhecida no 429.** Os quatro primeiros passam pelo `DomainExceptionFilter`, que preenche `error` a partir do `errorCode` da `DomainException`. A `ThrottlerException` do `@nestjs/throttler` **não** é uma `DomainException`, então cai no filtro padrão do Nest e a resposta **não carrega** o campo `error` no formato acima. Nenhum TD decide isso — o `video-watch-page/TD-05` decidiu o mecanismo de limite, não a forma do erro. O SI correspondente deve padronizar o 429 no envelope ou registrar a divergência explicitamente; não inventei um código aqui.
+**Lacuna do 429 — fechada no SI-05.3.** Os quatro erros passam pelo `DomainExceptionFilter`, que preenche `error` a partir do `errorCode` da `DomainException`. A `ThrottlerException` do `@nestjs/throttler` **não** é uma `DomainException` e cairia no filtro padrão do Nest, sem o campo `error`. Nenhum TD decidia isso; a bifurcação que este plano deixou aberta ("padronizar ou registrar a divergência") foi resolvida em favor de **padronizar**, durante o `/implement` do `SI-05.3`: `src/common/filters/throttler-exception.filter.ts` é global e mapeia o 429 para o mesmo envelope, com `error: "RATE_LIMIT_EXCEEDED"`. Vale para toda a API, inclusive as rotas de autenticação.
 
 ### UI Contracts
 
@@ -576,8 +576,8 @@ _Não há rota BFF para stream nem para download._ As duas URLs pré-assinadas c
 - `components/videos/sidebar-load-more.tsx (new)` — SidebarLoadMore — novo no frame (2026-09-29), exigido pela revisão do TD-04
 
 **Server-connected components:**
-- `VideoWatchPage` — verbos: exibir o vídeo a qualquer visitante; compor a página; servir `unlisted` via link direto; emitir a URL pré-assinada de download | endpoint: `GET /api/videos/{publicId}` (§API Contracts → BFF tier) | reuse: `app/videos/[publicId]/page.tsx (new)`
-- `VideoPlayer` — verbos: reproduzir o arquivo a partir da URL pré-assinada; registrar uma visualização após 5 s de reprodução efetiva | endpoints: `streamUrl` vinda de `GET /api/videos/{publicId}`; `POST /api/videos/{publicId}/view` (§API Contracts → BFF tier) | reuse: `components/videos/video-player.tsx (new)`
+- `VideoWatchPage` — verbos: exibir o vídeo a qualquer visitante; compor a página; servir `unlisted` via link direto; emitir a URL pré-assinada de download | endpoint: `GET /api/videos/{publicId}/public` (§API Contracts → BFF tier) | reuse: `app/videos/[publicId]/page.tsx (new)`
+- `VideoPlayer` — verbos: reproduzir o arquivo a partir da URL pré-assinada; registrar uma visualização após 5 s de reprodução efetiva | endpoints: `streamUrl` vinda de `GET /api/videos/{publicId}/public`; `POST /api/videos/{publicId}/view` (§API Contracts → BFF tier) | reuse: `components/videos/video-player.tsx (new)`
 - `VideoCard` — verbo: exibir sugestões da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | endpoint: `GET /api/videos/{publicId}/suggestions` (§API Contracts → BFF tier) | reuse: `components/videos/video-card.tsx`
 - `SidebarLoadMore` — verbo: carregar a próxima página de sugestões sob demanda | endpoint: `GET /api/videos/{publicId}/suggestions` com `offset`/`limit` (§API Contracts → BFF tier) | reuse: `components/videos/sidebar-load-more.tsx (new)`
 
@@ -652,14 +652,14 @@ _Não há rota BFF para stream nem para download._ As duas URLs pré-assinadas c
 
 | Verb | Component | Screen | Endpoint (from API Contracts) | TD ref |
 |------|-----------|--------|-------------------------------|--------|
-| Exibir o vídeo publicado e seus dados a qualquer visitante, sem exigir autenticação | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}` → forwards-to `GET /videos/{publicId}/public` | video-channel-management/TD-02 |
-| Compor a página com o vídeo principal, suas informações e a sidebar de sugestões | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}` → forwards-to `GET /videos/{publicId}/public` | — |
-| Servir um vídeo `unlisted` quando acessado pelo link direto, mantendo-o fora das listagens | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}` → forwards-to `GET /videos/{publicId}/public` | video-channel-management/TD-02, video-watch-page/TD-04 |
-| Reproduzir o arquivo do vídeo a partir da URL pré-assinada | VideoPlayer | /videos/{publicId} | `streamUrl` no corpo de `GET /api/videos/{publicId}`; o `<video src>` aponta direto ao storage | video-watch-page/TD-01, video-watch-page/TD-02 |
+| Exibir o vídeo publicado e seus dados a qualquer visitante, sem exigir autenticação | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}/public` → forwards-to `GET /videos/{publicId}/public` | video-channel-management/TD-02 |
+| Compor a página com o vídeo principal, suas informações e a sidebar de sugestões | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}/public` → forwards-to `GET /videos/{publicId}/public` | — |
+| Servir um vídeo `unlisted` quando acessado pelo link direto, mantendo-o fora das listagens | VideoWatchPage | /videos/{publicId} | `GET /api/videos/{publicId}/public` → forwards-to `GET /videos/{publicId}/public` | video-channel-management/TD-02, video-watch-page/TD-04 |
+| Reproduzir o arquivo do vídeo a partir da URL pré-assinada | VideoPlayer | /videos/{publicId} | `streamUrl` no corpo de `GET /api/videos/{publicId}/public`; o `<video src>` aponta direto ao storage | video-watch-page/TD-01, video-watch-page/TD-02 |
 | Registrar uma visualização após 5 s de reprodução efetiva | VideoPlayer | /videos/{publicId} | `POST /api/videos/{publicId}/view` → forwards-to `POST /videos/{publicId}/view` | video-watch-page/TD-03, video-watch-page/TD-05 |
 | Exibir sugestões de vídeos da mesma categoria, excluindo o vídeo atual, rascunhos e `unlisted` | VideoCard na suggestions-sidebar | /videos/{publicId} | `GET /api/videos/{publicId}/suggestions` → forwards-to `GET /videos/{publicId}/suggestions` | video-watch-page/TD-04 |
 | Carregar a próxima página de sugestões sob demanda | SidebarLoadMore | /videos/{publicId} | `GET /api/videos/{publicId}/suggestions?offset&limit` → forwards-to `GET /videos/{publicId}/suggestions` | video-watch-page/TD-04, video-channel-management/TD-06 |
-| Emitir a URL pré-assinada de download do arquivo, assinada para forçar o salvamento com o nome correto | VideoWatchPage | /videos/{publicId} | `downloadUrl` no corpo de `GET /api/videos/{publicId}` | video-watch-page/TD-02 |
+| Emitir a URL pré-assinada de download do arquivo, assinada para forçar o salvamento com o nome correto | VideoWatchPage | /videos/{publicId} | `downloadUrl` no corpo de `GET /api/videos/{publicId}/public` | video-watch-page/TD-02 |
 
 _Capabilities marked in `## Non-UI / Deferred Capabilities` are excluded from this matrix._ Nesta fase a seção está `_None._`, então nenhuma linha foi excluída.
 

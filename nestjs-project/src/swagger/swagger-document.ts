@@ -7,9 +7,17 @@ import {
 } from '../channels/dto/channel-response.dto';
 import { VideoDetailResponse } from '../videos/dto/video-detail-response.dto';
 import {
+  PublicVideoChannel,
+  PublicVideoDetailResponse,
+} from '../videos/dto/public-video-detail-response.dto';
+import {
   OwnerVideosPage,
   PublicVideosPage,
 } from '../videos/dto/video-list-response.dto';
+import {
+  SuggestedVideoListItem,
+  SuggestedVideosPage,
+} from '../videos/dto/suggested-videos-response.dto';
 
 export function buildSwaggerConfig() {
   return new DocumentBuilder()
@@ -30,8 +38,12 @@ export function buildSwaggerDocument(app: INestApplication) {
       ChannelResponse,
       PublicChannelResponse,
       VideoDetailResponse,
+      PublicVideoChannel,
+      PublicVideoDetailResponse,
       OwnerVideosPage,
       PublicVideosPage,
+      SuggestedVideoListItem,
+      SuggestedVideosPage,
     ],
   });
 }

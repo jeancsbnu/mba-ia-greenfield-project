@@ -248,6 +248,66 @@ export interface paths {
         patch: operations["VideosController_updateVideo"];
         trace?: never;
     };
+    "/videos/{publicId}/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a published video for public viewing
+         * @description Returns the display metadata of a published video plus two 6 h presigned storage URLs (inline playback and attachment download). Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also read their own drafts.
+         */
+        get: operations["VideosController_getPublicVideo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/videos/{publicId}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register a view of a video
+         * @description Increments the view counter. Called by the player once per mount, after enough effective playback has accumulated. Accessible without authentication and takes no body. Rate limited to 30 requests per 60 s per IP.
+         */
+        post: operations["VideosController_registerView"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/videos/{publicId}/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List suggestions for the sidebar of the watch page
+         * @description Returns published, public videos from the same category as the reference video, newest first, excluding the reference video itself, drafts and unlisted videos. Paginated with offset/limit; the default page is 4. An empty list is a legitimate result, not an error.
+         */
+        get: operations["VideosController_getSuggestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/videos/{publicId}/stream": {
         parameters: {
             query?: never;
@@ -427,6 +487,30 @@ export interface components {
             /** @description URL única já resolvida: a thumbnail customizada quando existe, senão a gerada pelo worker. */
             thumbnailUrl: string | null;
         };
+        PublicVideoChannel: {
+            nickname: string;
+            /** @description Nome de exibição do canal. */
+            name: string;
+        };
+        PublicVideoDetailResponse: {
+            publicId: string;
+            title: string;
+            description: string | null;
+            durationSeconds: number | null;
+            /** @enum {string} */
+            category: "Música" | "Jogos" | "Educação" | "Entretenimento" | "Notícias" | "Esportes" | "Tecnologia" | "Outros";
+            /** @enum {string} */
+            visibility: "public" | "unlisted";
+            /** Format: date-time */
+            publishedAt: string | null;
+            viewsCount: number;
+            thumbnailUrl: string | null;
+            channel: components["schemas"]["PublicVideoChannel"];
+            /** @description URL pré-assinada de 6 h entregue inline; consumida pelo src do <video>. */
+            streamUrl: string;
+            /** @description URL pré-assinada de 6 h sobre a mesma chave, assinada com content-disposition attachment e filename. Vem junto com a página porque o atributo download do HTML é ignorado cross-origin. */
+            downloadUrl: string;
+        };
         OwnerVideoListItem: {
             publicId: string;
             title: string;
@@ -469,6 +553,21 @@ export interface components {
             total: number;
             offset: number;
             limit: number;
+        };
+        SuggestedVideoListItem: {
+            publicId: string;
+            title: string;
+            thumbnailUrl: string | null;
+            durationSeconds: number | null;
+            viewsCount: number;
+            /** Format: date-time */
+            publishedAt: string;
+            channel: components["schemas"]["PublicVideoChannel"];
+        };
+        SuggestedVideosPage: {
+            items: components["schemas"]["SuggestedVideoListItem"][];
+            /** @description Total de sugestões elegíveis, ignorando a página. */
+            total: number;
         };
     };
     responses: never;
@@ -1028,6 +1127,129 @@ export interface operations {
             };
             /** @description Video is still processing or failed, so it cannot be published */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_getPublicVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Video found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicVideoDetailResponse"];
+                };
+            };
+            /** @description Video not found, or a draft requested by someone else */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video is not ready for viewing */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_registerView: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description View registered */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Video not found, or a draft requested by someone else */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 30 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_getSuggestions: {
+        parameters: {
+            query?: {
+                /** @description Quantas sugestões pular. */
+                offset?: number;
+                /** @description Quantas sugestões retornar. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suggestions page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestedVideosPage"];
+                };
+            };
+            /** @description offset or limit outside the accepted range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Reference video not found, or a draft requested by someone else */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

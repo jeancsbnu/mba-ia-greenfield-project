@@ -114,4 +114,16 @@ export class ChannelsService {
       .getRepository(Channel)
       .findOne({ where: { user_id: userId } });
   }
+
+  // Resolve o canal dono a partir do vídeo. O canal é dado derivado de uma
+  // FK não-nula, então sua ausência é inconsistência de banco, não 404 de rota.
+  async findByIdOrFail(channelId: string): Promise<Channel> {
+    const channel = await this.dataSource
+      .getRepository(Channel)
+      .findOne({ where: { id: channelId } });
+    if (!channel) {
+      throw new ChannelNotFoundException();
+    }
+    return channel;
+  }
 }

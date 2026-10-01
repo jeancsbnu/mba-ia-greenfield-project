@@ -71,3 +71,55 @@ export const buildPublicVideoListItem = (
   ...basePublicVideoListItem,
   ...overrides,
 });
+
+// ─── Watch page (Fase 05) ───────────────────────────────────────────────────
+
+export type PublicVideo =
+  paths["/videos/{publicId}/public"]["get"]["responses"][200]["content"]["application/json"];
+
+export type SuggestedVideoListItem =
+  paths["/videos/{publicId}/suggestions"]["get"]["responses"][200]["content"]["application/json"]["items"][number];
+
+// As duas URLs apontam ao storage, que é OUTRA origem — é o ponto do TD-02.
+// Um host fictício aqui seria realista demais para o Playwright, que precisa
+// interceptar essa origem; o valor concreto vem de STORAGE_ORIGIN.
+export const STORAGE_ORIGIN = "http://storage.test";
+
+const basePublicVideo: PublicVideo = {
+  publicId: "fixture-public-watch-video",
+  title: "Fixture Watch Video",
+  description: "Um vídeo de fixture para a watch page.",
+  durationSeconds: 42,
+  category: "Outros",
+  visibility: "public",
+  publishedAt: "2026-01-01T00:00:00.000Z",
+  viewsCount: 1284,
+  thumbnailUrl: "/window.svg",
+  channel: { nickname: "fixture-channel", name: "Fixture Channel" },
+  streamUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=stream`,
+  downloadUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=download&response-content-disposition=attachment%3B%20filename%3D%22fixture-watch-video.mp4%22`,
+};
+
+export const buildPublicVideo = (
+  overrides: Partial<PublicVideo> = {},
+): PublicVideo => ({
+  ...basePublicVideo,
+  ...overrides,
+});
+
+const baseSuggestedVideoListItem: SuggestedVideoListItem = {
+  publicId: "fixture-suggestion",
+  title: "Fixture Suggestion",
+  thumbnailUrl: "/window.svg",
+  durationSeconds: 42,
+  viewsCount: 321,
+  publishedAt: "2026-01-01T00:00:00.000Z",
+  channel: { nickname: "fixture-channel", name: "Fixture Channel" },
+};
+
+export const buildSuggestedVideoListItem = (
+  overrides: Partial<SuggestedVideoListItem> = {},
+): SuggestedVideoListItem => ({
+  ...baseSuggestedVideoListItem,
+  ...overrides,
+});
