@@ -3,7 +3,10 @@ import {
   Body,
   Controller,
   Get,
+  Query,
+  HttpCode,
   HttpStatus,
+  Post,
   Param,
   Patch,
   ParseFilePipeBuilder,
@@ -12,6 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -28,6 +32,9 @@ import { ApiErrorEnvelope } from '../common/openapi/api-error-envelope.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideosService } from './videos.service';
 import { VideoDetailResponse } from './dto/video-detail-response.dto';
+import { PublicVideoDetailResponse } from './dto/public-video-detail-response.dto';
+import { SuggestionsQueryDto } from './dto/suggestions-query.dto';
+import { SuggestedVideosPage } from './dto/suggested-videos-response.dto';
 import { VideoCategory, VideoVisibility } from './entities/video.entity';
 
 const THUMBNAIL_MAX_BYTES = 2 * 1024 * 1024;
@@ -174,6 +181,109 @@ export class VideosController {
       publishedAt: updated.published_at,
       thumbnailUrl: await this.videosService.resolveThumbnailUrl(updated),
     };
+  }
+
+  @Public()
+  @Get(':publicId/public')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Get a published video for public viewing',
+    description:
+      'Returns the display metadata of a published video plus two 6 h presigned storage URLs (inline playback and attachment download). Accessible without authentication. A valid bearer token is optional and only identifies the channel owner, who may also read their own drafts.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Video found',
+    schema: { $ref: getSchemaPath(PublicVideoDetailResponse) },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Video not found, or a draft requested by someone else',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Video is not ready for viewing',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async getPublicVideo(
+    @Param('publicId') publicId: string,
+    @CurrentUser() user?: JwtPayload,
+  ): Promise<PublicVideoDetailResponse> {
+    const video = await this.videosService.findByPublicIdOrFail(publicId);
+    await this.videosService.assertServable(video, user?.sub);
+    return this.videosService.toPublicDetail(video);
+  }
+
+  @Public()
+  @Post(':publicId/view')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  // Orçamento próprio de 30/60 s por IP (TD-05, Revisions de 2026-09-29),
+  // sobrepondo o default global de 10/60 s: é escrita pública e navegação
+  // legítima não pode colidir com o orçamento de login.
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Register a view of a video',
+    description:
+      'Increments the view counter. Called by the player once per mount, after enough effective playback has accumulated. Accessible without authentication and takes no body. Rate limited to 30 requests per 60 s per IP.',
+  })
+  @ApiResponse({ status: 204, description: 'View registered' })
+  @ApiResponse({
+    status: 404,
+    description: 'Video not found, or a draft requested by someone else',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'More than 30 requests per 60 s from the same IP',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async registerView(
+    @Param('publicId') publicId: string,
+    @CurrentUser() user?: JwtPayload,
+  ): Promise<void> {
+    const video = await this.videosService.findByPublicIdOrFail(publicId);
+    await this.videosService.assertServable(video, user?.sub);
+    await this.videosService.registerView(video);
+  }
+
+  @Public()
+  @Get(':publicId/suggestions')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'List suggestions for the sidebar of the watch page',
+    description:
+      'Returns published, public videos from the same category as the reference video, newest first, excluding the reference video itself, drafts and unlisted videos. Paginated with offset/limit; the default page is 4. An empty list is a legitimate result, not an error.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Suggestions page',
+    schema: { $ref: getSchemaPath(SuggestedVideosPage) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'offset or limit outside the accepted range',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Reference video not found, or a draft requested by someone else',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async getSuggestions(
+    @Param('publicId') publicId: string,
+    @Query() query: SuggestionsQueryDto,
+    @CurrentUser() user?: JwtPayload,
+  ): Promise<SuggestedVideosPage> {
+    const reference = await this.videosService.findByPublicIdOrFail(publicId);
+    await this.videosService.assertServable(reference, user?.sub);
+    return this.videosService.listSuggestions(
+      reference,
+      query.offset ?? 0,
+      query.limit ?? 4,
+    );
   }
 
   @Public()

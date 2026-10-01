@@ -15,7 +15,12 @@ import {
   createTestDataSource,
 } from '../test/create-test-data-source';
 import { User } from '../users/entities/user.entity';
-import { Video, VideoStatus } from './entities/video.entity';
+import {
+  Video,
+  VideoCategory,
+  VideoStatus,
+  VideoVisibility,
+} from './entities/video.entity';
 import { VideosService } from './videos.service';
 
 const SERVABLE_ENTITIES = [
@@ -235,5 +240,242 @@ describe('VideosService.assertServable (integration)', () => {
     await expect(
       videosService.assertServable(draft, undefined),
     ).rejects.toThrow(VideoNotFoundException);
+  }, 30000);
+});
+
+// SI-05.3 — o incremento é atômico no banco. Um read-modify-write passaria
+// nos testes sequenciais e perderia contagens exatamente quando mais importa:
+// dois espectadores cruzando o limiar ao mesmo tempo.
+describe('VideosService.registerView (integration)', () => {
+  let dataSource: DataSource;
+  let videosService: VideosService;
+  let videoRepository: Repository<Video>;
+  let userRepository: Repository<User>;
+  let channelRepository: Repository<Channel>;
+  let channelId: string;
+
+  beforeAll(async () => {
+    dataSource = createTestDataSource(SERVABLE_ENTITIES);
+    await dataSource.initialize();
+
+    videoRepository = dataSource.getRepository(Video);
+    userRepository = dataSource.getRepository(User);
+    channelRepository = dataSource.getRepository(Channel);
+
+    const module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, load: [storageConfig] }),
+        StorageModule,
+      ],
+      providers: [
+        VideosService,
+        { provide: getRepositoryToken(Video), useValue: videoRepository },
+        {
+          provide: ChannelsService,
+          useValue: {
+            findByUserId: (userId: string) =>
+              channelRepository.findOneBy({ user_id: userId }),
+          },
+        },
+      ],
+    }).compile();
+    await module.init();
+
+    videosService = module.get(VideosService);
+  }, 60000);
+
+  afterAll(async () => {
+    await dataSource.destroy();
+  });
+
+  let viewCounter = 0;
+
+  beforeEach(async () => {
+    await cleanAllTables(dataSource);
+
+    const owner = await userRepository.save(
+      userRepository.create({
+        email: `view_owner_${++viewCounter}@example.com`,
+        password: 'hashed',
+      }),
+    );
+    const channel = await channelRepository.save(
+      channelRepository.create({
+        name: 'Canal do dono',
+        nickname: `view_dono_${viewCounter}`,
+        user_id: owner.id,
+      }),
+    );
+    channelId = channel.id;
+  });
+
+  async function persistPublished(): Promise<Video> {
+    return videoRepository.save(
+      videoRepository.create({
+        public_id: `view${++viewCounter}`,
+        channel_id: channelId,
+        title: 'Vídeo',
+        storage_bucket: 'videos',
+        storage_key: 'videos/key.mp4',
+        status: VideoStatus.READY,
+        published_at: new Date(),
+        views_count: 0,
+      }),
+    );
+  }
+
+  it('increments the counter by one', async () => {
+    const video = await persistPublished();
+
+    await videosService.registerView(video);
+
+    const reloaded = await videoRepository.findOneByOrFail({ id: video.id });
+    expect(Number(reloaded.views_count)).toBe(1);
+  }, 30000);
+
+  it('counts both of two concurrent registrations, not one', async () => {
+    const video = await persistPublished();
+
+    await Promise.all([
+      videosService.registerView(video),
+      videosService.registerView(video),
+    ]);
+
+    const reloaded = await videoRepository.findOneByOrFail({ id: video.id });
+    expect(Number(reloaded.views_count)).toBe(2);
+  }, 30000);
+});
+
+// SI-05.4 — as exclusões são o que define a lista de sugestões (TD-04).
+// Testadas contra o banco real: uma cláusula WHERE errada passa num teste com
+// repositório mockado e só falha em produção.
+describe('VideosService.listSuggestions (integration)', () => {
+  let dataSource: DataSource;
+  let videosService: VideosService;
+  let videoRepository: Repository<Video>;
+  let userRepository: Repository<User>;
+  let channelRepository: Repository<Channel>;
+  let channelId: string;
+
+  beforeAll(async () => {
+    dataSource = createTestDataSource(SERVABLE_ENTITIES);
+    await dataSource.initialize();
+
+    videoRepository = dataSource.getRepository(Video);
+    userRepository = dataSource.getRepository(User);
+    channelRepository = dataSource.getRepository(Channel);
+
+    const module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, load: [storageConfig] }),
+        StorageModule,
+      ],
+      providers: [
+        VideosService,
+        { provide: getRepositoryToken(Video), useValue: videoRepository },
+        {
+          provide: ChannelsService,
+          useValue: {
+            findByUserId: (userId: string) =>
+              channelRepository.findOneBy({ user_id: userId }),
+          },
+        },
+      ],
+    }).compile();
+    await module.init();
+
+    videosService = module.get(VideosService);
+  }, 60000);
+
+  afterAll(async () => {
+    await dataSource.destroy();
+  });
+
+  let suggestionCounter = 0;
+  const BASE = Date.UTC(2026, 8, 20, 12, 0, 0);
+
+  let reference: Video;
+  let eligibleNewestFirst: Video[];
+  let draft: Video;
+  let unlisted: Video;
+  let otherCategory: Video;
+
+  beforeEach(async () => {
+    await cleanAllTables(dataSource);
+
+    const owner = await userRepository.save(
+      userRepository.create({
+        email: `suggest_owner_${++suggestionCounter}@example.com`,
+        password: 'hashed',
+      }),
+    );
+    const channel = await channelRepository.save(
+      channelRepository.create({
+        name: 'Canal do dono',
+        nickname: `suggest_dono_${suggestionCounter}`,
+        user_id: owner.id,
+      }),
+    );
+    channelId = channel.id;
+
+    eligibleNewestFirst = [];
+    for (let i = 0; i < 3; i++) {
+      eligibleNewestFirst.push(
+        await persistVideo({
+          published_at: new Date(BASE - i * 86_400_000),
+          visibility: VideoVisibility.PUBLIC,
+        }),
+      );
+    }
+    reference = await persistVideo({
+      published_at: new Date(BASE + 86_400_000),
+      visibility: VideoVisibility.PUBLIC,
+    });
+    unlisted = await persistVideo({
+      published_at: new Date(BASE),
+      visibility: VideoVisibility.UNLISTED,
+    });
+    draft = await persistVideo({ visibility: VideoVisibility.PUBLIC });
+    otherCategory = await persistVideo({
+      category: VideoCategory.JOGOS,
+      published_at: new Date(BASE),
+      visibility: VideoVisibility.PUBLIC,
+    });
+  });
+
+  async function persistVideo(overrides: Partial<Video>): Promise<Video> {
+    return videoRepository.save(
+      videoRepository.create({
+        public_id: `sug${++suggestionCounter}`,
+        channel_id: channelId,
+        title: 'Vídeo',
+        status: VideoStatus.READY,
+        category: VideoCategory.EDUCACAO,
+        storage_bucket: 'videos',
+        ...overrides,
+      }),
+    );
+  }
+
+  it('never returns the reference video, a draft, an unlisted one or another category', async () => {
+    const page = await videosService.listSuggestions(reference, 0, 50);
+    const ids = page.items.map((item) => item.publicId);
+
+    expect(ids).not.toContain(reference.public_id);
+    expect(ids).not.toContain(draft.public_id);
+    expect(ids).not.toContain(unlisted.public_id);
+    expect(ids).not.toContain(otherCategory.public_id);
+    expect(ids.sort()).toEqual(
+      eligibleNewestFirst.map((video) => video.public_id).sort(),
+    );
+    expect(page.total).toBe(3);
+  }, 30000);
+
+  it('orders the items by published_at descending', async () => {
+    const page = await videosService.listSuggestions(reference, 0, 50);
+
+    expect(page.items.map((item) => item.publicId)).toEqual(
+      eligibleNewestFirst.map((video) => video.public_id),
+    );
   }, 30000);
 });

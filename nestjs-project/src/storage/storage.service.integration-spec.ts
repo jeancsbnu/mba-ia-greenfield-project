@@ -55,6 +55,25 @@ describe('StorageService (integration)', () => {
     expect(response.status).not.toBe(200);
   });
 
+  // SI-05.1 — o atributo download do HTML é ignorado cross-origin, então o
+  // nome do arquivo tem de vir assinado no próprio content-disposition.
+  it('accepts a presigned URL whose content-disposition carries a filename', async () => {
+    const key = objectKey('download-filename');
+    await storageService.putObject(bucket, key, 'downloadable content');
+
+    const url = await storageService.getPresignedUrl(bucket, key, {
+      responseContentDisposition:
+        'attachment; filename="minha-aula-de-poo.mp4"',
+    });
+    const response = await fetch(url);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-disposition')).toBe(
+      'attachment; filename="minha-aula-de-poo.mp4"',
+    );
+    expect(await response.text()).toBe('downloadable content');
+  });
+
   it('deletes an object so a subsequent get returns not-found', async () => {
     const key = objectKey('delete');
     await storageService.putObject(bucket, key, 'to be deleted');

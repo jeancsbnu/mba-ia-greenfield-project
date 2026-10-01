@@ -96,3 +96,20 @@ export type PublicVideosPage =
   paths["/channels/{nickname}/videos"]["get"]["responses"][200]["content"]["application/json"];
 
 export type PublicVideoListItem = PublicVideosPage["items"][number];
+
+// ─── Watch page (Fase 05) ───────────────────────────────────────────────────
+
+// Projeção pública do vídeo. Distinta de `Video`, que é a leitura do dono:
+// esta não carrega campos de operação e acrescenta as duas URLs pré-assinadas
+// de 6 h, entregues juntas porque o atributo `download` do HTML é ignorado
+// cross-origin (video-watch-page/TD-02, Clarification de 2026-09-24).
+export type PublicVideo =
+  paths["/videos/{publicId}/public"]["get"]["responses"][200]["content"]["application/json"];
+
+export type PublicVideoChannel = PublicVideo["channel"];
+
+// Sidebar de sugestões: `{ items, total }`, sem offset/limit no corpo.
+export type SuggestedVideosPage =
+  paths["/videos/{publicId}/suggestions"]["get"]["responses"][200]["content"]["application/json"];
+
+export type SuggestedVideoListItem = SuggestedVideosPage["items"][number];

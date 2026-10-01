@@ -9,6 +9,7 @@ import { ChannelsService } from '../channels/channels.service';
 import { StorageService } from '../storage/storage.service';
 import { Video, VideoCategory, VideoStatus } from './entities/video.entity';
 import { VideosService } from './videos.service';
+import { PLAYBACK_URL_TTL_SECONDS } from './videos.constants';
 
 describe('VideosService (unit)', () => {
   let service: VideosService;
@@ -16,6 +17,7 @@ describe('VideosService (unit)', () => {
   let putObject: jest.Mock;
   let save: jest.Mock;
   let findByUserId: jest.Mock;
+  let findByIdOrFail: jest.Mock;
 
   beforeEach(async () => {
     getPresignedUrl = jest.fn().mockResolvedValue('https://signed.example/url');
@@ -23,6 +25,9 @@ describe('VideosService (unit)', () => {
     // save devolve o próprio objeto, como o TypeORM faz.
     save = jest.fn((video: Video) => Promise.resolve(video));
     findByUserId = jest.fn();
+    findByIdOrFail = jest
+      .fn()
+      .mockResolvedValue({ nickname: 'canal-do-dono', name: 'Canal do Dono' });
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -31,7 +36,10 @@ describe('VideosService (unit)', () => {
           provide: getRepositoryToken(Video),
           useValue: { save } as unknown as Repository<Video>,
         },
-        { provide: ChannelsService, useValue: { findByUserId } },
+        {
+          provide: ChannelsService,
+          useValue: { findByUserId, findByIdOrFail },
+        },
         { provide: StorageService, useValue: { getPresignedUrl, putObject } },
       ],
     }).compile();
@@ -135,6 +143,120 @@ describe('VideosService (unit)', () => {
 
       expect(url).toBeNull();
       expect(getPresignedUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  // SI-05.1 — o player recebe URLs de 6 h (TD-02); o default de 300 s do
+  // StorageService continua valendo para os demais contextos.
+  describe('presigned playback URLs', () => {
+    const ready = (overrides: Partial<Video> = {}) =>
+      buildVideo({
+        status: VideoStatus.READY,
+        storage_bucket: 'videos',
+        storage_key: 'videos/abc123/original.mp4',
+        title: 'Minha aula de POO',
+        public_id: 'abc123',
+        ...overrides,
+      });
+
+    it('signs the stream URL with the 6 h playback TTL', async () => {
+      await service.getStreamUrl(ready());
+
+      expect(PLAYBACK_URL_TTL_SECONDS).toBe(21600);
+      expect(getPresignedUrl).toHaveBeenCalledWith(
+        'videos',
+        'videos/abc123/original.mp4',
+        { expiresInSeconds: PLAYBACK_URL_TTL_SECONDS },
+      );
+    });
+
+    it('signs the download URL with the same TTL and a filename from the title', async () => {
+      await service.getDownloadUrl(ready());
+
+      expect(getPresignedUrl).toHaveBeenCalledWith(
+        'videos',
+        'videos/abc123/original.mp4',
+        {
+          expiresInSeconds: PLAYBACK_URL_TTL_SECONDS,
+          responseContentDisposition:
+            'attachment; filename="minha-aula-de-poo.mp4"',
+        },
+      );
+    });
+
+    it('strips accents and punctuation from the title when building the filename', async () => {
+      await service.getDownloadUrl(
+        ready({ title: 'Ação & Reação: o "vídeo"!', storage_key: 'k/v.webm' }),
+      );
+
+      expect(getPresignedUrl).toHaveBeenCalledWith(
+        'videos',
+        'k/v.webm',
+        expect.objectContaining({
+          responseContentDisposition:
+            'attachment; filename="acao-reacao-o-video.webm"',
+        }),
+      );
+    });
+
+    it('falls back to the publicId when the title has no usable characters', async () => {
+      await service.getDownloadUrl(
+        ready({ title: '???', public_id: 'xyz789' }),
+      );
+
+      expect(getPresignedUrl).toHaveBeenCalledWith(
+        'videos',
+        'videos/abc123/original.mp4',
+        expect.objectContaining({
+          responseContentDisposition: 'attachment; filename="xyz789.mp4"',
+        }),
+      );
+    });
+  });
+
+  // SI-05.2 — a projeção pública é montada campo a campo; um spread da
+  // entidade faria qualquer coluna de operação vazar ao visitante anônimo.
+  describe('toPublicDetail', () => {
+    it('exposes only the public surface, never the owner operation fields', async () => {
+      const video = buildVideo({
+        status: VideoStatus.READY,
+        public_id: 'abc123',
+        channel_id: 'channel-1',
+        title: 'Aula de POO',
+        description: 'Uma introducao',
+        duration_seconds: 420,
+        category: VideoCategory.EDUCACAO,
+        published_at: new Date('2026-09-01T00:00:00Z'),
+        views_count: 7,
+        storage_key: 'videos/abc123/original.mp4',
+        upload_id: 'upload-xyz',
+        processing_error: 'algo falhou antes',
+      });
+
+      const detail = await service.toPublicDetail(video);
+
+      expect(Object.keys(detail).sort()).toEqual(
+        [
+          'category',
+          'channel',
+          'description',
+          'downloadUrl',
+          'durationSeconds',
+          'publicId',
+          'publishedAt',
+          'streamUrl',
+          'thumbnailUrl',
+          'title',
+          'viewsCount',
+          'visibility',
+        ].sort(),
+      );
+      expect(detail.viewsCount).toBe(7);
+      expect(detail.channel).toEqual({
+        nickname: 'canal-do-dono',
+        name: 'Canal do Dono',
+      });
+      expect(findByIdOrFail).toHaveBeenCalledWith('channel-1');
     });
   });
 

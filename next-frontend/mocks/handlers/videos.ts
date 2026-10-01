@@ -3,7 +3,12 @@ import { http, HttpResponse } from "msw";
 import type { paths } from "@/lib/api/types.gen";
 import { env } from "@/lib/env";
 
-import { buildOwnerVideoListItem, buildVideo } from "../factories/videos";
+import {
+  buildOwnerVideoListItem,
+  buildPublicVideo,
+  buildSuggestedVideoListItem,
+  buildVideo,
+} from "../factories/videos";
 import { emailFromAuthHeader } from "./auth";
 
 type ApiErrorEnvelope =
@@ -12,6 +17,8 @@ type VideoOk =
   paths["/videos/{publicId}"]["get"]["responses"][200]["content"]["application/json"];
 type OwnerVideosOk =
   paths["/me/videos"]["get"]["responses"][200]["content"]["application/json"];
+type SuggestionsOk =
+  paths["/videos/{publicId}/suggestions"]["get"]["responses"][200]["content"]["application/json"];
 
 // Reserved trigger table (shared with E2E — trigger values must not collide across test suites).
 const NOT_FOUND_PUBLIC_ID = "missing-video";
@@ -38,6 +45,15 @@ const FOREIGN_PUBLIC_ID = "foreign-video";
 const EMPTY_CHANNEL_EMAIL = "empty-channel@example.com";
 const PANEL_ERROR_EMAIL = "panel-error@example.com";
 const OWNER_VIDEOS_TOTAL = 12;
+// Triggers da Fase 05 (watch page). O caminho feliz nao precisa de trigger:
+// o handler de /public serve qualquer publicId que nao seja um dos abaixo.
+const VIEW_RATE_LIMITED_PUBLIC_ID = "trigger-view-rate-limited";
+const EMPTY_SUGGESTIONS_PUBLIC_ID = "trigger-empty-suggestions";
+const SUGGESTIONS_ERROR_PUBLIC_ID = "trigger-suggestions-error";
+// Seis elegíveis em páginas de 4, que é o recorte do TD-04 (Revisions de
+// 2026-09-26) — o bastante para exercitar "ver mais" uma vez e acabar.
+const SUGGESTIONS_TOTAL = 6;
+const SUGGESTIONS_DEFAULT_LIMIT = 4;
 const DEFAULT_OWNER_LIMIT = 10;
 
 function errorEnvelope(
@@ -66,6 +82,66 @@ let pollTransitionCallCount = 0;
 const uploads = new Map<string, { length: number; offset: number }>();
 
 export const handlers = [
+  // Rotas da Fase 05 primeiro: são mais específicas que /videos/:publicId.
+  http.get(`${env.API_URL}/videos/:publicId/public`, ({ params }) => {
+    const publicId = params.publicId as string;
+    if (publicId === NOT_FOUND_PUBLIC_ID) {
+      return HttpResponse.json(
+        errorEnvelope(404, "VIDEO_NOT_FOUND", "Video not found"),
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json(buildPublicVideo({ publicId }));
+  }),
+
+  http.post(`${env.API_URL}/videos/:publicId/view`, ({ params }) => {
+    const publicId = params.publicId as string;
+    if (publicId === NOT_FOUND_PUBLIC_ID) {
+      return HttpResponse.json(
+        errorEnvelope(404, "VIDEO_NOT_FOUND", "Video not found"),
+        { status: 404 }
+      );
+    }
+    if (publicId === VIEW_RATE_LIMITED_PUBLIC_ID) {
+      return HttpResponse.json(
+        errorEnvelope(429, "RATE_LIMIT_EXCEEDED", "Too many requests"),
+        { status: 429 }
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get(`${env.API_URL}/videos/:publicId/suggestions`, ({ params, request }) => {
+    const publicId = params.publicId as string;
+    if (publicId === SUGGESTIONS_ERROR_PUBLIC_ID) {
+      return HttpResponse.json(
+        errorEnvelope(500, "INTERNAL_ERROR", "Something went wrong"),
+        { status: 500 }
+      );
+    }
+    if (publicId === EMPTY_SUGGESTIONS_PUBLIC_ID) {
+      return HttpResponse.json<SuggestionsOk>({ items: [], total: 0 });
+    }
+
+    const url = new URL(request.url);
+    const offset = Number(url.searchParams.get("offset") ?? 0);
+    const limit = Number(
+      url.searchParams.get("limit") ?? SUGGESTIONS_DEFAULT_LIMIT
+    );
+    const items = Array.from(
+      { length: Math.max(0, Math.min(limit, SUGGESTIONS_TOTAL - offset)) },
+      (_unused, index) =>
+        buildSuggestedVideoListItem({
+          publicId: `suggestion-${offset + index}`,
+          title: `Sugestão ${offset + index}`,
+        })
+    );
+    return HttpResponse.json<SuggestionsOk>({
+      items,
+      total: SUGGESTIONS_TOTAL,
+    });
+  }),
+
   http.get(`${env.API_URL}/videos/:publicId`, ({ params }) => {
     const publicId = params.publicId as string;
 
