@@ -44,6 +44,13 @@ Before marking `Status: Validated`, every inventory file must satisfy:
 5. Verbs of intent tables are present even when empty (use `_No server-connected components in this screen._` inside a single row).
 6. `### Observations` heading exists for every screen, even if empty.
 7. `## Open questions` heading exists, even if empty.
+8. **Every icon node in the Figma tree has a row** (see `## Row granularity`). Check this against the **Figma source**, not against the inventory's own prose — the absorbed child is typically absent from the document entirely, not described in a `Notes` cell, so any check that reads only the inventory cannot see what is missing from it.
+
+   Walk the screen's cached node tree (`docs/figma-cache/<fileKey>/<nodeId>.json`, already on disk from Step 3.5 — this costs no Figma call), collect every node whose `name` matches `/(^|[-_])icons?($|[-_])|icon$/i`, and confirm each one appears in that screen's section — by node id, or by name as the `Component (Figma node)` value of a row. Any icon node with no row fails the check.
+
+   Run against `phase-05-video-watch-page` this flags `download-icon` (`67:68`) and nothing else: the other five icon nodes across both screens — `play-icon` ×3, `volume-icon`, `video-off-icon` — all have rows. One true positive, zero false positives, which is what makes it worth running.
+
+   An icon that is deliberately **not** implemented still needs its row, carrying the reason in `Notes` (e.g. the player-control glyphs ruled illustrative by `video-watch-page/TD-01`). "Has a row saying we will not build it" and "is missing" must not look the same to the next stage.
 
 Any violation → skill halts `Status: Pending` until fixed.
 
@@ -425,6 +432,28 @@ Once consolidation is done, the inventory file has all its screen sections but t
 2. **Build the Reconciliation summary.** Walk the Verbs of intent tables across all screen sections in the inventory file. For every capability in the phase's project-plan.md section, produce one row: the capability quote, the components that cover it (aggregated across screens), and the screens where they appear. Validation has already confirmed every capability has coverage, so every row is populated.
 3. **Build the Open questions section.** Collect, in order: residual decision dependencies from each screen's Observations subsection, any `[DECISION: ...]` markers still pending in the progress file's Decisions log block, and anything the parent surfaced during consolidation or validation that needs pipeline-level resolution (ingested by `plan-validate` as OQ-N). If there are none, omit the section entirely (remove the empty heading from the inventory file). **In extension runs**, the old Open questions section may contain narrative prose (e.g., "apenas Tela X e Tela Y" screen counts, or capabilities described as fully out-of-scope that are now partially covered) that contradicts the new state. Update that prose in place with `Edit` **before** replacing the bullet list from scratch.
 4. **Flip statuses.** Set the inventory file's `Status` from `Pending` to `Validated` and the progress file's `Status` from `in_progress` to `completed`.
+
+## Row granularity — what earns its own row
+
+Decide this before classifying: a node that is not given a row cannot be classified, cannot carry a `Reuse?` form, and therefore never reaches `/plan-build` § B2.6, which synthesizes the bootstrap SIs that create planned components. A node absorbed into a neighbour's `Notes` is invisible to the rest of the pipeline.
+
+**The test is not visual prominence or nesting depth — it is whether the node will need its own file in the repo.** Nesting is already no obstacle in practice: the example table below gives `DeleteAction` a row as a sub-component of a `VideoCard` kebab.
+
+**The case that gets missed: a node nested inside a component that already exists in the DS.** When the parent row resolves to a real path, the natural reading is "that is just the button" and the child silently disappears into the parent's `Notes`. That reading is wrong whenever the child is a separate artifact — the existing DS component does **not** ship the glyph sitting inside it.
+
+In this project the recurring instance is icons, because there is no icon library and every glyph becomes a component under `components/icons/` (per `next-frontend/CLAUDE.md`). A glyph inside a button needs a file exactly as much as a glyph standing alone on a card.
+
+This has already cost one phase. In `screen-inventory-phase-05-video-watch-page.md`, three icons were nested and two were handled correctly:
+
+| Glyph | Parent node | Parent resolves to | Got a row? |
+|---|---|---|---|
+| `chevron-down` (`67:74`) | `description-toggle` | nothing in the DS | ✓ |
+| `video-off-icon` (`68:77`) | `not-found-badge` | nothing in the DS | ✓ |
+| `download-icon` (`67:68`) | `download-button` | **`components/ui/button.tsx`** | ✗ — absorbed into the `DownloadButton` row's Notes |
+
+Only the third had a parent that mapped to an existing DS component, and only the third was lost. No `(new)` marker was emitted, B2.6 synthesized no bootstrap SI, and the icon had to be authored mid-implementation under the SI-Xa scope exception — three pipeline stages after the point where it should have been planned.
+
+**Rule.** Give a node its own row when it will become its own file — an icon, an asset, a sub-component with its own module — **even when its parent row carries a real DS path**. Record the containment in `Notes` (`glyph inside DownloadButton`), not by dropping the row. Do **not** expand this to every visual node: a text layer, a spacing frame, or a shape that is part of a component's own markup does not become a file and does not get a row.
 
 ## How to classify components
 
