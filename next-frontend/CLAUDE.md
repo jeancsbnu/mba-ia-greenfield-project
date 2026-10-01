@@ -216,6 +216,18 @@ npx playwright test tests/xxxx.e2e-spec.ts
 - Step 2 must use `MSW_ENABLED=true` — without it `instrumentation.ts` skips MSW and upstream calls will fail or hit the real NestJS API.
 - Never add `webServer` to `playwright.config.ts` — Playwright must not manage the dev server process (it runs inside Docker, not on the host).
 - If the dev server is already running from a previous session, skip steps 2–3 and go straight to step 4.
+- **Step 2 must be its own command, separated from any `docker compose restart`.** Issuing the restart and the `exec -d … npm run dev` in a single shell invocation races: the server comes up but `instrumentation.ts` never compiles, so MSW never registers. Every upstream `fetch` then leaks to the real `API_URL` and every page that loads data returns 500.
+
+#### Restarting the dev server — the part that bites
+
+Three failure modes here are **silent**: none of them emits an error naming the cause. The symptom is a failing test or an empty page, which sends you debugging application code that is fine. Before suspecting the code, confirm the server you are measuring is the one you just started, that it loaded the instrumentation, and that it has seen your latest `mocks/`.
+
+- **`pkill` is not installed in the container.** `docker compose exec next-frontend pkill -f "next dev"` prints `pkill: not found` and kills nothing — you then keep measuring the old server. Kill by the PID Next itself prints (`Run kill N to stop it`, also in `.next/dev/logs/next-development.log`), or just `docker compose restart next-frontend`.
+  Careful when scanning `/proc` for a `next` process: your own probing shell's `cmdline` contains the search string and reports a false positive.
+- **MSW handlers load exactly once, at boot.** `instrumentation.ts` imports `mocks/server.ts` in `register()`; editing anything under `mocks/` does **not** hot-reload the registered handlers. An E2E run after a `mocks/` edit silently exercises the old fixtures. Restart the dev server after every `mocks/` change.
+- **A new special file (`not-found.tsx`, `error.tsx`, `loading.tsx`) needs a restart too.** Turbopack does not pick it up into the route tree via HMR — until you restart, `notFound()` falls through to the global not-found and the new file looks like it does not work.
+
+Cheapest diagnostic: `curl` a route that depends on MSW. A 500 means MSW is not up. Confirm by grepping the dev log for `○ Compiling instrumentation Node.js ...` — if that line is absent from the current boot, the instrumentation never ran.
 
 ### MSW + Vitest — wired
 
