@@ -3,12 +3,12 @@
     "fileKey": "FetKyb1V02WS5D6VCatK6t",
     "nodeId": "75:62",
     "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=75-62",
-    "fetched_at": "2026-10-01T20:57:00Z",
+    "fetched_at": "2026-10-01T23:00:00Z",
     "blocks": [
       "screenshot"
     ],
     "harvested_by": "authoring-script",
-    "provenance": "Nao e um harvest: o frame foi criado nesta sessao por script, e a estrutura abaixo e conhecida por construcao. Ids de filhos nao retornados pela chamada estao AUSENTES de proposito -- inventa-los seria pior que omiti-los. Um harvest real deste no ainda nao foi feito.",
+    "provenance": "Nao e um harvest completo. O frame foi criado por script em 2026-10-01 e corrigido no mesmo dia; uma colheita de arvore foi pedida na chamada de correcao, mas a resposta foi truncada antes de terminar este no. Os ids abaixo sao os que as duas chamadas devolveram de fato -- os demais filhos estao AUSENTES de proposito, porque inventa-los seria pior que omiti-los.",
     "maxDepth": null
   },
   "id": "75:62",
@@ -39,7 +39,16 @@
   "known_child_ids": {
     "top-decorative-strip": "75:63",
     "navbar": "75:64",
+    "brand-logo": "75:65",
+    "logo-box": "75:66",
+    "play-icon": "75:67",
+    "play": "75:68",
+    "Vector": "75:69",
+    "EstúdioCriador": "75:70",
     "nav-link-canais-seguidos": "75:74",
+    "user-menu": "75:71",
+    "avatar": "77:62",
+    "sair-label": "75:73",
     "main-dashed-container": "75:75",
     "page-heading": "75:76",
     "channel-list": "75:79",
@@ -49,7 +58,12 @@
       "75:96"
     ]
   },
-  "known_defects": [
-    "A navbar foi clonada de 66:44 (pagina publica de video, estado anonimo) e por isso exibe 'Entrar'. Esta e area autenticada: deve exibir o menu do usuario. Corrigir antes de inventariar."
+  "known_defects": [],
+  "resolved_defects": [
+    {
+      "defect": "A navbar foi clonada de 66:44 (pagina publica de video, estado anonimo) e por isso exibia 'Entrar' numa area autenticada.",
+      "fixed_at": "2026-10-01T23:00:00Z",
+      "fix": "O texto 75:73 passou de 'Entrar' para 'Sair' (renomeado para sair-label) e um avatar 'JC' (77:62) foi inserido antes do botao, espelhando next-frontend/components/layout/user-menu.tsx, que e Avatar + botao 'Sair'. Verificado por screenshot em 75-62.png."
+    }
   ]
 }

@@ -5,9 +5,9 @@
     "id": "0:1",
     "name": "Seus vídeos"
   },
-  "harvested_at": "2026-09-29T22:48:31Z",
+  "harvested_at": "2026-10-01T23:00:00Z",
   "harvested_by": "figma-batch",
-  "mcp_calls_spent": 2,
+  "mcp_calls_spent": 4,
   "blocks": [
     "tree",
     "screenshots"
@@ -16,42 +16,79 @@
   "nodes": {
     "66:42": {
       "name": "assistir-video",
+      "phase": 5,
       "file": "66-42.json",
       "screenshot": "66-42.png"
     },
     "68:62": {
       "name": "video-nao-encontrado",
+      "phase": 5,
       "file": "68-62.json",
       "screenshot": "68-62.png"
     },
     "75:62": {
       "name": "canais-seguidos",
       "phase": 6,
-      "source": "authoring-script"
+      "file": "75-62.json",
+      "screenshot": "75-62.png",
+      "source": "authoring-script",
+      "tree": "parcial — ver _envelope.provenance"
+    },
+    "77:64": {
+      "name": "assistir-video-interacoes",
+      "phase": 6,
+      "file": "77-64.json",
+      "screenshot": "77-64.png",
+      "session_state": "autenticado"
+    },
+    "77:190": {
+      "name": "canal-publico",
+      "phase": 6,
+      "file": "77-190.json",
+      "screenshot": "77-190.png",
+      "session_state": "anonimo (de proposito — anonymous-gate/TD-01)"
     }
   },
   "write_in_same_call": {
-    "note": "canais-seguidos (Fase 06) criado",
-    "createdNodeIds": [
-      "75:62",
-      "75:63",
-      "75:64",
-      "75:74",
-      "75:75",
-      "75:76",
-      "75:79",
-      "75:80",
-      "75:88",
-      "75:96"
-    ],
-    "mutatedNodeIds": [],
-    "reason": "social-interactions/TD-07 Option A (lista de canais) + DG-1 (ponto de entrada de navegacao no chrome)."
+    "note": "Fase 06 desenhada em 2 chamadas use_figma (2026-10-01).",
+    "call_1": {
+      "createdNodeIds": [
+        "77:62",
+        "77:64",
+        "77:118",
+        "77:119",
+        "77:121",
+        "77:123",
+        "77:125",
+        "77:188",
+        "77:190"
+      ],
+      "mutatedNodeIds": [
+        "75:73",
+        "75:71",
+        "77:94"
+      ],
+      "reason": "Conserta a navbar de 75:62; cria assistir-video-interacoes (77:64) clonando 66:42 e acrescentando inscrever-se, contagem de inscritos, like com contagem, dislike sem contagem e secao de comentarios; cria canal-publico (77:190)."
+    },
+    "call_2": {
+      "createdNodeIds": [
+        "78:82",
+        "78:83"
+      ],
+      "mutatedNodeIds": [
+        "77:75",
+        "77:73"
+      ],
+      "reason": "Conserta o estado de sessao da navbar de 77:64 (o clone de 66:42 trouxe 'Entrar' para uma tela que mostra a caixa de comentario do proprio usuario) e colhe as arvores completas."
+    }
   },
   "notes": [
     "Node ids são gravados em forma de URL (66-42) e não de API (66:42): ':' é inválido em nome de arquivo no Windows.",
     "O arquivo não declara Variable collections nem text styles — toda cor e tipografia é hex/valor direto. Consumidores não devem procurar tokens.",
     "Este arquivo não foi colhido com o bloco 'variables'; a afirmação acima vem de inspeções anteriores da Fase 04/05.",
-    "2026-10-01: frame 75:62 (canais-seguidos, Fase 06) criado por script nesta sessao, 1 chamada use_figma. 75-62.json NAO e um harvest -- so carrega o que o script conhece por construcao."
+    "As telas das Fases 02/04/05 nao sao frames de topo da pagina: vivem dentro de um frame 'canvas' (41:8, 8700x1400). As tres telas da Fase 06 (75:62, 77:64, 77:190) sao frames de topo.",
+    "Estado de sessao e uma propriedade da TELA, nao do componente: 66:42 e 77:190 sao anonimas (navbar com 'Entrar'), 75:62 e 77:64 sao autenticadas (avatar + 'Sair'). Clonar chrome entre telas sem conferir o estado de origem ja produziu defeito duas vezes aqui.",
+    "77:64 e 77:190 sao harvests de verdade (arvore colhida depois de criada). 75:62 nao e: ver _envelope.provenance naquele arquivo."
   ],
   "errors": []
 }
