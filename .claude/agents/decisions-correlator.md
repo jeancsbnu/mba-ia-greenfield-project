@@ -29,7 +29,7 @@ If `mode` is not one of `phase` / `task`, abort with: `"decisions-correlator: mo
    **Phase mode — derive NN from slug.** Before filtering, bounded-`Read` the frontmatter of `docs/decisions/technical-decisions-{slug}.md` and extract `related_phases[0]` as the integer `NN`. If the slice's own doc is missing or malformed, abort with: `"decisions-correlator: cannot derive NN from slice slug '{slug}' — phase-scope doc missing or has no related_phases."`. `NN` is used only for output labeling and legacy-guard context; it is NOT used to filter the candidate pool (see step 3).
 
 2. **Frontmatter-first filter.** For each candidate:
-   - Locate the frontmatter fence: `Grep -n '^---$' <file>` → first two matches. Bounded `Read` of the top block (typically ≤15 lines).
+   - Locate the frontmatter fence: `Grep -n '^---\s*$' <file>` → first two matches (`\s*` before the anchor is mandatory — see `plan-pipeline/SKILL.md` § Grep patterns against repo markdown). Bounded `Read` of the top block (typically ≤15 lines).
    - Parse fields: `scope_type`, `related_phases`, `status`, `scope_description`.
    - Apply the mode-specific candidate-pool filter (see below).
 

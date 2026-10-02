@@ -71,13 +71,24 @@ _Source files:_
 
 ### phase-01-configuracao-base/TD-03
 
-**Recommendation:** Option B (Namespaced/grouped with registerAs) — The project roadmap explicitly calls for auth, email, and storage in upcoming phases. Namespaced configs provide clear file boundaries per domain, typed injection via `ConfigType<typeof databaseConfig>`, and natural scalability. The `registerAs()` factory is dual-purpose: DI token inside NestJS and plain importable function for `data-source.ts`. Initial files for Phase 01: `src/config/database.config.ts`, `src/config/app.config.ts`.
+**Recommendation:** Option B (Namespaced/grouped with registerAs) — The project roadmap explicitly calls for auth, email, and storage in upcoming phases. Namespaced configs provide clear file boundaries per domain, typed injection via `ConfigType<typeof databaseConfig>`, and natural scalability. The `registerAs()` factory is dual-purpose: DI token inside NestJS and plain importable function for `data-source.ts`.
+
+Initial files for Phase 01:
+- `src/config/database.config.ts` — DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME
+- `src/config/app.config.ts` — PORT, NODE_ENV
 
 **Libraries:** —
 
 ### phase-01-configuracao-base/TD-04
 
 **Recommendation:** Option A (Shared registerAs factory) — Natural outcome of choosing `@nestjs/config` with `registerAs`. The factory is already callable by design. `data-source.ts` imports it, calls `dotenv.config()`, then calls the factory. Zero duplication, minimal code, no extra abstraction.
+
+```
+src/config/database.config.ts  →  registerAs('database', () => ({ host, port, ... }))
+                                         |                          |
+                                    NestJS loads via           data-source.ts imports
+                                    ConfigModule.forRoot()     and calls directly
+```
 
 **Libraries:** `dotenv` (transitive via `@nestjs/config`)
 

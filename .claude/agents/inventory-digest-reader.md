@@ -55,7 +55,7 @@ If `mode` is present but not one of `phase` / `task`, abort with: `"inventory-di
    - Rationale: prevents spurious UIG-N issues downstream when an inventory was originally written for the whole phase and now describes both backend-owned and frontend-owned capabilities. Only the current slice's owned capabilities appear in the emitted Join table.
    - Task mode: skip this step entirely (task mode has no `covers_capabilities` concept; `Scope match` column already scopes to the task).
 
-6. **Locate Open Questions section.** `Grep -n '^## Open questions$' <file>` (exact anchor — accepts both the renamed heading and falls back to `^## Open questions for plan-phase$` for legacy inventories). Bounded read of `[oq_header + 1 .. next_H2_start - 1]` (or EOF). Copy bullets verbatim. If the section body is empty, missing, or contains only the italic author-guidance placeholder, emit `_No open questions._` in the output.
+6. **Locate Open Questions section.** `Grep -n '^## Open questions\s*$' <file>` (exact anchor — accepts both the renamed heading and falls back to `^## Open questions for plan-phase\s*$` for legacy inventories; `\s*` before the anchor is mandatory — see `plan-pipeline/SKILL.md` § Grep patterns against repo markdown). Bounded read of `[oq_header + 1 .. next_H2_start - 1]` (or EOF). Copy bullets verbatim. If the section body is empty, missing, or contains only the italic author-guidance placeholder, emit `_No open questions._` in the output.
 
 7. **Task mode — inherited inventory scan (cross-slice aggregation).** If `mode=task`:
    1. Glob `docs/phases/phase-*/progress.md`. For each, bounded-read top ~6 lines, extract `**Status:**`. Group results by phase number `NN` (extracted from the parent folder name `phase-NN-{slug}`).

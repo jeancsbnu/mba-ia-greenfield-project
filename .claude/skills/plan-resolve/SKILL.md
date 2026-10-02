@@ -148,7 +148,7 @@ For each answered issue, determine the edit kind:
 - **Clarify without editing a TD** — the answer resolves an ambiguity (`AMB`) or dependency gap (`DG`) without a TD change (e.g., the user says "yes, this is in scope for Phase 02" and no decisions-doc field needs to flip). Record the clarification in `## Resolved Issues` of `validation.md` with a short note; no decisions-doc edit.
 
 - **Record non-UI / deferred capability** — the user chose (b), (c), (d), or (e) for a `UIG-N`. Edit `context.md`'s `## Non-UI / Deferred Capabilities` section:
-  - Locate the section via `Grep -n '^## Non-UI / Deferred Capabilities$' context.md`.
+  - Locate the section via `Grep -n '^## Non-UI / Deferred Capabilities\s*$' context.md`.
   - **Case A — section present (post-integration context.md).** Read the bounded range `[S..E-1]` where `E` is the next `^## ` header.
     - If the body is `_None._` or an empty-table placeholder, replace with a table header + one row.
     - Otherwise, append a new row.
@@ -173,7 +173,7 @@ For each answered issue, determine the edit kind:
     - **Marker present as `**Renders in:** ui-contracts`** (explicit author choice that needs flipping) → `Edit` with `old_string: '**Renders in:** ui-contracts'`, `new_string: '**Renders in:** frontend-runtime'`. Critical: do NOT insert a duplicate line; the absence-case anchor would produce two `**Renders in:**` lines in the same TD, producing undefined behavior in `decisions-detail-reader`'s extraction.
     - **Marker already present as `**Renders in:** frontend-runtime`** (no-op case) → skip Edit 1 entirely; emit a one-line log to the user `"Marker already set on {slug}/TD-NN; proceeding with downstream edits (UI Inventory flip + context.md propagation)."`. Steps Edit 2-4 still run because context.md may be stale even when the source TD is correct (e.g., user edited the doc manually but did not re-run /plan-context).
 
-  - **Edit 2 — Rewrite `## UI Inventory` body to the logic-only placeholder in context.md.** Bounded `Grep -n '^## UI Inventory$' context.md` → bounded read of `[S+1 .. E-1]` where E is the next `^## ` header. Edit substitutes the current body (any of: empty, deferred placeholder `_No screen inventory — UI↔API sync deferred…_`, or absent — in the absent case, insert the section at the canonical position per `plan-context/SKILL.md` Step 7 ordering rules) with the logic-only placeholder verbatim:
+  - **Edit 2 — Rewrite `## UI Inventory` body to the logic-only placeholder in context.md.** Bounded `Grep -n '^## UI Inventory\s*$' context.md` → bounded read of `[S+1 .. E-1]` where E is the next `^## ` header. Edit substitutes the current body (any of: empty, deferred placeholder `_No screen inventory — UI↔API sync deferred…_`, or absent — in the absent case, insert the section at the canonical position per `plan-context/SKILL.md` Step 7 ordering rules) with the logic-only placeholder verbatim:
     ```
     _Frontend-runtime only — no screen inventory needed for this phase.
     Run /screen-inventory <arg> if a UI surface is added in a future revision._
@@ -266,7 +266,7 @@ Keep both outputs in memory for the rest of step 5.
 
 1. Use the `decisions-detail-reader` output already captured in the batch dispatch above. It returns a `## Decisions Detail for Phase NN / slice {slug}` (phase mode) or `## Decisions Detail for Task {slug}` (task mode) block reflecting the post-edit state. Superseded and still-pending TDs are naturally absent (the subagent skips them).
 2. Locate the range of `## Decisions Detail` in context.md:
-   - `Grep -n '^## Decisions Detail$' <context.md>` → start line S (the `$` anchor avoids matching `## Inherited Decisions Detail`).
+   - `Grep -n '^## Decisions Detail\s*$' <context.md>` → start line S (the end anchor avoids matching the suffixed heading `## Decisions Detail for Phase NN`; it must be `\s*$`, never a bare `$` — see `plan-pipeline/SKILL.md` § Grep patterns against repo markdown).
    - `Grep -n '^## ' <context.md>` → find the next H2 after S → end line E-1.
 3. `Edit` context.md: `old_string` is the current content of range [S..E-1] (bounded Read first, then compose the Edit); `new_string` is the subagent's output with the heading renamed from `## Decisions Detail for Phase NN / slice {slug}` (or `## Decisions Detail for Task {slug}`) to the canonical `## Decisions Detail` (no suffix).
 4. **Do NOT touch `## Inherited Decisions Detail`.** That section is owned by `plan-context` (populated via phases-reader) and only regenerates on full context.md regeneration. Resolve does not dispatch phases-reader.

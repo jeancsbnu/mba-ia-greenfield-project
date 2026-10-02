@@ -12,7 +12,7 @@ Read `{target_dir}/context.md` in full. This is the only full read of context.md
 
 **Kind sanity-check (defensive).** Re-confirm the `kind:` inferred in Gate 3 against the now-fully-loaded frontmatter — if they disagree (should never happen, since Gate 3 already validated), abort: `"FAILED at input-parse. Written so far: none. Error: kind mismatch between context.md frontmatter ({inferred_kind}) and target_path ({path}). Next: rerun /plan-build {identifier} after reconfirming context.md was generated for the right mode."`
 
-**ui_in_scope cross-check.** Validate that the value computed in Gate 9 still matches a fresh `Grep -n '^## UI Inventory$' {target_dir}/context.md`. On contradiction, abort: `"FAILED at input-parse. Written so far: none. Error: ui_in_scope mismatch between input ({value}) and context.md state ({detected}). Next: rerun /plan-build <arg> to recompute."`
+**ui_in_scope cross-check.** Validate that the value computed in Gate 9 still matches a fresh `Grep -n '^## UI Inventory\s*$' {target_dir}/context.md`. On contradiction, abort: `"FAILED at input-parse. Written so far: none. Error: ui_in_scope mismatch between input ({value}) and context.md state ({detected}). Next: rerun /plan-build <arg> to recompute."`
 
 **Subproject CLAUDE.md reads.** For each subproject listed under `**Affected subprojects:**` in `## Scope` (excluding any listed under `**Deferred subprojects:**`), if `{subproject}/CLAUDE.md` exists, Read it in full. It is the source-of-truth for Deliverables commands and environment conventions (Docker wrappers, npm scripts, readiness checks). If the file does not exist, skip silently.
 
