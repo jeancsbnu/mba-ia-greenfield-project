@@ -1,0 +1,523 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "77:190",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=77-190",
+    "fetched_at": "2026-10-01T23:00:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 6,
+    "note": "A navbar exibe 'Entrar' DE PROPOSITO: e a pagina publica de canal no estado anonimo (anonymous-gate/TD-01 -- o controle 'Inscrever-se' renderiza para o visitante e o clique leva ao login). Nao e o defeito de clone de 75:62."
+  },
+  "id": "77:190",
+  "name": "canal-publico",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 548
+  },
+  "fill": "#f8fafc",
+  "layout": {
+    "mode": "VERTICAL",
+    "gap": 0
+  },
+  "children": [
+    {
+      "id": "77:191",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      }
+    },
+    {
+      "id": "77:192",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 76
+      },
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      },
+      "children": [
+        {
+          "id": "77:193",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "77:194",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:195",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:196",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "77:197",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77:198",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador",
+              "fontSize": 18,
+              "fontStyle": "Extra Bold",
+              "fill": "#1e293b"
+            }
+          ]
+        },
+        {
+          "id": "77:199",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": {
+            "w": 74,
+            "h": 33
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 16
+          },
+          "children": [
+            {
+              "id": "77:200",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": {
+                "w": 74,
+                "h": 33
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:201",
+                  "name": "Entrar",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 42,
+                    "h": 17
+                  },
+                  "characters": "Entrar",
+                  "fontSize": 14,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#1e293b"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "77:202",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 440
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "VERTICAL",
+        "gap": 24
+      },
+      "children": [
+        {
+          "id": "77:203",
+          "name": "channel-header",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 72
+          },
+          "fill": "#ffffff",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 20
+          },
+          "children": [
+            {
+              "id": "77:204",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 72,
+                "h": 72
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:205",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 32,
+                    "h": 29
+                  },
+                  "characters": "JC",
+                  "fontSize": 24,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "77:206",
+              "name": "channel-info",
+              "type": "FRAME",
+              "size": {
+                "w": 787,
+                "h": 69
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 4
+              },
+              "children": [
+                {
+                  "id": "77:207",
+                  "name": "channel-name",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 127,
+                    "h": 29
+                  },
+                  "characters": "Joana Cria",
+                  "fontSize": 24,
+                  "fontStyle": "Extra Bold",
+                  "fill": "#1e293b"
+                },
+                {
+                  "id": "77:208",
+                  "name": "channel-handle",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 74,
+                    "h": 16
+                  },
+                  "characters": "@joana_cria",
+                  "fontSize": 13,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                },
+                {
+                  "id": "77:209",
+                  "name": "channel-stats",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 166,
+                    "h": 16
+                  },
+                  "characters": "1,2 mil inscritos · 48 vídeos",
+                  "fontSize": 13,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:210",
+              "name": "subscribe-button",
+              "type": "FRAME",
+              "size": {
+                "w": 103,
+                "h": 31
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:211",
+                  "name": "subscribe-button-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 75,
+                    "h": 15
+                  },
+                  "characters": "Inscrever-se",
+                  "fontSize": 12,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "77:212",
+          "name": "videos-heading",
+          "type": "TEXT",
+          "size": {
+            "w": 55,
+            "h": 19
+          },
+          "characters": "Vídeos",
+          "fontSize": 16,
+          "fontStyle": "Bold",
+          "fill": "#1e293b"
+        },
+        {
+          "id": "77:213",
+          "name": "video-grid",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 219
+          },
+          "fill": "#ffffff",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 16
+          },
+          "children": [
+            {
+              "id": "77:214",
+              "name": "video-card",
+              "type": "FRAME",
+              "size": {
+                "w": 323,
+                "h": 219
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "77:215",
+                  "name": "thumbnail",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 301,
+                    "h": 150
+                  },
+                  "fill": "#cbd5e1",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  }
+                },
+                {
+                  "id": "77:216",
+                  "name": "card-title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 16
+                  },
+                  "characters": "Tour pelo estúdio — setup 2026",
+                  "fontSize": 13,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "77:217",
+                  "name": "card-meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 13
+                  },
+                  "characters": "1.284 visualizações · 28 jul",
+                  "fontSize": 11,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:218",
+              "name": "video-card",
+              "type": "FRAME",
+              "size": {
+                "w": 323,
+                "h": 219
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "77:219",
+                  "name": "thumbnail",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 301,
+                    "h": 150
+                  },
+                  "fill": "#cbd5e1",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  }
+                },
+                {
+                  "id": "77:220",
+                  "name": "card-title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 16
+                  },
+                  "characters": "Como eu edito em 20 minutos",
+                  "fontSize": 13,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "77:221",
+                  "name": "card-meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 13
+                  },
+                  "characters": "873 visualizações · 14 jul",
+                  "fontSize": 11,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:222",
+              "name": "video-card",
+              "type": "FRAME",
+              "size": {
+                "w": 323,
+                "h": 219
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "77:223",
+                  "name": "thumbnail",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 301,
+                    "h": 150
+                  },
+                  "fill": "#cbd5e1",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  }
+                },
+                {
+                  "id": "77:224",
+                  "name": "card-title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 16
+                  },
+                  "characters": "Microfones baratos que prestam",
+                  "fontSize": 13,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "77:225",
+                  "name": "card-meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 13
+                  },
+                  "characters": "2.106 visualizações · 2 jul",
+                  "fontSize": 11,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

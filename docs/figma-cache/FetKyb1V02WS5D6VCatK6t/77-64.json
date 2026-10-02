@@ -1,0 +1,1342 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "77:64",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=77-64",
+    "fetched_at": "2026-10-01T23:00:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 6,
+    "note": "Criado por script nesta sessao e colhido na chamada seguinte, entao a arvore e um harvest de verdade (nao conhecimento por construcao). O 'comment-root' 77:137/77:176 e o 'reply-list' 77:149 aparecem sem filhos porque batem no maxDepth 6 -- os filhos existem no arquivo, so nao nesta colheita."
+  },
+  "id": "77:64",
+  "name": "assistir-video-interacoes",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 1424
+  },
+  "fill": "#f8fafc",
+  "layout": {
+    "mode": "VERTICAL",
+    "gap": 0
+  },
+  "children": [
+    {
+      "id": "77:65",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      }
+    },
+    {
+      "id": "77:66",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 76
+      },
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      },
+      "children": [
+        {
+          "id": "77:67",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "77:68",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:69",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:70",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "77:71",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77:72",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador",
+              "fontSize": 18,
+              "fontStyle": "Extra Bold",
+              "fill": "#1e293b"
+            }
+          ]
+        },
+        {
+          "id": "77:73",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": {
+            "w": 103,
+            "h": 33
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "78:82",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 32,
+                "h": 32
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "78:83",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 15,
+                    "h": 13
+                  },
+                  "characters": "JC",
+                  "fontSize": 11,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "77:74",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": {
+                "w": 59,
+                "h": 33
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:75",
+                  "name": "sair-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 27,
+                    "h": 17
+                  },
+                  "characters": "Sair",
+                  "fontSize": 14,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#1e293b"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "77:76",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 1316
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 24
+      },
+      "children": [
+        {
+          "id": "77:77",
+          "name": "watch-column",
+          "type": "FRAME",
+          "size": {
+            "w": 745,
+            "h": 1218
+          },
+          "layout": {
+            "mode": "VERTICAL",
+            "gap": 16
+          },
+          "children": [
+            {
+              "id": "77:78",
+              "name": "video-player",
+              "type": "FRAME",
+              "size": {
+                "w": 745,
+                "h": 420
+              },
+              "fill": "#0f0f0f",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "77:79",
+                  "name": "player-controls",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 713,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 12
+                  },
+                  "children": [
+                    {
+                      "id": "77:80",
+                      "name": "play-icon",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "fill": "#ffffff",
+                      "children": [
+                        {
+                          "id": "77:81",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 9,
+                            "h": 11
+                          },
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:82",
+                      "name": "progress-track",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 590,
+                        "h": 4
+                      },
+                      "fill": "#ffffff",
+                      "layout": {
+                        "mode": "HORIZONTAL",
+                        "gap": 0
+                      },
+                      "children": [
+                        {
+                          "id": "77:83",
+                          "name": "progress-played",
+                          "type": "RECTANGLE",
+                          "size": {
+                            "w": 240,
+                            "h": 4
+                          },
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:84",
+                      "name": "volume-icon",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "fill": "#ffffff",
+                      "children": [
+                        {
+                          "id": "77:85",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 5,
+                            "h": 10
+                          },
+                          "fill": "#ffffff"
+                        },
+                        {
+                          "id": "77:86",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 1,
+                            "h": 4
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:87",
+                      "name": "time-text",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 55,
+                        "h": 13
+                      },
+                      "characters": "2:47 / 8:12",
+                      "fontSize": 11,
+                      "fontStyle": "Regular",
+                      "fill": "#ffffff"
+                    }
+                  ]
+                },
+                {
+                  "id": "77:88",
+                  "name": "play-affordance",
+                  "type": "ELLIPSE",
+                  "size": {
+                    "w": 64,
+                    "h": 64
+                  },
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "77:89",
+                  "name": "play-glyph",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 24,
+                    "h": 24
+                  },
+                  "fill": "#ffffff",
+                  "children": [
+                    {
+                      "id": "77:90",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 14,
+                        "h": 17
+                      },
+                      "fill": "#ffffff"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77:91",
+              "name": "video-heading",
+              "type": "FRAME",
+              "size": {
+                "w": 745,
+                "h": 49
+              },
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 6
+              },
+              "children": [
+                {
+                  "id": "77:92",
+                  "name": "video-title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 745,
+                    "h": 27
+                  },
+                  "characters": "Tour pelo estúdio — setup 2026",
+                  "fontSize": 22,
+                  "fontStyle": "Extra Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "77:93",
+                  "name": "video-meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 199,
+                    "h": 16
+                  },
+                  "characters": "1.284 visualizações · 28 jul 2026",
+                  "fontSize": 13,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:94",
+              "name": "channel-row",
+              "type": "FRAME",
+              "size": {
+                "w": 745,
+                "h": 85
+              },
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 12
+              },
+              "children": [
+                {
+                  "id": "77:95",
+                  "name": "channel-identity",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 139,
+                    "h": 51
+                  },
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 12
+                  },
+                  "children": [
+                    {
+                      "id": "77:96",
+                      "name": "channel-avatar",
+                      "type": "ELLIPSE",
+                      "size": {
+                        "w": 40,
+                        "h": 40
+                      }
+                    },
+                    {
+                      "id": "77:97",
+                      "name": "channel-text",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 87,
+                        "h": 51
+                      },
+                      "layout": {
+                        "mode": "VERTICAL",
+                        "gap": 2
+                      },
+                      "children": [
+                        {
+                          "id": "77:98",
+                          "name": "channel-name",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 73,
+                            "h": 17
+                          },
+                          "characters": "Joana Cria",
+                          "fontSize": 14,
+                          "fontStyle": "Bold",
+                          "fill": "#1c2d37"
+                        },
+                        {
+                          "id": "77:99",
+                          "name": "channel-nickname",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 68,
+                            "h": 15
+                          },
+                          "characters": "@joana_cria",
+                          "fontSize": 12,
+                          "fontStyle": "Regular",
+                          "fill": "#7a6e65"
+                        },
+                        {
+                          "id": "77:118",
+                          "name": "subscribers-count",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 87,
+                            "h": 15
+                          },
+                          "characters": "1,2 mil inscritos",
+                          "fontSize": 12,
+                          "fontStyle": "Regular",
+                          "fill": "#7a6e65"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "77:119",
+                  "name": "subscribe-button",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 103,
+                    "h": 31
+                  },
+                  "fill": "#3f72af",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:120",
+                      "name": "subscribe-button-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 75,
+                        "h": 15
+                      },
+                      "characters": "Inscrever-se",
+                      "fontSize": 12,
+                      "fontStyle": "Bold",
+                      "fill": "#ffffff"
+                    }
+                  ]
+                },
+                {
+                  "id": "77:100",
+                  "name": "download-button",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 138,
+                    "h": 33
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 8
+                  },
+                  "children": [
+                    {
+                      "id": "77:101",
+                      "name": "download-icon",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 14,
+                        "h": 14
+                      },
+                      "fill": "#ffffff",
+                      "children": [
+                        {
+                          "id": "77:102",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 10,
+                            "h": 11
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:103",
+                      "name": "download-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 84,
+                        "h": 17
+                      },
+                      "characters": "Baixar vídeo",
+                      "fontSize": 14,
+                      "fontStyle": "Semi Bold",
+                      "fill": "#1e293b"
+                    }
+                  ]
+                },
+                {
+                  "id": "77:121",
+                  "name": "like-button",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 99,
+                    "h": 33
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:122",
+                      "name": "like-button-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 69,
+                        "h": 15
+                      },
+                      "characters": "Gostei · 128",
+                      "fontSize": 12,
+                      "fontStyle": "Bold",
+                      "fill": "#1e293b"
+                    }
+                  ]
+                },
+                {
+                  "id": "77:123",
+                  "name": "dislike-button",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 93,
+                    "h": 33
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:124",
+                      "name": "dislike-button-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 63,
+                        "h": 15
+                      },
+                      "characters": "Não gostei",
+                      "fontSize": 12,
+                      "fontStyle": "Bold",
+                      "fill": "#1e293b"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77:104",
+              "name": "description-collapsed",
+              "type": "FRAME",
+              "size": {
+                "w": 745,
+                "h": 90
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "77:105",
+                  "name": "description-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 711,
+                    "h": 32
+                  },
+                  "characters": "Neste vídeo mostro todos os detalhes do meu setup atualizado de 2026 para gravação de conteúdo — câmera, áudio, iluminação e a mesa. Também explico por que troquei o microfone e o que mudou na captação depois…",
+                  "fontSize": 13,
+                  "fontStyle": "Regular",
+                  "fill": "#1e293b"
+                },
+                {
+                  "id": "77:106",
+                  "name": "description-toggle",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 101,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 6
+                  },
+                  "children": [
+                    {
+                      "id": "77:107",
+                      "name": "toggle-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 83,
+                        "h": 16
+                      },
+                      "characters": "Mostrar mais",
+                      "fontSize": 13,
+                      "fontStyle": "Semi Bold",
+                      "fill": "#3f72af"
+                    },
+                    {
+                      "id": "77:108",
+                      "name": "chevron-down",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 12,
+                        "h": 12
+                      },
+                      "fill": "#ffffff",
+                      "children": [
+                        {
+                          "id": "77:109",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 6,
+                            "h": 3
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77:125",
+              "name": "comments-section",
+              "type": "FRAME",
+              "size": {
+                "w": 745,
+                "h": 510
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "VERTICAL",
+                "gap": 20
+              },
+              "children": [
+                {
+                  "id": "77:126",
+                  "name": "comments-heading",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 695,
+                    "h": 22
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 12
+                  },
+                  "children": [
+                    {
+                      "id": "77:127",
+                      "name": "comments-count",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 137,
+                        "h": 22
+                      },
+                      "characters": "12 comentários",
+                      "fontSize": 18,
+                      "fontStyle": "Extra Bold",
+                      "fill": "#1e293b"
+                    },
+                    {
+                      "id": "77:128",
+                      "name": "comments-sort",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 130,
+                        "h": 15
+                      },
+                      "characters": "Mais recentes primeiro",
+                      "fontSize": 12,
+                      "fontStyle": "Regular",
+                      "fill": "#7a6e65"
+                    }
+                  ]
+                },
+                {
+                  "id": "77:129",
+                  "name": "new-comment-box",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 695,
+                    "h": 62
+                  },
+                  "fill": "#f8fafc",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 12
+                  },
+                  "children": [
+                    {
+                      "id": "77:130",
+                      "name": "avatar",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 36,
+                        "h": 36
+                      },
+                      "fill": "#3f72af",
+                      "layout": {
+                        "mode": "HORIZONTAL",
+                        "gap": 0
+                      },
+                      "children": [
+                        {
+                          "id": "77:131",
+                          "name": "avatar-initials",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 16,
+                            "h": 15
+                          },
+                          "characters": "JC",
+                          "fontSize": 12,
+                          "fontStyle": "Bold",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:132",
+                      "name": "new-comment-placeholder",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 522,
+                        "h": 16
+                      },
+                      "characters": "Adicione um comentário…",
+                      "fontSize": 13,
+                      "fontStyle": "Regular",
+                      "fill": "#7a6e65"
+                    },
+                    {
+                      "id": "77:133",
+                      "name": "new-comment-submit",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 87,
+                        "h": 31
+                      },
+                      "fill": "#3f72af",
+                      "layout": {
+                        "mode": "HORIZONTAL",
+                        "gap": 0
+                      },
+                      "children": [
+                        {
+                          "id": "77:134",
+                          "name": "new-comment-submit-label",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 59,
+                            "h": 15
+                          },
+                          "characters": "Comentar",
+                          "fontSize": 12,
+                          "fontStyle": "Bold",
+                          "fill": "#ffffff"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "77:135",
+                  "name": "comment-list",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 695,
+                    "h": 283
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "VERTICAL",
+                    "gap": 20
+                  },
+                  "children": [
+                    {
+                      "id": "77:136",
+                      "name": "comment-thread",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 695,
+                        "h": 210
+                      },
+                      "fill": "#ffffff",
+                      "layout": {
+                        "mode": "VERTICAL",
+                        "gap": 12
+                      },
+                      "children": [
+                        {
+                          "id": "77:137",
+                          "name": "comment-root",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 695,
+                            "h": 53
+                          },
+                          "fill": "#ffffff",
+                          "layout": {
+                            "mode": "HORIZONTAL",
+                            "gap": 12
+                          }
+                        },
+                        {
+                          "id": "77:149",
+                          "name": "reply-list",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 695,
+                            "h": 145
+                          },
+                          "fill": "#ffffff",
+                          "layout": {
+                            "mode": "VERTICAL",
+                            "gap": 12
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "77:175",
+                      "name": "comment-thread",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 695,
+                        "h": 53
+                      },
+                      "fill": "#ffffff",
+                      "layout": {
+                        "mode": "VERTICAL",
+                        "gap": 12
+                      },
+                      "children": [
+                        {
+                          "id": "77:176",
+                          "name": "comment-root",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 695,
+                            "h": 53
+                          },
+                          "fill": "#ffffff",
+                          "layout": {
+                            "mode": "HORIZONTAL",
+                            "gap": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "77:188",
+                  "name": "comments-load-more",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 695,
+                    "h": 33
+                  },
+                  "fill": "#ffffff",
+                  "layout": {
+                    "mode": "HORIZONTAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "77:189",
+                      "name": "comments-load-more-label",
+                      "type": "TEXT",
+                      "size": {
+                        "w": 160,
+                        "h": 15
+                      },
+                      "characters": "Carregar mais comentários",
+                      "fontSize": 12,
+                      "fontStyle": "Bold",
+                      "fill": "#1e293b"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "77:110",
+          "name": "suggestions-sidebar",
+          "type": "FRAME",
+          "size": {
+            "w": 233,
+            "h": 839
+          },
+          "layout": {
+            "mode": "VERTICAL",
+            "gap": 14
+          },
+          "children": [
+            {
+              "id": "77:111",
+              "name": "sidebar-heading",
+              "type": "TEXT",
+              "size": {
+                "w": 125,
+                "h": 15
+              },
+              "characters": "MAIS EM EDUCAÇÃO",
+              "fontSize": 12,
+              "fontStyle": "Bold",
+              "fill": "#7a6e65"
+            },
+            {
+              "id": "77:112",
+              "name": "video-card",
+              "type": "INSTANCE",
+              "size": {
+                "w": 233,
+                "h": 180
+              },
+              "children": [
+                {
+                  "id": "I77:112;59:89",
+                  "name": "thumbnail",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 233,
+                    "h": 131
+                  }
+                },
+                {
+                  "id": "I77:112;59:90",
+                  "name": "duration-badge",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 40,
+                    "h": 18
+                  },
+                  "fill": "#0f0f0f"
+                },
+                {
+                  "id": "I77:112;59:91",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 31,
+                    "h": 13
+                  },
+                  "characters": "14:47",
+                  "fontSize": 11,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "I77:112;59:92",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 18
+                  },
+                  "characters": "Renderizando com FFmpeg — bastidores",
+                  "fontSize": 15,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "I77:112;59:93",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 15
+                  },
+                  "characters": "312 visualizações · há 2 meses",
+                  "fontSize": 12,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:113",
+              "name": "video-card",
+              "type": "INSTANCE",
+              "size": {
+                "w": 233,
+                "h": 180
+              },
+              "children": [
+                {
+                  "id": "I77:113;59:89",
+                  "name": "thumbnail",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 233,
+                    "h": 131
+                  }
+                },
+                {
+                  "id": "I77:113;59:90",
+                  "name": "duration-badge",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 40,
+                    "h": 18
+                  },
+                  "fill": "#0f0f0f"
+                },
+                {
+                  "id": "I77:113;59:91",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 26,
+                    "h": 13
+                  },
+                  "characters": "5:30",
+                  "fontSize": 11,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "I77:113;59:92",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 18
+                  },
+                  "characters": "Como editar uma thumbnail personalizada",
+                  "fontSize": 15,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "I77:113;59:93",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 15
+                  },
+                  "characters": "208 visualizações · há 3 meses",
+                  "fontSize": 12,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:114",
+              "name": "video-card",
+              "type": "INSTANCE",
+              "size": {
+                "w": 233,
+                "h": 180
+              },
+              "children": [
+                {
+                  "id": "I77:114;59:89",
+                  "name": "thumbnail",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 233,
+                    "h": 131
+                  }
+                },
+                {
+                  "id": "I77:114;59:90",
+                  "name": "duration-badge",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 40,
+                    "h": 18
+                  },
+                  "fill": "#0f0f0f"
+                },
+                {
+                  "id": "I77:114;59:91",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 26,
+                    "h": 13
+                  },
+                  "characters": "9:05",
+                  "fontSize": 11,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "I77:114;59:92",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 18
+                  },
+                  "characters": "Roteiro de vídeo em 20 minutos",
+                  "fontSize": 15,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "I77:114;59:93",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 15
+                  },
+                  "characters": "154 visualizações · há 4 meses",
+                  "fontSize": 12,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:115",
+              "name": "video-card",
+              "type": "INSTANCE",
+              "size": {
+                "w": 233,
+                "h": 180
+              },
+              "children": [
+                {
+                  "id": "I77:115;59:89",
+                  "name": "thumbnail",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 233,
+                    "h": 131
+                  }
+                },
+                {
+                  "id": "I77:115;59:90",
+                  "name": "duration-badge",
+                  "type": "RECTANGLE",
+                  "size": {
+                    "w": 40,
+                    "h": 18
+                  },
+                  "fill": "#0f0f0f"
+                },
+                {
+                  "id": "I77:115;59:91",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 24,
+                    "h": 13
+                  },
+                  "characters": "6:18",
+                  "fontSize": 11,
+                  "fontStyle": "Bold",
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "I77:115;59:92",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 18
+                  },
+                  "characters": "Áudio limpo sem tratamento caro",
+                  "fontSize": 15,
+                  "fontStyle": "Bold",
+                  "fill": "#1c2d37"
+                },
+                {
+                  "id": "I77:115;59:93",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 233,
+                    "h": 15
+                  },
+                  "characters": "97 visualizações · há 5 meses",
+                  "fontSize": 12,
+                  "fontStyle": "Regular",
+                  "fill": "#7a6e65"
+                }
+              ]
+            },
+            {
+              "id": "77:116",
+              "name": "sidebar-load-more",
+              "type": "FRAME",
+              "size": {
+                "w": 233,
+                "h": 34
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "77:117",
+                  "name": "load-more-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 55,
+                    "h": 16
+                  },
+                  "characters": "Ver mais",
+                  "fontSize": 13,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#3f72af"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
