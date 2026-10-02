@@ -1,0 +1,55 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "75:62",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=75-62",
+    "fetched_at": "2026-10-01T20:57:00Z",
+    "blocks": [
+      "screenshot"
+    ],
+    "harvested_by": "authoring-script",
+    "provenance": "Nao e um harvest: o frame foi criado nesta sessao por script, e a estrutura abaixo e conhecida por construcao. Ids de filhos nao retornados pela chamada estao AUSENTES de proposito -- inventa-los seria pior que omiti-los. Um harvest real deste no ainda nao foi feito.",
+    "maxDepth": null
+  },
+  "id": "75:62",
+  "name": "canais-seguidos",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 551
+  },
+  "layout": {
+    "mode": "VERTICAL",
+    "gap": 0,
+    "padding": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "fills": [
+    {
+      "type": "SOLID",
+      "color": "#f8fafc",
+      "opacity": 1
+    }
+  ],
+  "radius": 24,
+  "known_child_ids": {
+    "top-decorative-strip": "75:63",
+    "navbar": "75:64",
+    "nav-link-canais-seguidos": "75:74",
+    "main-dashed-container": "75:75",
+    "page-heading": "75:76",
+    "channel-list": "75:79",
+    "channel-row": [
+      "75:80",
+      "75:88",
+      "75:96"
+    ]
+  },
+  "known_defects": [
+    "A navbar foi clonada de 66:44 (pagina publica de video, estado anonimo) e por isso exibe 'Entrar'. Esta e area autenticada: deve exibir o menu do usuario. Corrigir antes de inventariar."
+  ]
+}
