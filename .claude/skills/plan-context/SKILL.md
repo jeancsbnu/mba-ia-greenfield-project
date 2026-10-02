@@ -127,7 +127,7 @@ Before the parallel dispatch, determine:
 **Task mode scope_prose source order (updated):**
 1. User inline prose from the original invocation arg (if provided).
 2. `scope_description` field from `docs/decisions/technical-decisions-{slug}.md` frontmatter (if decisions doc exists).
-3. **`## Scope` section of an existing partial context.md** — recovered via bounded `Grep -n '^## Scope$' docs/tasks/task-{slug}/context.md` + bounded read to the next `^## ` header (or EOF). **Fires only when**: context.md frontmatter has `state: partial-awaiting-inventory` AND sources (1) and (2) are both absent.
+3. **`## Scope` section of an existing partial context.md** — recovered via bounded `Grep -n '^## Scope\s*$' docs/tasks/task-{slug}/context.md` + bounded read to the next `^## ` header (or EOF). **Fires only when**: context.md frontmatter has `state: partial-awaiting-inventory` AND sources (1) and (2) are both absent.
 
 Order is (1) → (2) → (3); first available wins. Rationale: partial context.md's `## Scope` was written verbatim from the first run's captured scope_prose → recovering it on rerun is idempotent (same prose → same outputs modulo the newly-present inventory digest).
 

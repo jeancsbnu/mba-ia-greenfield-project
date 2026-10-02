@@ -92,6 +92,16 @@ docs/
 
 Every artifact is **owned by exactly one stage**. Other stages may read or patch it (e.g., resolve patches context.md), but never recreate it from scratch.
 
+## Shared convention — Grep patterns against repo markdown
+
+Every pipeline artifact on disk — `project-plan.md`, the decisions docs, every `context.md`, `validation.md`, inventory and plan file — is written with **CRLF** line endings. The `Grep` tool runs ripgrep without `--crlf`, so the `` is part of the line content. Two consequences, both of which have silently broken stages of this pipeline:
+
+1. **Never anchor a pattern with a bare `$`. Always write `\s*$`.** `'^## Decisions Detail$'` returns **zero matches** against a CRLF `context.md`; `'^## Decisions Detail\s*$'` returns the heading. The failure is silent and indistinguishable from "the section is absent", so a stage that treats zero matches as a legacy-format signal aborts with a misleading message, and one that treats it as "nothing to do" skips real work. This is the rule the `scope_type` greps were fixed for in PR #11; the rest of the pipeline was not swept at the time.
+   Patterns anchored only at the start (`'^## '`, `'^### SI-'`) are unaffected — the trailing `` is never reached.
+2. **Never use look-around or an escaped alternation.** The Grep tool does not expose `--pcre2`: a look-ahead such as `(?![—\-]\s*$)` makes ripgrep **reject the call outright** (`error: look-around ... is not supported`), killing the stage rather than returning a wrong answer. And `\|` is a *literal pipe* in ripgrep's Rust regex, not alternation: write `|` to alternate, and reserve `\|` for when you really do mean the character — matching a markdown table row, for instance. `'^### Fase \|^## '` matched nothing for as long as it existed, because it asked for a line beginning with the eleven characters `### Fase |`. When a pattern needs a negative condition, grep the positive form and filter the returned lines in a second pass.
+
+The same rules apply to the `Grep` instructions embedded in subagent prompts. They do **not** apply to shell `grep`/`awk` in bash blocks — the GNU tools in this environment handle CRLF transparently.
+
 ## Shared convention — Slug discovery
 
 Every stage skill needs the slug for its artifacts. Under the slicing model, **≥1 `scope_type: phase` docs may exist per `NN`** (one per slice). Discovery is **automatic** and mode-dependent:

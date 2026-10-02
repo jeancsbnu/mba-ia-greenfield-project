@@ -71,7 +71,7 @@ From the validation.md frontmatter in memory:
 
 Run:
 
-`Grep -nP '^\|.*\| decided \|.*\| [^—]' {target_dir}/context.md`
+`Grep -n '^\|.*\| decided \|.*\| [^—]' {target_dir}/context.md` (here `\|` is a **literal** pipe — the markdown table's column separator — which is exactly what ripgrep's `\|` means; it is not alternation)
 
 Interpret:
 - **Zero matches** → `library_refs_required: false`.
@@ -80,7 +80,7 @@ Interpret:
 
 The per-library coverage check happens later (Phase B step B2.5); this gate only guarantees the file exists when required.
 
-**Cross-slice library-refs (slicing only).** When the current slice's phase-scope decisions doc declares `depends_on_slices: [<sibling-slug>, ...]`, library-refs lives at `docs/phases/phase-NN-{sibling}/library-refs.md`. For each sibling listed in `depends_on_slices`, check existence of `docs/phases/phase-NN-{sibling}/library-refs.md` AND check whether the sibling's phase-scope decisions doc has any **decided TD with non-empty `**Libraries:**`**. Concrete grep: `Grep -nP '^\*\*Libraries:\*\* (?![—\-]\s*$).+$' docs/decisions/technical-decisions-{sibling}.md` — a match line indicates a Libraries entry whose value is not `—`, not `-`, and not empty/whitespace. If there is ≥1 match, the sibling has decided TDs with non-empty Libraries.
+**Cross-slice library-refs (slicing only).** When the current slice's phase-scope decisions doc declares `depends_on_slices: [<sibling-slug>, ...]`, library-refs lives at `docs/phases/phase-NN-{sibling}/library-refs.md`. For each sibling listed in `depends_on_slices`, check existence of `docs/phases/phase-NN-{sibling}/library-refs.md` AND check whether the sibling's phase-scope decisions doc has any **decided TD with non-empty `**Libraries:**`**. Concrete grep: `Grep -n '^\*\*Libraries:\*\*' docs/decisions/technical-decisions-{sibling}.md` with `output_mode: content`, then discard the returned lines that match `^\*\*Libraries:\*\*\s*[—\-]?\s*$` (the empty / `—` / `-` values). Each surviving line is a Libraries entry with a real value; if there is ≥1, the sibling has decided TDs with non-empty Libraries. **Do not fold the exclusion into the pattern with a look-ahead** — the Grep tool runs ripgrep without `--pcre2` and rejects the call outright with `error: look-around ... is not supported`, which is worse than a wrong result because the stage dies mid-gate. Same reason the filter in `plan-resolve/SKILL.md` § Preflight is written as a second pass.
 
 - If sibling has **decided TDs with libraries** AND its `library-refs.md` is absent → **hard abort**: `"Sibling slice {sibling-slug} has decided TDs citing libraries but no library-refs.md at docs/phases/phase-NN-{sibling}/library-refs.md. Run /plan-resolve {sibling-slug} to materialize its library cache, then retry /plan-build {slug}."` This prevents a silent B4-step-3 dead-end where the current slice inherits a TD that cites a lib but the lib doc can't be found in any cache.
 - If sibling has **no decided TDs with libraries** (all TDs pending, superseded, or cite no libraries) → missing `library-refs.md` is expected and NOT an abort. Proceed; the sibling contributes no library entries to aggregation.
@@ -90,7 +90,7 @@ The per-library coverage check happens later (Phase B step B2.5); this gate only
 
 Bounded grep on context.md:
 
-`Grep -n '^## Decisions Detail$' {target_dir}/context.md`
+`Grep -n '^## Decisions Detail\s*$' {target_dir}/context.md`
 
 Interpret:
 - **Zero matches** → context.md is malformed or legacy. Abort: `"context.md for {phase NN | task {slug}} is in old format (no ## Decisions Detail section). Run /plan-context <arg> to regenerate it, then retry /plan-build <arg>."`
@@ -102,7 +102,7 @@ Note: this check does not verify `## Inherited Decisions Detail` because it may 
 
 Bounded grep on context.md:
 
-`Grep -n '^## UI Inventory$' {target_dir}/context.md`
+`Grep -n '^## UI Inventory\s*$' {target_dir}/context.md`
 
 Interpret (the four pattern tests below are mutually exclusive by token-anchor construction; order of evaluation does not matter):
 
@@ -123,7 +123,7 @@ Procedure:
 1. Compute the slice set via atomic Grep set-arithmetic (`S_phase ∩ S_NN` per `plan-pipeline/SKILL.md` → Slug discovery → Phase mode integer arg). Subtract the current slug to get **siblings** = `(S_phase ∩ S_NN) \ {current-slug}`. No per-file iteration — Grep returns sets atomically.
 2. For each sibling, check that a built artifact exists at `docs/phases/phase-NN-{sibling}/phase-NN-{sibling}.md`.
 3. If at least one sibling has no built artifact → this slice is NOT the last; skip the coverage aggregation and proceed to Gate 10.
-4. If every sibling has a built artifact → this slice IS the last. Bounded-read `covers_capabilities` frontmatter from self + every sibling; union the values; compare the union against the phase's capability bullets in `project-plan.md`. Extract the phase's bullets via bounded grep/read against the actual heading format used in `project-plan.md`: `Grep -n '^### Fase {NN_zero_padded} — ' docs/project-plan.md` → start line S; `Grep -n '^### Fase \|^## ' docs/project-plan.md` → next H2/H3 after S → end line E-1; Read S..E-1 and extract bullets matching `^- `. **`{NN_zero_padded}` is NN formatted as a 2-digit zero-padded string** (e.g., phase 2 → `02`, phase 10 → `10`). Single-digit NN MUST be padded; otherwise the grep silently matches nothing and the coverage gate trivially passes. (Plan-reader subagent dispatch is NOT allowed here — `/plan-build` default path forbids Agent dispatch per Hard rules.)
+4. If every sibling has a built artifact → this slice IS the last. Bounded-read `covers_capabilities` frontmatter from self + every sibling; union the values; compare the union against the phase's capability bullets in `project-plan.md`. Extract the phase's bullets via bounded grep/read against the actual heading format used in `project-plan.md`: `Grep -n '^### Fase {NN_zero_padded} — ' docs/project-plan.md` → start line S; `Grep -n '^### Fase |^## ' docs/project-plan.md` → next H2/H3 after S → end line E-1; Read S..E-1 and extract bullets matching `^- `. **`{NN_zero_padded}` is NN formatted as a 2-digit zero-padded string** (e.g., phase 2 → `02`, phase 10 → `10`). Single-digit NN MUST be padded; otherwise the grep silently matches nothing and the coverage gate trivially passes. (Plan-reader subagent dispatch is NOT allowed here — `/plan-build` default path forbids Agent dispatch per Hard rules.)
 5. If any capability is uncovered by the union → hard abort: `"Phase NN has uncovered capabilities: <list>. Update covers_capabilities in at least one sibling's phase-scope doc, or add new slices via /research, before building the last slice."`
 6. If the union covers every capability → proceed to Gate 10.
 
@@ -133,7 +133,7 @@ This gate is the hard-error counterpart of `plan-validate`'s Check 8 `MC-cross-N
 
 Run a single grep covering both required sentinelas:
 
-`Grep -nE '^<!-- (SIs will be written in Phase B|phase-a-complete) -->$' {target_path}`
+`Grep -n '^<!-- (SIs will be written in Phase B|phase-a-complete) -->\s*$' {target_path}`
 
 The two sentinela strings are the **canonical literals** referenced from every phase file. Phase A (`phase-a.md` § A3) writes them; Phase A4.6 adds `<!-- phase-a-complete -->` (Phase A4.5 may inject `<!-- {rule-id}-pending -->` — canonical: `<!-- ccr-pending -->` — before A4.6 runs, when any rule from `docs/rules/plan-build/` aborts); Phase B consumes them: `phase-b.md` § B4-B6 replace the three A3 sentinelas, and § B6.5 removes `<!-- phase-a-complete -->`, which has no consumer and whose survival would make the finished plan read as Gate 10 case 4. Any change to these literals must update Gate 10 AND every phase file together (validator flags inconsistency).
 
