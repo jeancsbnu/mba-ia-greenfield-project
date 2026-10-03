@@ -5,90 +5,93 @@
     "id": "0:1",
     "name": "Seus vídeos"
   },
-  "harvested_at": "2026-10-01T23:00:00Z",
+  "harvested_at": "2026-10-03T00:00:00Z",
   "harvested_by": "figma-batch",
-  "mcp_calls_spent": 4,
+  "mcp_calls_spent": 6,
   "blocks": [
     "tree",
     "screenshots"
   ],
   "maxDepth": 6,
   "nodes": {
+    "59:2": {
+      "name": "pagina-publica-canal",
+      "phase": "04 (desenhada) / 06 (estendida)",
+      "route": "/@{nickname}",
+      "file": "59-2.json",
+      "screenshot": "59-2.png",
+      "session_state": "anonimo (de proposito — anonymous-gate/TD-01)"
+    },
     "66:42": {
       "name": "assistir-video",
       "phase": 5,
+      "route": "/videos/{publicId}",
       "file": "66-42.json",
-      "screenshot": "66-42.png"
+      "screenshot": "66-42.png",
+      "session_state": "anonimo"
     },
     "68:62": {
       "name": "video-nao-encontrado",
       "phase": 5,
+      "route": "/videos/{publicId} — estado not-found",
       "file": "68-62.json",
       "screenshot": "68-62.png"
     },
     "75:62": {
       "name": "canais-seguidos",
       "phase": 6,
+      "route": "/channel/subscriptions",
       "file": "75-62.json",
       "screenshot": "75-62.png",
       "source": "authoring-script",
-      "tree": "parcial — ver _envelope.provenance"
+      "tree": "parcial — ver _envelope.provenance",
+      "session_state": "autenticado"
     },
     "77:64": {
       "name": "assistir-video-interacoes",
       "phase": 6,
+      "route": "/videos/{publicId} — variante autenticada",
       "file": "77-64.json",
       "screenshot": "77-64.png",
       "session_state": "autenticado"
-    },
-    "77:190": {
-      "name": "canal-publico",
-      "phase": 6,
-      "file": "77-190.json",
-      "screenshot": "77-190.png",
-      "session_state": "anonimo (de proposito — anonymous-gate/TD-01)"
     }
   },
   "write_in_same_call": {
-    "note": "Fase 06 desenhada em 2 chamadas use_figma (2026-10-01).",
+    "note": "Fase 06 desenhada em 4 chamadas use_figma (2 em 2026-10-01, 2 em 2026-10-03).",
     "call_1": {
-      "createdNodeIds": [
-        "77:62",
-        "77:64",
-        "77:118",
-        "77:119",
-        "77:121",
-        "77:123",
-        "77:125",
-        "77:188",
-        "77:190"
-      ],
-      "mutatedNodeIds": [
-        "75:73",
-        "75:71",
-        "77:94"
-      ],
-      "reason": "Conserta a navbar de 75:62; cria assistir-video-interacoes (77:64) clonando 66:42 e acrescentando inscrever-se, contagem de inscritos, like com contagem, dislike sem contagem e secao de comentarios; cria canal-publico (77:190)."
+      "date": "2026-10-01",
+      "createdNodeIds": ["77:62", "77:64", "77:118", "77:119", "77:121", "77:123", "77:125", "77:188", "77:190"],
+      "mutatedNodeIds": ["75:73", "75:71", "77:94"],
+      "reason": "Conserta a navbar de 75:62; cria assistir-video-interacoes (77:64) clonando 66:42; cria canal-publico (77:190) — este ultimo por engano, ver call_3."
     },
     "call_2": {
-      "createdNodeIds": [
-        "78:82",
-        "78:83"
-      ],
-      "mutatedNodeIds": [
-        "77:75",
-        "77:73"
-      ],
-      "reason": "Conserta o estado de sessao da navbar de 77:64 (o clone de 66:42 trouxe 'Entrar' para uma tela que mostra a caixa de comentario do proprio usuario) e colhe as arvores completas."
+      "date": "2026-10-01",
+      "createdNodeIds": ["78:82", "78:83"],
+      "mutatedNodeIds": ["77:75", "77:73"],
+      "reason": "Conserta o estado de sessao da navbar de 77:64 e colhe as arvores."
+    },
+    "call_3": {
+      "date": "2026-10-03",
+      "createdNodeIds": ["79:82", "79:83"],
+      "mutatedNodeIds": ["59:86"],
+      "removedNodeIds": ["77:190"],
+      "reason": "Desfaz a duplicata: 77:190 reivindicava a rota /@{nickname}, que ja e a 59:2 da Fase 04. Remove 77:190 e acrescenta a 59:2 o subscribe-button e a contagem de inscritos (TD-06)."
+    },
+    "call_4": {
+      "date": "2026-10-03",
+      "mutatedNodeIds": ["79:82"],
+      "reason": "Reposiciona o subscribe-button: entrou como filho de fluxo e caiu sobre o avatar. Ver a nota sobre layoutMode x layoutPositioning abaixo."
     }
   },
   "notes": [
     "Node ids são gravados em forma de URL (66-42) e não de API (66:42): ':' é inválido em nome de arquivo no Windows.",
     "O arquivo não declara Variable collections nem text styles — toda cor e tipografia é hex/valor direto. Consumidores não devem procurar tokens.",
     "Este arquivo não foi colhido com o bloco 'variables'; a afirmação acima vem de inspeções anteriores da Fase 04/05.",
-    "As telas das Fases 02/04/05 nao sao frames de topo da pagina: vivem dentro de um frame 'canvas' (41:8, 8700x1400). As tres telas da Fase 06 (75:62, 77:64, 77:190) sao frames de topo.",
-    "Estado de sessao e uma propriedade da TELA, nao do componente: 66:42 e 77:190 sao anonimas (navbar com 'Entrar'), 75:62 e 77:64 sao autenticadas (avatar + 'Sair'). Clonar chrome entre telas sem conferir o estado de origem ja produziu defeito duas vezes aqui.",
-    "77:64 e 77:190 sao harvests de verdade (arvore colhida depois de criada). 75:62 nao e: ver _envelope.provenance naquele arquivo."
+    "As telas das Fases 02/04/05 vivem dentro do frame 'canvas' (41:8, 8700x1400) e NAO sao frames de topo. Varrer so page.children esconde todas elas — foi assim que eu nao vi que a pagina publica de canal ja existia (59:2) e desenhei uma duplicata. Antes de criar uma tela, procurar a rota no inventario de docs/inventories/, nao so no canvas.",
+    "Estado de sessao e uma propriedade da TELA, nao do componente: 66:42 e 59:2 sao anonimas (navbar com 'Entrar'), 75:62 e 77:64 sao autenticadas (avatar + 'Sair'). Clonar chrome entre telas sem conferir o estado de origem ja produziu defeito duas vezes aqui.",
+    "ARMADILHA DE LAYOUT: 59:15 (main-dashed-container de 59:2) reporta layoutMode 'VERTICAL', mas seus 14 filhos sao TODOS layoutPositioning 'ABSOLUTE' com x/y proprios. Ler layoutMode do pai NAO diz como um filho e posicionado. Ao inserir um no ali, setar layoutPositioning='ABSOLUTE' e x/y explicitos; caso contrario ele entra no fluxo e empilha no canto. Conferir layoutPositioning dos irmaos antes de escolher.",
+    "77:64 e 59:2 sao harvests de verdade (arvore colhida depois da escrita). 75:62 nao e: ver _envelope.provenance naquele arquivo.",
+    "A rota de 75:62 (/channel/subscriptions) foi decidida pelo usuario em 2026-10-03, seguindo a convencao do grupo autenticado (/channel/videos, /channel/settings). Nao estava no TD-07, que decidiu o conteudo da area sem nomear o endereco."
   ],
   "errors": []
 }
