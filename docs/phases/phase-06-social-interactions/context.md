@@ -3,30 +3,32 @@ kind: phase
 name: phase-06-social-interactions
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-social-interactions.md: "2026-10-01T20:34:44-03:00"
-  docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T20:34:44-03:00"
+  docs/decisions/technical-decisions-social-interactions.md: "2026-10-01T21:50:20-03:00"
+  docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T21:50:20-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
-  docs/phases/phase-01-configuracao-base/context.md: "2026-06-29T19:03:26-03:00"
+  docs/phases/phase-01-configuracao-base/context.md: "2026-10-01T21:50:20-03:00"
   docs/phases/phase-02-auth/context.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-02-auth-frontend/context.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-03-upload-processing/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-04-video-channel-management/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-05-video-watch-page/context.md: "2026-09-29T22:45:01-03:00"
+  docs/inventories/screen-inventory-phase-06-social-interactions.md: "2026-10-03T20:14:57-03:00"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "2026-06-29T19:03:26-03:00"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-social-interactions.md: "57e6e245daea"
-  docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "923b133e7c18"
+  docs/decisions/technical-decisions-social-interactions.md: "a1543ab14522"
+  docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "b08d6f49f958"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "dce35a1a5901"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
-  docs/phases/phase-01-configuracao-base/context.md: "0d4a7f0ea3f4"
+  docs/phases/phase-01-configuracao-base/context.md: "aed82fcbcf53"
   docs/phases/phase-02-auth/context.md: "2f6ccb7eaebc"
   docs/phases/phase-02-auth-frontend/context.md: "3f0f1efff30f"
   docs/phases/phase-03-upload-processing/context.md: "d10c73e13267"
   docs/phases/phase-04-video-channel-management/context.md: "71811d3a87ee"
   docs/phases/phase-05-video-watch-page/context.md: "71f919de97f4"
+  docs/inventories/screen-inventory-phase-06-social-interactions.md: "670730d57f83"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "f302b87517e4"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "9942ebfdb06d"
 ---
@@ -36,6 +38,7 @@ sources_hash:
 ## Scope
 
 **Phase name:** Interações Sociais (Likes, Comentários, Inscrições)
+
 **Capabilities** (literal, `docs/project-plan.md`):
 
 - Like e dislike em vídeos (usuários autenticados)
@@ -48,33 +51,40 @@ sources_hash:
 - Interface completa de comentários, likes e inscrições
 
 **Out of scope:** _Not specified._
+
 **Deliverables:** likes/dislikes funcionando, comentários com respostas, inscrição em canais, listagem de canais seguidos.
-**Affected subprojects:** `nestjs-project` — não mencionado explicitamente na seção da fase; `next-frontend` — não mencionado explicitamente, mas a capability "Interface completa de comentários, likes e inscrições" implica frontend.
+
+**Affected subprojects:**
+
+- `nestjs-project` — três entidades novas (reações, comentários, inscrições), a manutenção dos contadores desnormalizados que a Fase 04 deixou em zero, e as rotas que as expõem.
+- `next-frontend` — a interface completa de comentários, likes e inscrições, e a área de canais seguidos.
+
 **Deferred subprojects:** _None._
+
 **Sequencing notes:** "> Depende de: Fase 02, Fase 05"
 
 **Neighbors (for boundary detection only):**
 
-- **Phase 05:** Página de Visualização do Vídeo — "Página onde o usuário assiste ao vídeo com player funcional, descrição, sugestões e acesso anônimo."
-- **Phase 07:** Página Inicial, Busca e Finalização — "Home page com listagem de vídeos, busca, navegação geral, responsividade e preparação para produção."
+- **Phase 05:** Página de Visualização do Vídeo — "> Depende de: Fase 03, Fase 04"
+- **Phase 07:** Página Inicial, Busca e Finalização — "> Depende de: todas as fases anteriores"
 
 ## Decisions Index
 
 | Ref | Source | Scope | Topic | Status | Decision | Libraries |
 |-----|--------|-------|-------|--------|----------|-----------|
-| social-interactions/TD-01 | phase | Backend | Modelagem das reações (like/dislike em vídeos e em comentários) | decided | A | — |
-| social-interactions/TD-02 | phase | Backend | Mecanismo de manutenção dos contadores desnormalizados | decided | A | — |
-| social-interactions/TD-03 | phase | Cross-layer | Superfície pública do dislike | decided | A | — |
-| social-interactions/TD-04 | phase | Backend | Profundidade e estratégia de armazenamento dos comentários aninhados | decided | A | — |
-| social-interactions/TD-05 | phase | Cross-layer | Ordenação e carregamento das respostas | decided | B | — |
-| social-interactions/TD-06 | phase | Backend | Modelagem da inscrição e origem da contagem de inscritos | decided | B | — |
-| social-interactions/TD-07 | phase | Cross-layer | O que é a "área de canais seguidos" | decided | A | — |
-| social-interactions/TD-08 | phase | Frontend | Feedback da interação na interface | decided | A | — |
-| social-interactions-anonymous-gate/TD-01 | ad-hoc | Cross-layer | O que o visitante anônimo vê e o que acontece quando ele age | decided | A | — |
-| social-interactions-anonymous-gate/TD-02 | ad-hoc | Cross-layer | Como o estado pessoal do visitante chega à página | decided | A | — |
-| social-interactions-anonymous-gate/TD-03 | ad-hoc | Frontend | Retorno ao ponto de interação depois do login | decided | A | — |
+| social-interactions/TD-01 | phase | Backend | Modelagem das reações (like/dislike em vídeos e comentários) | decided | A (duas tabelas dedicadas — `video_reactions`, `comment_reactions`) | — |
+| social-interactions/TD-02 | phase | Backend | Manutenção dos contadores desnormalizados | decided | A (delta no serviço, mesma transação do evento) | — |
+| social-interactions/TD-03 | phase | Cross-layer | Superfície pública do dislike | decided | A (só estado do próprio usuário; sem `dislikes_count`) | — |
+| social-interactions/TD-04 | phase | Backend | Profundidade e armazenamento dos comentários aninhados | decided | A (profundidade 1 — `parent_id` nulável) | — |
+| social-interactions/TD-05 | phase | Cross-layer | Ordenação e carregamento das respostas | decided | B (recentes primeiro; 10 raízes/página, até 3 respostas pré-carregadas; offset/limit) | — |
+| social-interactions/TD-06 | phase | Backend | Modelagem da inscrição e origem da contagem de inscritos | decided | B (`subscribers_count` desnormalizado em `channels`) | — |
+| social-interactions/TD-07 | phase | Cross-layer | O que é a "área de canais seguidos" | decided | A (lista de canais seguidos + ponto de entrada em `SiteNavbar`/`UserMenu`) | — |
+| social-interactions/TD-08 | phase | Frontend | Feedback da interação na interface | decided | A (`useOptimistic` do React 19) | — |
+| social-interactions-anonymous-gate/TD-01 | ad-hoc | Cross-layer | O que o visitante anônimo vê e o que acontece ao agir | decided | A (leitura pública; controles renderizam, clique leva ao login) | — |
+| social-interactions-anonymous-gate/TD-02 | ad-hoc | Cross-layer | Como o estado pessoal do visitante chega à página | decided | A (endpoint público com auth opcional, payload único) | — |
+| social-interactions-anonymous-gate/TD-03 | ad-hoc | Frontend | Retorno ao ponto de interação depois do login | decided | A (`returnTo` na query de `/login`, validado por `safeReturnTo`) | — |
 
-_Renders in column omitted: nenhum TD em escopo define o campo explicitamente (todos `—`). Os 11 TDs estão `decided` (resolvidos em 2026-10-01); nenhum marcador de supersede e nenhum bloco `**Revisions:**`._
+_Nenhum TD em escopo define `**Renders in:**` (todos `—`); o default-by-inference é resolvido pelo filtro A2 do `plan-build` junto com o `ui_in_scope` da fase. Nenhum TD carrega `**Libraries:**`, bloco `**Revisions:**` ou marcador de superseded. Os dois docs têm frontmatter `status: pending`, mas os 11 TDs têm `**Decision:**` concreto — nenhum é `_[pending]_` — então todos contam como `decided` pela regra do campo Decision._
 
 _Source files:_
 
@@ -85,14 +95,14 @@ _Source files:_
 
 | Capability (from project-plan.md) | Covered by |
 |-----------------------------------|------------|
-| Like e dislike em vídeos (usuários autenticados) | social-interactions/TD-01, social-interactions/TD-02, social-interactions/TD-03, social-interactions/TD-08, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
-| Comentários em vídeos (usuários autenticados) | social-interactions/TD-02, social-interactions/TD-05, social-interactions-anonymous-gate/TD-01 |
-| Respostas a comentários (comentários aninhados) | social-interactions/TD-04, social-interactions/TD-05 |
-| Like e dislike em comentários (usuários autenticados) | social-interactions/TD-01, social-interactions/TD-02, social-interactions/TD-03, social-interactions/TD-08, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
-| Inscrição em canais (seguir/deixar de seguir) | social-interactions/TD-06, social-interactions/TD-08, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
+| Like e dislike em vídeos (usuários autenticados) | social-interactions/TD-01, /TD-02, /TD-03, anonymous-gate/TD-01, /TD-02 |
+| Comentários em vídeos (usuários autenticados) | social-interactions/TD-02, /TD-05, anonymous-gate/TD-01 |
+| Respostas a comentários (comentários aninhados) | social-interactions/TD-04, /TD-05 |
+| Like e dislike em comentários (usuários autenticados) | social-interactions/TD-01, /TD-02, /TD-03, anonymous-gate/TD-01, /TD-02 |
+| Inscrição em canais (seguir/deixar de seguir) | social-interactions/TD-06, anonymous-gate/TD-01, /TD-02 |
 | Área de canais seguidos com acesso rápido aos vídeos | social-interactions/TD-07 |
 | Contagem de inscritos na página do canal | social-interactions/TD-06 |
-| Interface completa de comentários, likes e inscrições | social-interactions/TD-03, social-interactions/TD-05, social-interactions/TD-07, social-interactions/TD-08, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02, social-interactions-anonymous-gate/TD-03 |
+| Interface completa de comentários, likes e inscrições | social-interactions/TD-03, /TD-05, /TD-08, anonymous-gate/TD-01, /TD-02, /TD-03 |
 
 ## Decisions Detail
 
@@ -153,31 +163,45 @@ _Source files:_
 
 ## Inherited Decisions Detail
 
-_Herdados: 47 TDs das fases anteriores (via phases-reader) mais 9 dos dois docs ad-hoc confirmados no correlator — `next-frontend-openapi-typing` e `next-frontend-msw-foundation`. Dedupe aplicado contra `## Decisions Detail`, que está vazio nesta rodada._
-
 ### phase-01-configuracao-base/TD-01
 
 **Recommendation:** Option A (@nestjs/config) — Official, core-team-maintained, guaranteed NestJS 11 compatibility. The `registerAs()` factory pattern solves the TypeORM CLI sharing problem: the factory function can be imported as a plain function by `data-source.ts` while also serving as a DI injection token inside NestJS. Building a custom module recreates solved functionality; third-party packages carry maintenance risk.
+
 **Libraries:** `@nestjs/config@^4.x`
 
 ### phase-01-configuracao-base/TD-02
 
 **Recommendation:** Option A (Joi) — First-class integration with `@nestjs/config` via `validationSchema`, requiring zero custom wiring. Handles string-to-number coercion natively. Using a different tool for env validation vs. request validation is reasonable — env config is validated once at startup, DTOs are validated per-request. Zod is elegant but adds a third validation paradigm to the project.
+
 **Libraries:** `joi@^17.x`
 
 ### phase-01-configuracao-base/TD-03
 
-**Recommendation:** Option B (Namespaced/grouped with registerAs) — The project roadmap explicitly calls for auth, email, and storage in upcoming phases. Namespaced configs provide clear file boundaries per domain, typed injection via `ConfigType<typeof databaseConfig>`, and natural scalability. The `registerAs()` factory is dual-purpose: DI token inside NestJS and plain importable function for `data-source.ts`. Initial files for Phase 01: - `src/config/database.config.ts` — DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME - `src/config/app.config.ts` — PORT, NODE_ENV
+**Recommendation:** Option B (Namespaced/grouped with registerAs) — The project roadmap explicitly calls for auth, email, and storage in upcoming phases. Namespaced configs provide clear file boundaries per domain, typed injection via `ConfigType<typeof databaseConfig>`, and natural scalability. The `registerAs()` factory is dual-purpose: DI token inside NestJS and plain importable function for `data-source.ts`.
+
+Initial files for Phase 01:
+- `src/config/database.config.ts` — DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME
+- `src/config/app.config.ts` — PORT, NODE_ENV
+
 **Libraries:** —
 
 ### phase-01-configuracao-base/TD-04
 
-**Recommendation:** Option A (Shared registerAs factory) — Natural outcome of choosing `@nestjs/config` with `registerAs`. The factory is already callable by design. `data-source.ts` imports it, calls `dotenv.config()`, then calls the factory. Zero duplication, minimal code, no extra abstraction. ``` src/config/database.config.ts → registerAs('database', () => ({ host, port, ... })) | | NestJS loads via data-source.ts imports ConfigModule.forRoot() and calls directly ```
+**Recommendation:** Option A (Shared registerAs factory) — Natural outcome of choosing `@nestjs/config` with `registerAs`. The factory is already callable by design. `data-source.ts` imports it, calls `dotenv.config()`, then calls the factory. Zero duplication, minimal code, no extra abstraction.
+
+```
+src/config/database.config.ts  →  registerAs('database', () => ({ host, port, ... }))
+                                         |                          |
+                                    NestJS loads via           data-source.ts imports
+                                    ConfigModule.forRoot()     and calls directly
+```
+
 **Libraries:** `dotenv` (transitive via `@nestjs/config`)
 
 ### phase-02-auth/TD-01
 
 **Recommendation:** Argon2id — For a greenfield project in 2026, Argon2id is the OWASP-recommended choice. The native build dependency is a one-time Docker setup cost. The project has no legacy constraints favoring bcrypt. OWASP minimum: 19MiB memory, 2 iterations.
+
 **Libraries:** `argon2@^0.41.x`
 
 ### phase-02-auth/TD-02
@@ -191,35 +215,38 @@ _Herdados: 47 TDs das fases anteriores (via phases-reader) mais 9 dos dois docs 
 ### phase-02-auth/TD-03
 
 **Recommendation:** Option A (Refresh Token Rotation) — Provides the strongest security model with automatic theft detection. The DB write overhead is acceptable for a video platform (auth refresh is infrequent vs. video operations). PostgreSQL is already in the stack, so no new infrastructure needed. Race conditions can be mitigated with a short grace period for the old token.
+
 **Libraries:** —
 
 ### phase-02-auth/TD-04
 
 **Recommendation:** Option B (Random Opaque Tokens in DB) — Revocability is important: when a user requests a new password reset, previous tokens should be invalidated. The DB table is trivial to implement, and the tokens table can also serve future needs (e.g., API keys). Keeps email tokens decoupled from the JWT auth system.
+
 **Libraries:** —
 
 ### phase-02-auth/TD-05
 
 **Recommendation:** Option A (@nestjs-modules/mailer) — Best NestJS integration with minimal boilerplate. Supports SMTP (matching the architecture diagram), works with MailHog/Mailpit for local development without external dependencies, and scales to any SMTP provider in production. Template engine support (Handlebars) simplifies email formatting. No vendor lock-in.
+
 **Libraries:** `@nestjs-modules/mailer@^2.x`, `handlebars@^4.x`
 
 ### phase-02-auth/TD-06
 
 **Recommendation:** Option A (class-validator + class-transformer) — This is a backend-only project (no shared schemas with frontend), so Zod's single-source-of-truth advantage is less impactful. class-validator is the documented NestJS approach, and the project already uses decorators extensively (TypeORM entities, NestJS DI). Fewer integration surprises with NestJS 11.
+
 **Libraries:** `class-validator@^0.14.x`, `class-transformer@^0.5.x`
 
 ### phase-02-auth/TD-07
 
 **Recommendation:** Option A (Custom Domain Exception Filter) — Provides machine-readable error codes that the Next.js frontend can switch on, without the overhead of RFC 9457's URI-based type system. The project is single-consumer (first-party frontend), so a simple `{ statusCode, error, message }` format with domain codes balances clarity and simplicity. The custom filter cost is low — two small files.
+
 **Libraries:** —
 
 ### phase-02-auth/TD-08
 
 **Recommendation:** Option A (@nestjs/throttler) — Native NestJS integration is decisive: the guard system allows scoping rate limiting to `AuthModule` only via module-level `APP_GUARD`, with `@SkipThrottle()` for exemptions. The project is single-instance with no distributed requirements, so in-memory storage is sufficient. Using express-rate-limit would bypass NestJS's DI and guard lifecycle for no clear benefit.
-**Libraries:** `@nestjs/throttler@^6.x`
 
-**Revisions:**
-- 2026-09-26 — Correção do racional, sem mudança de decisão. O texto da Recommendation afirma que o guard permite "scoping rate limiting to `AuthModule` only via module-level `APP_GUARD`". **Isso está errado:** `APP_GUARD` é global independentemente do módulo que o declara — está na doc oficial de Guards do NestJS e no README do `@nestjs/throttler` ("you could do so by adding this provider to **any** module"). O próprio repositório evidencia: `src/app.controller.ts` carrega `@SkipThrottle()`, inócuo se o guard não o alcançasse, já que `AppController` não pertence ao `AuthModule`. O escopo efetivo sempre foi a aplicação inteira, a 10 req/60 s por IP. Mesma Option A — a escolha de biblioteca permanece. Rationale: resolve ICC-1 (/plan-validate da Fase 05) — a frase induziu a MD-1 daquela fase a concluir que o endpoint público de contagem estava desprotegido, quando já nascia coberto.
+**Libraries:** `@nestjs/throttler@^6.x`
 
 ### phase-02-auth/TD-09
 
@@ -232,6 +259,7 @@ _Herdados: 47 TDs das fases anteriores (via phases-reader) mais 9 dos dois docs 
 ### phase-02-auth/TD-10
 
 **Recommendation:** Option A — The platform is a video sharing service with URL-based channel handles. A strict `[a-z0-9_]` allowlist is the simplest and most portable choice: no extra dependencies, no edge cases around hyphen positioning, and the `user_<random>` fallback provides a valid handle even for extreme email prefixes. Hyphens can always be added in a future iteration if user feedback justifies it.
+
 **Libraries:** —
 
 ### phase-02-auth-frontend/TD-01
@@ -439,60 +467,104 @@ Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A 
 **Libraries:** —
 
 ### next-frontend-openapi-typing/TD-01
-
-**Recommendation:** Three reinforcing reasons. (1) **Strict BFF makes the SDK surface valueless on the client.** Only Route Handlers ever call the upstream Nest; they already use `fetch` (Next 16's caching extensions sit on top of native `fetch`); a generated SDK adds a third client style to learn for zero functional gain. (2) **Types-first matches the rest of the FE foundation.** Env validation is Zod-derived types; component variants are `cva` types; both are TS-first with zero generated runtime. `paths` is the natural extension — one `.d.ts` file imported wherever the contract is touched. (3) **MSW typing is solved by the same `paths` symbol.** Hand-written handlers in `mocks/handlers.ts` type their resolver returns off `paths["/videos"]["get"]["responses"][200]`, giving the contract guarantee without orval/kubb's verbose generated handlers (which would be overridden per-test anyway). The marginal cost of adding `openapi-fetch` (~6KB, server-side only) is small enough that we recommend the **types + thin-client** pair, not types alone — `openapi-fetch` removes the `fetch(API_URL + path, { method, headers, body })` boilerplate in each Route Handler while staying within the BFF model. Options B/C/D may be revisited if (a) client-side data-fetching enters the stack with TanStack Query and per-endpoint hooks are wanted, or (b) the API grows beyond ~20 operations and per-call boilerplate becomes painful.
+**Recommendation:** **Option A (`openapi-typescript` + `openapi-fetch`)**. Three reinforcing reasons. (1) **Strict BFF makes the SDK surface valueless on the client.** Only Route Handlers ever call the upstream Nest; they already use `fetch` (Next 16's caching extensions sit on top of native `fetch`); a generated SDK adds a third client style to learn for zero functional gain. (2) **Types-first matches the rest of the FE foundation.** Env validation is Zod-derived types; component variants are `cva` types; both are TS-first with zero generated runtime. `paths` is the natural extension — one `.d.ts` file imported wherever the contract is touched. (3) **MSW typing is solved by the same `paths` symbol.** Hand-written handlers in `mocks/handlers.ts` type their resolver returns off `paths["/videos"]["get"]["responses"][200]`, giving the contract guarantee without orval/kubb's verbose generated handlers (which would be overridden per-test anyway). The marginal cost of adding `openapi-fetch` (~6KB, server-side only) is small enough that we recommend the **types + thin-client** pair, not types alone — `openapi-fetch` removes the `fetch(API_URL + path, { method, headers, body })` boilerplate in each Route Handler while staying within the BFF model. Options B/C/D may be revisited if (a) client-side data-fetching enters the stack with TanStack Query and per-endpoint hooks are wanted, or (b) the API grows beyond ~20 operations and per-call boilerplate becomes painful.
 **Libraries:** openapi-typescript, openapi-fetch
 
 ### next-frontend-openapi-typing/TD-02
-
-**Recommendation:** Three reasons. (1) **Preserves the compose-stack independence** that `next-frontend-config-base/TD-03` Context calls out as the current architecture — neither subproject's compose file references the other. (2) **Drift is eliminated structurally when paired with TD-03's CI freshness check** — the check runs the sync script and asserts no diff on either `openapi.json` or `types.gen.ts`, so a backend PR that forgets to re-sync fails CI with a clear message. (3) **The committed local file is a real artifact in PR review** — reviewers see the contract change in `next-frontend/openapi.json`'s diff at the same time as the backend change, doubling the visibility (an `openapi.json`-only diff in a feature PR is a red flag for accidental drift). Option A is acceptable as a pre-CI fallback; Option C is rejected because the cross-stack file dependency in `docker-compose.yaml` introduces coupling that the current architecture explicitly avoids, and the "no drift" gain over B is small once TD-03 lands.
+**Recommendation:** **Option B (committed local copy + repo-root sync script)**. Three reasons. (1) **Preserves the compose-stack independence** that `next-frontend-config-base/TD-03` Context calls out as the current architecture — neither subproject's compose file references the other. (2) **Drift is eliminated structurally when paired with TD-03's CI freshness check** — the check runs the sync script and asserts no diff on either `openapi.json` or `types.gen.ts`, so a backend PR that forgets to re-sync fails CI with a clear message. (3) **The committed local file is a real artifact in PR review** — reviewers see the contract change in `next-frontend/openapi.json`'s diff at the same time as the backend change, doubling the visibility (an `openapi.json`-only diff in a feature PR is a red flag for accidental drift). Option A is acceptable as a pre-CI fallback; Option C is rejected because the cross-stack file dependency in `docker-compose.yaml` introduces coupling that the current architecture explicitly avoids, and the "no drift" gain over B is small once TD-03 lands.
 **Libraries:** —
 
 ### next-frontend-openapi-typing/TD-03
-
-**Recommendation:** It is the only option that makes contract drift _both_ visible (in PR diffs) _and_ impossible to merge accidentally (CI fail). The complexity premium over Option A is one CI step. Option B's "no committed artifacts" purity is poorly paid for in a monorepo where the cross-subproject build coupling becomes a real ergonomic cost, and it wastes the PR visibility that TD-02 Option B's committed `openapi.json` is specifically designed to deliver. Option A is acceptable as a temporary state until the CI pipeline lands; downgrading from C to A is reversible (just remove the CI step) but upgrading to C later requires explaining `types.gen.ts` history in a separate commit. Start at C. Apply the same script-and-check pattern to any future generated artifact (e.g., if `openapi-fetch` is wrapped, the wrapper file is hand-written; the only generated artifact remains `types.gen.ts`).
+**Recommendation:** **Option C (committed + CI freshness check)**. It is the only option that makes contract drift _both_ visible (in PR diffs) _and_ impossible to merge accidentally (CI fail). The complexity premium over Option A is one CI step. Option B's "no committed artifacts" purity is poorly paid for in a monorepo where the cross-subproject build coupling becomes a real ergonomic cost, and it wastes the PR visibility that TD-02 Option B's committed `openapi.json` is specifically designed to deliver. Option A is acceptable as a temporary state until the CI pipeline lands; downgrading from C to A is reversible (just remove the CI step) but upgrading to C later requires explaining `types.gen.ts` history in a separate commit. Start at C. Apply the same script-and-check pattern to any future generated artifact (e.g., if `openapi-fetch` is wrapped, the wrapper file is hand-written; the only generated artifact remains `types.gen.ts`).
 **Libraries:** —
 
 ### next-frontend-openapi-typing/TD-04
-
-**Recommendation:** It is the only option that (i) handles pass-through and reshape with the same mechanism, (ii) gives a single grep target for "what shape does the BFF expose", and (iii) decouples Component imports from App Router file paths (Components import `from "@/lib/api/contracts"`, not `from "@/app/api/videos/route"`). Option B is theoretically minimal but fragile against Next's actual RSC/Client/Route-Handler typing; Option C scatters the contract surface and creates drift opportunities. The "long file" concern is bounded — for the scope of StreamTube, the BFF will likely have <30 contract aliases at peak; sectioning by feature header comments is sufficient. Make `lib/api/contracts.ts` the only file that imports `paths` from `types.gen.ts` (lintable later); every other consumer imports from `contracts.ts`.
+**Recommendation:** **Option A (single `lib/api/contracts.ts` with explicit aliases)**. It is the only option that (i) handles pass-through and reshape with the same mechanism, (ii) gives a single grep target for "what shape does the BFF expose", and (iii) decouples Component imports from App Router file paths (Components import `from "@/lib/api/contracts"`, not `from "@/app/api/videos/route"`). Option B is theoretically minimal but fragile against Next's actual RSC/Client/Route-Handler typing; Option C scatters the contract surface and creates drift opportunities. The "long file" concern is bounded — for the scope of StreamTube, the BFF will likely have <30 contract aliases at peak; sectioning by feature header comments is sufficient. Make `lib/api/contracts.ts` the only file that imports `paths` from `types.gen.ts` (lintable later); every other consumer imports from `contracts.ts`.
 **Libraries:** —
 
 ### next-frontend-openapi-typing/TD-05
-
-**Recommendation:** Reasons: (1) **Determinism over auto-generation** — BFF integration tests assert on specific values; randomized fixtures are anti-helpful. (2) **Coherence with TD-01 recommendation** — `openapi-typescript`'s `paths` type is the single contract anchor; reusing it in MSW handlers means "spec ↔ handler ↔ assertion" is one type chain. (3) **Scale fit** — Phase 02 introduces few endpoints; the manual cost is negligible at this stage. If the API grows to dozens of endpoints and authoring overhead becomes real, this TD can be superseded with a Kubb-or-hey-api MSW plugin without touching TD-01's `paths` import sites (the generator just produces additional handler files; the existing manual handlers stay valid). Option B locks the project into a heavier TD-01 choice for marginal mock-authoring savings; Option C is Option A with an unnecessary detour.
+**Recommendation:** **Option A (hand-written, typed via `paths`)**. Reasons: (1) **Determinism over auto-generation** — BFF integration tests assert on specific values; randomized fixtures are anti-helpful. (2) **Coherence with TD-01 recommendation** — `openapi-typescript`'s `paths` type is the single contract anchor; reusing it in MSW handlers means "spec ↔ handler ↔ assertion" is one type chain. (3) **Scale fit** — Phase 02 introduces few endpoints; the manual cost is negligible at this stage. If the API grows to dozens of endpoints and authoring overhead becomes real, this TD can be superseded with a Kubb-or-hey-api MSW plugin without touching TD-01's `paths` import sites (the generator just produces additional handler files; the existing manual handlers stay valid). Option B locks the project into a heavier TD-01 choice for marginal mock-authoring savings; Option C is Option A with an unnecessary detour.
 **Libraries:** —
 
 ### next-frontend-msw-foundation/TD-01
+**Recommendation:** **Option B (per-domain modules + barrel)**. Three reasons. (1) **MSW's own best-practice recommends it** — the project should not invent its own scheme when the official one is documented and matches the codebase's domain orientation. (2) **Domain ownership tracks the codebase**, not the project plan — `components/`, `app/api/`, and any future feature folders will be organized by domain (auth, videos, channels), so handler files mirror that vocabulary and remain stable as phases come and go. (3) **Append-only growth with minimal merge conflicts** — each phase touches a new file plus one line in the barrel, which is the smallest practical concurrent-PR footprint. Option A is acceptable through Phase 02 alone (~5–7 endpoints) but accumulates costs that B avoids from day one; bootstrapping directly into B costs one extra file and one barrel and pays off by Phase 03. Option C's phase coupling is rejected outright — domain-by-phase is a category error.
 
-**Recommendation:** Three reasons. (1) **MSW's own best-practice recommends it** — the project should not invent its own scheme when the official one is documented and matches the codebase's domain orientation. (2) **Domain ownership tracks the codebase**, not the project plan — `components/`, `app/api/`, and any future feature folders will be organized by domain (auth, videos, channels), so handler files mirror that vocabulary and remain stable as phases come and go. (3) **Append-only growth with minimal merge conflicts** — each phase touches a new file plus one line in the barrel, which is the smallest practical concurrent-PR footprint. Option A is acceptable through Phase 02 alone (~5–7 endpoints) but accumulates costs that B avoids from day one; bootstrapping directly into B costs one extra file and one barrel and pays off by Phase 03. Option C's phase coupling is rejected outright — domain-by-phase is a category error. > **File naming inside each domain module.** Inside `handlers/<domain>.ts`, group handlers by **HTTP method + path** rather than by test scenario — a single handler is the happy-path default; per-test error/edge scenarios are added via `server.use(...)` in the test file, never as additional handlers in the domain file. This keeps the domain file small and stable (one handler per `paths` entry, not one handler per assertion case).
+> **File naming inside each domain module.** Inside `handlers/<domain>.ts`, group handlers by **HTTP method + path** rather than by test scenario — a single handler is the happy-path default; per-test error/edge scenarios are added via `server.use(...)` in the test file, never as additional handlers in the domain file. This keeps the domain file small and stable (one handler per `paths` entry, not one handler per assertion case).
 **Libraries:** —
 
 ### next-frontend-msw-foundation/TD-02
+**Recommendation:** **Option A (test-only, `setupServer` only at the foundation)**. The browser worker is a future capability with no documented current consumer; wiring it now (Option B) is speculative investment, and wiring it incoherently (Option C) actively misleads developers into thinking interception works when it doesn't under strict BFF. Option A keeps the foundation minimal, aligns 1:1 with everything CLAUDE.md and the existing rules currently document, and is non-breaking to extend.
 
-**Recommendation:** The browser worker is a future capability with no documented current consumer; wiring it now (Option B) is speculative investment, and wiring it incoherently (Option C) actively misleads developers into thinking interception works when it doesn't under strict BFF. Option A keeps the foundation minimal, aligns 1:1 with everything CLAUDE.md and the existing rules currently document, and is non-breaking to extend. **When Option A should be revisited** — the trigger for re-opening this TD with a Supersede toward Option B-style wiring: - A dedicated capability appears in `docs/project-plan.md` or a phase plan that requires FE-offline dev (e.g., Storybook with mocked API responses; design-system playground that renders real-data states; FE-team-only sprints with the BE stack down). - The number of BFF Route Handlers grows past the point where running the full stack just to dev a single FE page is the dominant pain. Under Option A, when that day comes, the path to Option B is additive: `npx msw init public/` to generate the SW file, create `mocks/browser.ts`, create `mocks/handlers/bff/` mirroring the upstream tree, register the worker behind a `NEXT_PUBLIC_MSW` flag. The existing `handlers/<domain>.ts` files (upstream-targeted) keep working unchanged. > **Directory naming under Option A.** Do not preemptively name handler files `upstream/auth.ts` to "leave room for Option B later" — that's premature complexity. Use the flat `handlers/auth.ts` per TD-01 today; if Option B is ever taken, the migration is "move `handlers/*.ts` into `handlers/upstream/` and add a sibling `handlers/bff/`" — a one-commit refactor with no test changes (the barrel keeps the same import surface to `mocks/server.ts`).
+**When Option A should be revisited** — the trigger for re-opening this TD with a Supersede toward Option B-style wiring:
+
+- A dedicated capability appears in `docs/project-plan.md` or a phase plan that requires FE-offline dev (e.g., Storybook with mocked API responses; design-system playground that renders real-data states; FE-team-only sprints with the BE stack down).
+- The number of BFF Route Handlers grows past the point where running the full stack just to dev a single FE page is the dominant pain.
+
+Under Option A, when that day comes, the path to Option B is additive: `npx msw init public/` to generate the SW file, create `mocks/browser.ts`, create `mocks/handlers/bff/` mirroring the upstream tree, register the worker behind a `NEXT_PUBLIC_MSW` flag. The existing `handlers/<domain>.ts` files (upstream-targeted) keep working unchanged.
+
+> **Directory naming under Option A.** Do not preemptively name handler files `upstream/auth.ts` to "leave room for Option B later" — that's premature complexity. Use the flat `handlers/auth.ts` per TD-01 today; if Option B is ever taken, the migration is "move `handlers/*.ts` into `handlers/upstream/` and add a sibling `handlers/bff/`" — a one-commit refactor with no test changes (the barrel keeps the same import surface to `mocks/server.ts`).
 **Libraries:** —
 
 ### next-frontend-msw-foundation/TD-03
+**Recommendation:** **Option D (hand-written defaults as the default + opt-in seeded faker for bulk collections)**. Reasons: (1) **Option B's determinism + readability is the right baseline** — every fixture in Phase 02 (5–7 endpoints, single-record-mostly) is naturally hand-written, and the diff-revealing override pattern is the highest-value benefit. (2) **Bulk-collection cases will arrive (Phase 07 home page grid, Phase 06 comment threads) and inline hand-written lists of 20+ items are genuinely tedious** — keeping faker available as a scoped tool is pragmatic. (3) **Per-fixture local seeding eliminates the global-cursor pitfall** that makes Option C structurally fragile — using `faker.seed(N)` immediately before a collection-builder run scopes the determinism to that fixture and isolates it from upstream changes to other factories.
 
-**Recommendation:** Reasons: (1) **Option B's determinism + readability is the right baseline** — every fixture in Phase 02 (5–7 endpoints, single-record-mostly) is naturally hand-written, and the diff-revealing override pattern is the highest-value benefit. (2) **Bulk-collection cases will arrive (Phase 07 home page grid, Phase 06 comment threads) and inline hand-written lists of 20+ items are genuinely tedious** — keeping faker available as a scoped tool is pragmatic. (3) **Per-fixture local seeding eliminates the global-cursor pitfall** that makes Option C structurally fragile — using `faker.seed(N)` immediately before a collection-builder run scopes the determinism to that fixture and isolates it from upstream changes to other factories. Concrete pattern for D: ```ts // mocks/factories/videos.ts (Option B style — default case) const baseVideo: Video = { id: "video-1", title: "First video", durationSec: 120, /* ... */ }; export const buildVideo = (overrides: Partial<Video> = {}): Video => ({ ...baseVideo, ...overrides }); // Opt-in faker for a bulk-list scenario only: import { faker } from "@faker-js/faker"; export const buildVideoList = (n: number, seed = 42): Video[] => { faker.seed(seed); // local — does not affect any other factory return Array.from({ length: n }, (_, i) => buildVideo({ id: `video-${i + 1}`, title: faker.lorem.sentence(4), durationSec: faker.number.int({ min: 60, max: 3600 }) })); }; ``` If the project never reaches a real bulk-collection use case, faker is simply never installed — Option D collapses into Option B in practice, with zero retroactive cost. Add `@faker-js/faker` to `devDependencies` only when the first `buildXList` is authored.
+Concrete pattern for D:
+
+```ts
+// mocks/factories/videos.ts  (Option B style — default case)
+const baseVideo: Video = { id: "video-1", title: "First video", durationSec: 120, /* ... */ };
+export const buildVideo = (overrides: Partial<Video> = {}): Video => ({ ...baseVideo, ...overrides });
+
+// Opt-in faker for a bulk-list scenario only:
+import { faker } from "@faker-js/faker";
+export const buildVideoList = (n: number, seed = 42): Video[] => {
+  faker.seed(seed); // local — does not affect any other factory
+  return Array.from({ length: n }, (_, i) =>
+    buildVideo({ id: `video-${i + 1}`, title: faker.lorem.sentence(4), durationSec: faker.number.int({ min: 60, max: 3600 }) }));
+};
+```
+
+If the project never reaches a real bulk-collection use case, faker is simply never installed — Option D collapses into Option B in practice, with zero retroactive cost. Add `@faker-js/faker` to `devDependencies` only when the first `buildXList` is authored.
 **Libraries:** —
 
 ### next-frontend-msw-foundation/TD-04
+**Recommendation:** **Option A (universal handler set + `server.use(...)` overrides + `onUnhandledRequest: "error"`)**. The user's "import only what it needs" requirement is satisfied at the *authoring* layer by TD-01 (per-domain files; each phase adds one file). At the *runtime* layer, loading all handlers is the canonical MSW v2 model and imposes no cost on tests that don't fetch the extra URLs. `onUnhandledRequest: "error"` enforces that a phase's test cannot accidentally invoke a route outside its scope (the fetch fails loudly with "no handler matched"), which is the strongest version of "stays inside its phase" available. Option B's per-suite composition pays real boilerplate cost for an explicitness gain that TD-01 already provides at a different layer. Option C invents a Vitest-projects-shaped problem for a phase-shaped concern.
 
-**Recommendation:** The user's "import only what it needs" requirement is satisfied at the *authoring* layer by TD-01 (per-domain files; each phase adds one file). At the *runtime* layer, loading all handlers is the canonical MSW v2 model and imposes no cost on tests that don't fetch the extra URLs. `onUnhandledRequest: "error"` enforces that a phase's test cannot accidentally invoke a route outside its scope (the fetch fails loudly with "no handler matched"), which is the strongest version of "stays inside its phase" available. Option B's per-suite composition pays real boilerplate cost for an explicitness gain that TD-01 already provides at a different layer. Option C invents a Vitest-projects-shaped problem for a phase-shaped concern. Concrete wiring (foundation SI under this option): ```ts // next-frontend/vitest.config.ts (relevant excerpt) export default defineConfig({ test: { environment: "node", // BFF integration tests are Node-side setupFiles: ["./mocks/setup.ts"], }, }); ``` ```ts // next-frontend/mocks/setup.ts import { afterAll, afterEach, beforeAll } from "vitest"; import { server } from "./server"; beforeAll(() => server.listen({ onUnhandledRequest: "error" })); afterEach(() => server.resetHandlers()); afterAll(() => server.close()); ``` Phase 02+ tests need no additional setup — they `import { POST } from "@/app/api/auth/signup/route"`, build a `Request`, await the handler, and assert. Per-test deviations call `server.use(...)` inline.
+Concrete wiring (foundation SI under this option):
+
+```ts
+// next-frontend/vitest.config.ts (relevant excerpt)
+export default defineConfig({
+  test: {
+    environment: "node", // BFF integration tests are Node-side
+    setupFiles: ["./mocks/setup.ts"],
+  },
+});
+```
+
+```ts
+// next-frontend/mocks/setup.ts
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "./server";
+
+beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+Phase 02+ tests need no additional setup — they `import { POST } from "@/app/api/auth/signup/route"`, build a `Request`, await the handler, and assert. Per-test deviations call `server.use(...)` inline.
 **Libraries:** —
 
 ## Inherited Conventions
 
 - Backend config uses `@nestjs/config` with namespaced `registerAs(name, () => ({...}))` factories — one file per domain in `src/config/`. _(from phase 01)_
-- Env variables are validated by a Joi schema in `src/config/env.validation.ts`, passed to `ConfigModule.forRoot({ validationSchema, validationOptions: { allowUnknown: true, abortEarly: false } })`. _(from phase 01)_
-- Config is injected into modules via `ConfigType<typeof xxxConfig>` and `@Inject(xxxConfig.KEY)`; the same factory is importable as a plain function for non-DI contexts (e.g., TypeORM CLI). _(from phase 01)_
+- Env variables are validated by a Joi schema in `src/config/env.validation.ts`, passed to `ConfigModule.forRoot({ validationSchema, validationOptions:... _(from phase 01)_
+- Config is injected into modules via `ConfigType<typeof xxxConfig>` and `@Inject(xxxConfig.KEY)`; the same factory is importable as a plain function fo... _(from phase 01)_
 - `data-source.ts` loads `.env` via `import 'dotenv/config'` at the top, then imports `databaseConfig` and calls it as a plain function. _(from phase 01)_
-- Database connection parameters (host, port, etc.) are sourced from a single `databaseConfig` factory — never duplicated between `AppModule` and `data-source.ts`. _(from phase 01)_
-- `TypeOrmModule.forRootAsync` is used (not `forRoot`), with `imports: [ConfigModule]`, `inject: [databaseConfig.KEY]`, `useFactory` returning options including `autoLoadEntities: true`, `synchronize: false`. _(from phase 01)_
+- Database connection parameters (host, port, etc.) are sourced from a single `databaseConfig` factory — never duplicated between `AppModule` and `data-... _(from phase 01)_
+- `TypeOrmModule.forRootAsync` is used (not `forRoot`), with `imports: [ConfigModule]`, `inject: [databaseConfig.KEY]`, `useFactory` returning options i... _(from phase 01)_
 
-_As fases 02 (ambas as slices), 03, 04 e 05 não acrescentam bullet: repetem verbatim o conjunto acima, deduplicado aqui preservando a fase de origem. `phase-02-auth-frontend/context.md` declara explicitamente `_No inherited conventions from prior phases._`_
+_As Fases 03, 04 e 05 repetem os mesmos seis bullets de configuração (deduplicados por string-match, origem preservada na Fase 01); nenhuma convenção nova foi introduzida por elas. Nenhum doc de fase (`phase-NN-*.md`) tem seção `## Conventions to Match` — todas as convenções vieram do `## Inherited Conventions` de cada `context.md`._
 
 ## Inherited Deferred Capabilities
 
@@ -503,13 +575,69 @@ _As fases 02 (ambas as slices), 03, 04 e 05 não acrescentam bullet: repetem ver
 | "Confirmação de conta via e-mail com link de ativação" | deferred | phase-02-auth-frontend | deferred_to_next_phase — UI landing screen de-scoped 2026-05-14; FE confirmation flow (TD-07) picked up by a future phase. BE side unchanged in `phase-02-auth`. |
 | "Logout" | deferred | phase-02-auth-frontend | deferred_to_next_phase — logout button lives inside authenticated chrome (typically Phase 04). Phase 02 still implements POST `/api/auth/logout` (BFF route handler + `session.destroy()`) so the contract is ready when the chrome lands. |
 | "Recuperação de senha (destination screen / set-new-password)" | deferred | phase-02-auth-frontend | deferred_to_next_phase — `/forgot-password` ships this phase sending the e-mail; the reset-password destination screen is absent from Figma → link destination remains a 404 until a later phase delivers the screen via `/screen-inventory` extension run. Documented as a known gap. |
-| "Telas de cadastro, login, confirmação de conta e recuperação de senha" | deferred | phase-02-auth-frontend | a tela de confirmação da conta não será implementada nesta fase corrente, será adiada — the umbrella bullet's full coverage requires the confirmação and reset-password screens; both deferred per the rows above. The 3 ship-this-phase telas (signup, login, forgot-password) are inventoried and covered by their own verbs. |
+| "Telas de cadastro, login, confirmação de conta e recuperação de senha" | deferred | phase-02-auth-frontend | a tela de confirmação da conta não será implementada nesta fase corrente, será adiada — the umbrella bullet's full coverage requires the confirmação and reset-password destination screens; both are deferred per Non-UI rows above. The 3 ship-this-phase telas (signup, login, forgot-password) are inventoried and covered by their own verbs; the umbrella bullet itself is deferred to the phase that lands the missing screens. |
 
-_As fases 03, 04 e 05 não contribuem linhas deferidas (a 03 tem só o placeholder de montagem vazia; 04 e 05 registram `_None._`)._
+_As Fases 03, 04 e 05 têm `## Non-UI / Deferred Capabilities` vazia ou `_None._`, então não contribuem linhas._
 
 ## UI Inventory
 
-_No screen inventory — UI↔API sync deferred. Run /screen-inventory 06 and then rerun /plan-context social-interactions to activate UI checks._
+**Source:** `docs/inventories/screen-inventory-phase-06-social-interactions.md`
+**Screens in scope:** 3
+
+### UI ↔ Capability Join
+
+| Screen | Route | Verb | Capability | Covering Component |
+|--------|-------|------|------------|-------------------|
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Inscrever-se no canal do vídeo e cancelar a inscrição a partir da própria página de assistir | "Inscrição em canais (seguir/deixar de seguir)" | SubscribeButton |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário no vídeo, exibindo a contagem resultante | "Like e dislike em vídeos (usuários autenticados)" | LikeButton |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário no vídeo, sem exibir contagem | "Like e dislike em vídeos (usuários autenticados)" | DislikeButton |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Exibir os comentários do vídeo com as respostas pré-carregadas, dos mais recentes para os mais antigos | "Interface completa de comentários, likes e inscrições" | CommentsSection |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar a próxima página de comentários-raiz | "Interface completa de comentários, likes e inscrições" | CommentsLoadMore |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Publicar um novo comentário no vídeo | "Comentários em vídeos (usuários autenticados)" | NewCommentForm |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar as respostas restantes de uma thread, além das pré-carregadas | "Respostas a comentários (comentários aninhados)" | RepliesLoadMore |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentLikeButton |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentDislikeButton |
+| Área de canais seguidos | /channel/subscriptions | Listar os canais que o usuário segue, com acesso rápido à página de cada um | "Área de canais seguidos com acesso rápido aos vídeos" | channel-list |
+| Área de canais seguidos | /channel/subscriptions | Exibir a contagem de inscritos de cada canal seguido | "Área de canais seguidos com acesso rápido aos vídeos" | channel-row |
+| Área de canais seguidos | /channel/subscriptions | Deixar de seguir um canal a partir da lista | "Inscrição em canais (seguir/deixar de seguir)" | SubscriptionToggleButton em channel-row |
+| Página pública do canal | /@{nickname} | Exibir informações públicas do canal (nome, nickname, avatar e total de vídeos) | — (coberta na Fase 04: "Página pública do canal com informações e listagem de vídeos") | ChannelHeader (59:16) |
+| Página pública do canal | /@{nickname} | Exibir lista paginada de vídeos publicados e públicos do canal | — (coberta na Fase 04: "Página pública do canal com informações e listagem de vídeos") | VideoCard (59:88) |
+| Página pública do canal | /@{nickname} | Exibir a contagem de inscritos do canal | "Contagem de inscritos na página do canal" | ChannelHeader (59:16), renderizada dentro de ChannelMeta (59:86) |
+| Página pública do canal | /@{nickname} | Inscrever-se no canal e cancelar a inscrição | "Inscrição em canais (seguir/deixar de seguir)" | SubscribeButton (79:82) |
+
+### Server-connected Components
+
+- `VideoWatchPage` (Página de visualização do vídeo — interações sociais) — `Reuse?: app/videos/[publicId]/page.tsx`
+- `VideoPlayer` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-player.tsx`
+- `SubscribeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `LikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `DislikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentsSection` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `NewCommentForm` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentLikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentDislikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `RepliesLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentsLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `VideoCard` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-card.tsx`
+- `SidebarLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/sidebar-load-more.tsx`
+- `channel-list` (Área de canais seguidos) — `Reuse?: new`
+- `channel-row` (Área de canais seguidos) — `Reuse?: new`
+- `SubscriptionToggleButton` (Área de canais seguidos) — `Reuse?: new`
+- `ChannelHeader` (Página pública do canal) — `Reuse?: components/channels/channel-header.tsx`
+- `SubscribeButton` (Página pública do canal) — `Reuse?: new`
+- `VideoCard` (Página pública do canal) — `Reuse?: components/videos/video-card.tsx`
+
+### Open Questions from Inventory
+
+- **O compositor de resposta não existe no desenho.** O controle "Responder" aparece na raiz e em cada resposta das duas threads, mas nenhuma frame da Fase 06 desenha o campo de resposta aberto. Decidido que o `ReplyButton` é Local-interactive e que um `ReplyForm` à parte publica — mas esse componente não está em nenhum frame, então não foi inventariado. **"Respostas a comentários (comentários aninhados)" fica coberta só pelo lado de leitura.** Desenhar o estado e rodar uma extension run, ou decidir por argumento no `/plan-resolve` que o `ReplyForm` é o `NewCommentForm` reusado com `parent_id`.
+- **Quatro estados sem desenho na watch page:** lista de comentários vazia (zero comentários), erro de envio do comentário, comentário em trânsito (o estado pendente do `useOptimistic` de `social-interactions/TD-08`) e o `SubscribeButton` no estado "Inscrito" — o botão só existe como "Inscrever-se" nas duas telas onde aparece.
+- **Estado vazio da área de canais seguidos sem desenho.** A frame mostra só o estado povoado (3 canais); não há desenho para "o usuário não segue nenhum canal", nem para carregamento ou erro da lista.
+- **A variante anônima dos controles novos não foi desenhada.** `anonymous-gate/TD-01` decidiu que os controles de ação renderizam para o anônimo e o clique leva ao login. A `59:2` mostra isso para o `SubscribeButton`, mas a watch page da Fase 06 (`77:64`) é só o estado autenticado — como `LikeButton`, `DislikeButton`, `NewCommentForm` e os controles de comentário aparecem para o visitante anônimo terá de ser derivado por argumento, não observado.
+- **A contagem de inscritos tem duas formas de render entre telas.** Na watch page ela ganhou arquivo próprio (`components/channels/subscriber-count.tsx (new)`, nó `77:118`) porque precisa acompanhar o valor otimista do `SubscribeButton`; na página de canal ela é texto corrido dentro de `ChannelMeta` (`59:86`, `Reuse? = new`). O mesmo número, dois tratamentos. Decidir no `/plan-resolve` se a página de canal passa a usar o mesmo componente — se sim, a linha de `ChannelMeta` muda de forma 3 para forma 2.
+- **A capability "Área de canais seguidos com acesso rápido aos vídeos" fala em vídeos; o `TD-07` entrega canais.** O `TD-07` decidiu (opção A) que a área é uma **lista de canais com link para a página pública de cada um**, não um feed de vídeos — então o "acesso rápido aos vídeos" é indireto, em dois cliques. O verbo foi mapeado para essa bullet por ser a única candidata, mas a divergência entre o texto do plano e a decisão é real e cabe ao `plan-validate` julgar.
+- **`75:62` não tem harvest completo.** O frame foi criado por script e a colheita truncou antes de terminar o nó, então o cache traz um `known_child_ids` parcial em vez de árvore. Duas linhas do inventário (`Avatar` dentro de `channel-row`, `SubscriptionToggleButton`) estão **sem node id**, e o `/implement` precisa de id para mirar o `figma-implement-design`. Uma colheita completa desse nó resolve — uma chamada.
+- **Três nós da watch page ficaram no limite de profundidade.** `comment-root` (`77:137`, `77:176`) e `reply-list` (`77:149`) foram colhidos a `maxDepth` 6 e vieram sem filhos; toda a sub-estrutura de comentário (avatar, autor, corpo, as três ações e o item de resposta) foi lida do screenshot e está **sem node id**. Mesma consequência para o `/implement`. Uma colheita com `maxDepth` maior cobrindo esses três nós — e o `75:62` acima — resolve tudo em **uma** chamada.
+- **`/channel/subscriptions` ainda não existe no repositório.** As irmãs do grupo autenticado (`/channel/videos`, `/channel/settings`) vivem em `next-frontend/app/(studio)/`, que é onde esta rota deve nascer. A implementação desta tela também **altera** `components/layout/site-navbar.tsx`, porque o ponto de entrada de navegação exigido pelo `TD-07` é um `<Link>` inline ali.
 
 ## Non-UI / Deferred Capabilities
 
@@ -522,18 +650,18 @@ _None._
 | Artifact type | Required layers |
 |---------------|-----------------|
 | Entity (`*.entity.ts`) | Integration: constraints, defaults, `select: false` |
-| Service with branching + DB | Unit: lógica de ramificação (repo mockado) + Integration: contrato de banco |
-| Service com DB e sem ramificação | Integration: contrato de banco |
-| Service com lib configurada (JWT, cache) | Unit: instância real com config de teste |
-| Service com dependência de efeito colateral (email, storage) | Integration: serviço de captura real (Mailpit) ou adaptador local |
-| Module com imports configurados | Unit: teste de compilação |
-| Controller | E2E apenas — **não** escrever teste unitário |
-| DTO | E2E: um teste de wiring de validação por endpoint |
-| Guard que delega lógica a service | E2E + Unit quando houver lógica interna complexa |
-| Guard simples (delega ao Passport) | E2E apenas |
+| Service with branching + DB | Unit: branch logic (mock repo) + Integration: DB contract |
+| Service with DB only (no branching) | Integration: DB contract |
+| Service with configured lib (JWT, cache) | Unit: real lib with test config |
+| Service with side-effect dep (email, storage) | Integration: real capture service (Mailpit) or local adapter |
+| Module with configured imports | Unit: compilation test |
+| Controller | E2E only — do NOT write unit tests |
+| DTO | E2E: one validation wiring test per endpoint |
+| Guard (delegates to service for business logic) | E2E + Unit if complex internal logic |
+| Guard (simple, delegates to Passport) | E2E only |
 | Strategy (Passport) | E2E via guard |
-| Pipe (transformação/validação customizada) | Unit |
-| Interceptor | Unit e/ou E2E |
+| Pipe (custom transformation/validation) | Unit |
+| Interceptor (response transform, logging) | Unit and/or E2E |
 | Exception Filter | Unit + E2E |
 | Middleware | E2E |
 
@@ -541,15 +669,17 @@ _None._
 
 | Artifact type | Required layers |
 |---------------|-----------------|
-| Page — RSC síncrono, estático, sem lógica | Nenhum no nível de componente; cobrir por E2E só se for fluxo crítico |
-| Page — RSC síncrono compondo filhos client | Testar os filhos client diretamente; a página renderizada via E2E |
-| Page — RSC assíncrono (`async function Page()`) | E2E apenas — o Vitest não renderiza |
-| Layout (`layout.tsx`) | Nenhum, a menos que acrescente lógica; então E2E |
-| Client component (`"use client"`) com estado/handlers | `*.test.tsx` — RTL + docblock jsdom, mock de `next/navigation`, MSW para fetch |
-| Feature component (server, compõe primitivos) | Pular unit; cobrir pelo E2E da página |
-| Primitivo shadcn (`components/ui/*`) | Nenhum — confiar na biblioteca; cobrir via consumidores |
-| Ícone (`components/icons/*`) | Nenhum |
-| Utilitário em `lib/` com ramificação | `*.test.ts` |
-| Hook customizado (`hooks/*`) | `*.test.ts(x)` com `renderHook`, docblock jsdom |
-| Route handler (`app/api/**/route.ts`) | `*.integration.test.ts` com MSW (+ `*.test.ts` para lógica pura extraída) |
-| Server action / middleware / error-loading-not-found / metadata | Ver `artifacts/future-types.md` do guia |
+| **Page** — sync RSC, static, no logic | None at component level; cover only if part of a critical flow → `*.e2e-spec.ts` |
+| **Page** — sync RSC composing client children | Test client children directly; cover rendered page via `*.e2e-spec.ts` |
+| **Page** — async RSC (`async function Page()` with `await`) | `*.e2e-spec.ts` only — Vitest cannot render it |
+| **Layout** (`layout.tsx`) | None unless it adds logic (auth gate, conditional render); else via E2E |
+| **Client component** (`"use client"`) with state/handlers | `*.test.tsx` — RTL + `jsdom` docblock, mock `next/navigation`, MSW for fetch |
+| **Feature component** (server, composes primitives) | Skip unit; cover via the page's E2E |
+| **shadcn UI primitive** (`components/ui/*`) | None — trust the library; cover via consumers |
+| **Icon** (`components/icons/*`) | None |
+| **`lib/` utility / boundary module** with branching or shape assumptions | `*.test.ts` |
+| **Custom hook** (`hooks/*`) | `*.test.ts(x)` with `renderHook`, `jsdom` docblock |
+| **Route handler** (`app/api/**/route.ts`) — proxy or with branching | `*.integration.test.ts` with MSW (+ `*.test.ts` for extracted pure logic) |
+| **Server action / middleware / error-loading-not-found / metadata** | See `artifacts/future-types.md` — depends on type |
+
+_Nota do guia do `next-frontend`: o Playwright ainda não está instalado (sem `@playwright/test`, sem `playwright.config.ts`, sem script `test:e2e`). As receitas de E2E acima são contrato vinculante; a primeira fase que precisar de teste de browser dispara a instalação. Esta fase tem muitos componentes de cliente novos com estado — a faixa `*.test.tsx` cobre a maioria deles sem depender disso._
