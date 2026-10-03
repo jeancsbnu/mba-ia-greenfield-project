@@ -1,0 +1,1195 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "59:2",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=59-2",
+    "fetched_at": "2026-10-03T00:00:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 5,
+    "note": "Desenhada na Fase 04 (rota /@{nickname}) e ESTENDIDA na Fase 06 com subscribe-button (79:82) e a contagem de inscritos dentro de channel-meta (59:86), por TD-06. A navbar exibe 'Entrar' de proposito: pagina publica, e o controle 'Inscrever-se' renderiza para o anonimo (anonymous-gate/TD-01). ARMADILHA: 59:15 reporta layoutMode VERTICAL mas seus 14 filhos sao TODOS layoutPositioning ABSOLUTE com x/y proprios -- ler layoutMode nao diz como um filho e posicionado ali. A posicao de 79:82 abaixo e a final (929,70), vinda da chamada de acerto; a colheita da arvore foi feita antes dela.",
+    "nao_confundir": "Houve um frame 77:190 'canal-publico' criado por engano em 2026-10-01 como se fosse tela nova desta rota. Era duplicata e foi REMOVIDO do arquivo em 2026-10-03. A tela da rota e esta, 59:2."
+  },
+  "id": "59:2",
+  "name": "pagina-publica-canal",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 1024
+  },
+  "pos": {
+    "x": 4804,
+    "y": 64
+  },
+  "fill": "#f8fafc",
+  "layout": {
+    "mode": "VERTICAL",
+    "gap": 0
+  },
+  "children": [
+    {
+      "id": "59:3",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "pos": {
+        "x": 0,
+        "y": 0
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      }
+    },
+    {
+      "id": "59:4",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 76
+      },
+      "pos": {
+        "x": 0,
+        "y": 32
+      },
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 0
+      },
+      "children": [
+        {
+          "id": "59:5",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "pos": {
+            "x": 48,
+            "y": 20
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "59:6",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "59:7",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "pos": {
+                    "x": 10,
+                    "y": 10
+                  },
+                  "layout": {
+                    "mode": "VERTICAL",
+                    "gap": 0
+                  },
+                  "children": [
+                    {
+                      "id": "59:8",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "pos": {
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "59:10",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "pos": {
+                "x": 48,
+                "y": 7
+              },
+              "characters": "EstúdioCriador",
+              "fontSize": 18,
+              "fontStyle": "Extra Bold",
+              "fill": "#1e293b"
+            }
+          ]
+        },
+        {
+          "id": "59:11",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": {
+            "w": 74,
+            "h": 33
+          },
+          "pos": {
+            "x": 978,
+            "y": 22
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 16
+          },
+          "children": [
+            {
+              "id": "59:13",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": {
+                "w": 74,
+                "h": 33
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              },
+              "fill": "#ffffff",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "59:14",
+                  "name": "Entrar",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 42,
+                    "h": 17
+                  },
+                  "pos": {
+                    "x": 16,
+                    "y": 8
+                  },
+                  "characters": "Entrar",
+                  "fontSize": 14,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#1e293b"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "59:15",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 660
+      },
+      "pos": {
+        "x": 0,
+        "y": 108
+      },
+      "fill": "#3f72af",
+      "layout": {
+        "mode": "VERTICAL",
+        "gap": 24
+      },
+      "children": [
+        {
+          "id": "59:16",
+          "name": "content-header",
+          "type": "FRAME",
+          "size": {
+            "w": 1004,
+            "h": 39
+          },
+          "pos": {
+            "x": 144,
+            "y": 54
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0
+          },
+          "children": [
+            {
+              "id": "59:17",
+              "name": "Joana Cria",
+              "type": "TEXT",
+              "size": {
+                "w": 169,
+                "h": 39
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              },
+              "characters": "Joana Cria",
+              "fontSize": 32,
+              "fontStyle": "Extra Bold",
+              "fill": "#1c2d37"
+            }
+          ],
+          "layoutPositioning": "ABSOLUTE"
+        },
+        {
+          "id": "59:80",
+          "name": "footer-pagination",
+          "type": "FRAME",
+          "size": {
+            "w": 1004,
+            "h": 32
+          },
+          "pos": {
+            "x": 48,
+            "y": 592
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0
+          },
+          "children": [
+            {
+              "id": "59:81",
+              "name": "pagination-dashed-box",
+              "type": "FRAME",
+              "size": {
+                "w": 174,
+                "h": 32
+              },
+              "pos": {
+                "x": 830,
+                "y": 0
+              },
+              "fill": "#3f72af",
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 16
+              },
+              "children": [
+                {
+                  "id": "59:82",
+                  "name": "Anterior",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 52,
+                    "h": 16
+                  },
+                  "pos": {
+                    "x": 16,
+                    "y": 8
+                  },
+                  "characters": "Anterior",
+                  "fontSize": 13,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#1e293b"
+                },
+                {
+                  "id": "59:83",
+                  "name": "1",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 7,
+                    "h": 16
+                  },
+                  "pos": {
+                    "x": 84,
+                    "y": 8
+                  },
+                  "characters": "1",
+                  "fontSize": 13,
+                  "fontStyle": "Bold",
+                  "fill": "#3f72af"
+                },
+                {
+                  "id": "59:84",
+                  "name": "Próxima",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 51,
+                    "h": 16
+                  },
+                  "pos": {
+                    "x": 107,
+                    "y": 8
+                  },
+                  "characters": "Próxima",
+                  "fontSize": 13,
+                  "fontStyle": "Semi Bold",
+                  "fill": "#1e293b"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "59:85",
+          "name": "channel-avatar",
+          "type": "FRAME",
+          "size": {
+            "w": 80,
+            "h": 80
+          },
+          "pos": {
+            "x": 48,
+            "y": 48
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0
+          },
+          "layoutPositioning": "ABSOLUTE"
+        },
+        {
+          "id": "59:86",
+          "name": "channel-meta",
+          "type": "TEXT",
+          "size": {
+            "w": 229,
+            "h": 15
+          },
+          "pos": {
+            "x": 144,
+            "y": 102
+          },
+          "characters": "@joana.cria · 1,2 mil inscritos · 42 vídeos",
+          "fontSize": 12,
+          "fontStyle": "Regular",
+          "fill": "#7a6e65",
+          "layoutPositioning": "ABSOLUTE"
+        },
+        {
+          "id": "59:87",
+          "name": "divider",
+          "type": "RECTANGLE",
+          "size": {
+            "w": 1004,
+            "h": 1
+          },
+          "pos": {
+            "x": 48,
+            "y": 148
+          },
+          "fill": "#e2e8f0",
+          "layoutPositioning": "ABSOLUTE"
+        },
+        {
+          "id": "59:94",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 48,
+            "y": 172
+          },
+          "children": [
+            {
+              "id": "I59:94;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:94;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:94;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 23,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "8:12",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:94;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Tour pelo estúdio — setup 2026",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:94;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "1,2 mil visualizações · há 2 semanas",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:100",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 305,
+            "y": 172
+          },
+          "children": [
+            {
+              "id": "I59:100;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:100;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:100;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 31,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "14:47",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:100;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Renderizando com FFmpeg — bastidores",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:100;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "312 visualizações · há 3 semanas",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:106",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 562,
+            "y": 172
+          },
+          "children": [
+            {
+              "id": "I59:106;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:106;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:106;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 26,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "5:30",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:106;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Como editar uma thumbnail personalizada",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:106;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "98 visualizações · há 1 mês",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:112",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 819,
+            "y": 172
+          },
+          "children": [
+            {
+              "id": "I59:112;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:112;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:112;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 33,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "28:40",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:112;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Q&A com a comunidade",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:112;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "640 visualizações · há 1 mês",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:118",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 48,
+            "y": 380
+          },
+          "children": [
+            {
+              "id": "I59:118;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:118;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:118;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 31,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "19:05",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:118;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Configurando o Docker do zero",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:118;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "2,4 mil visualizações · há 2 meses",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:124",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 305,
+            "y": 380
+          },
+          "children": [
+            {
+              "id": "I59:124;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:124;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:124;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 28,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "11:22",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:124;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Streaming com Range headers",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:124;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "187 visualizações · há 2 meses",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:130",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 562,
+            "y": 380
+          },
+          "children": [
+            {
+              "id": "I59:130;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:130;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:130;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 26,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "9:48",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:130;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Minha rotina de gravação",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:130;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "905 visualizações · há 3 meses",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "59:136",
+          "name": "video-card",
+          "type": "INSTANCE",
+          "size": {
+            "w": 233,
+            "h": 180
+          },
+          "pos": {
+            "x": 819,
+            "y": 380
+          },
+          "children": [
+            {
+              "id": "I59:136;59:89",
+              "name": "thumbnail",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 233,
+                "h": 131
+              },
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "id": "I59:136;59:90",
+              "name": "duration-badge",
+              "type": "RECTANGLE",
+              "size": {
+                "w": 40,
+                "h": 18
+              },
+              "pos": {
+                "x": 185,
+                "y": 105
+              },
+              "fill": "#0f0f0f"
+            },
+            {
+              "id": "I59:136;59:91",
+              "name": "duration-text",
+              "type": "TEXT",
+              "size": {
+                "w": 31,
+                "h": 13
+              },
+              "pos": {
+                "x": 194,
+                "y": 108
+              },
+              "characters": "16:30",
+              "fontSize": 11,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            },
+            {
+              "id": "I59:136;59:92",
+              "name": "title",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 18
+              },
+              "pos": {
+                "x": 0,
+                "y": 139
+              },
+              "characters": "Upload de 10 GB sem travar",
+              "fontSize": 15,
+              "fontStyle": "Bold",
+              "fill": "#1c2d37"
+            },
+            {
+              "id": "I59:136;59:93",
+              "name": "meta",
+              "type": "TEXT",
+              "size": {
+                "w": 233,
+                "h": 15
+              },
+              "pos": {
+                "x": 0,
+                "y": 161
+              },
+              "characters": "1,1 mil visualizações · há 4 meses",
+              "fontSize": 12,
+              "fontStyle": "Regular",
+              "fill": "#7a6e65"
+            }
+          ]
+        },
+        {
+          "id": "79:82",
+          "name": "subscribe-button",
+          "type": "FRAME",
+          "size": {
+            "w": 123,
+            "h": 37
+          },
+          "pos": {
+            "x": 929,
+            "y": 70
+          },
+          "fill": "#3f72af",
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0
+          },
+          "children": [
+            {
+              "id": "79:83",
+              "name": "subscribe-button-label",
+              "type": "TEXT",
+              "size": {
+                "w": 87,
+                "h": 17
+              },
+              "pos": {
+                "x": 18,
+                "y": 10
+              },
+              "characters": "Inscrever-se",
+              "fontSize": 14,
+              "fontStyle": "Bold",
+              "fill": "#ffffff"
+            }
+          ],
+          "layoutPositioning": "ABSOLUTE"
+        }
+      ]
+    }
+  ]
+}
