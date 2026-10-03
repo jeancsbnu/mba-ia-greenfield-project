@@ -46,9 +46,22 @@ Before marking `Status: Validated`, every inventory file must satisfy:
 7. `## Open questions` heading exists, even if empty.
 8. **Every icon node in the Figma tree has a row** (see `## Row granularity`). Check this against the **Figma source**, not against the inventory's own prose — the absorbed child is typically absent from the document entirely, not described in a `Notes` cell, so any check that reads only the inventory cannot see what is missing from it.
 
-   Walk the screen's cached node tree (`docs/figma-cache/<fileKey>/<nodeId>.json`, already on disk from Step 3.5 — this costs no Figma call), collect every node whose `name` matches `/(^|[-_])icons?($|[-_])|icon$/i`, and confirm each one appears in that screen's section — by node id, or by name as the `Component (Figma node)` value of a row. Any icon node with no row fails the check.
+   The source is the screen's cached node file (`docs/figma-cache/<fileKey>/<nodeId>.json`, already on disk from Step 3.5 — this costs no Figma call). Collect every node whose `name` matches `/(^|[-_])icons?($|[-_])|icon$/i` and confirm each one appears in that screen's section — by node id, or by name as the `Component (Figma node)` value of a row. Any icon node with no row fails the check.
+
+   **A cache node records its children in one of two shapes, and the sweep must read both.** A walker that handles only one returns **zero icons** against the other — which is indistinguishable from "this screen has no icons" and therefore passes:
+
+   - **`children`** — the nested array of a real harvest. Recurse it, matching the regex against each node's `name`.
+   - **`known_child_ids`** — the flat map written by the partial-harvest fallback of the `figma-batch` skill (see its `## Fallback when the quota is already exhausted`, item 2, where the authoring script is the provenance and the tree was never fetched). Such a file has **no `children` key at all**. The map's keys are node names and its values are either an id (`string`) or a list of ids; match the regex against the **key** and emit one hit per id in the value.
+
+   A node can also carry both — a `children` tree whose harvest was supplemented by known ids. Sweep both and union the hits; do not let the presence of one short-circuit the other.
+
+   **In a partial-harvest file the sweep is incomplete by construction**, not merely unverified: children exist in Figma whose ids the fallback deliberately left out rather than invent. The file says so itself — **read `_envelope.provenance` and carry its substance into that screen's `### Observations`**, naming the file as a partial harvest. The checker cannot claim icon coverage for a screen it could only partially see, and the screen must not look identical to one swept from a complete tree. (`docs/figma-cache/FetKyb1V02WS5D6VCatK6t/75-62.json`, the `canais-seguidos` screen, is the worked example: its `known_child_ids` carries `"play-icon": "75:67"` and nothing else to recurse into.)
+
+   **Nodes cut off at `maxDepth` are the same hole in a real harvest.** A container harvested at the limit arrives with no `children` key, so its icon descendants are invisible to the sweep — and it looks exactly like a genuine leaf. Detect the candidates (a node at depth `== _envelope.maxDepth` that still carries container evidence such as `layout`), cross-check `_envelope.note`, which records the cut when the harvest knew about it, and report each one in `### Observations` naming the node and that its children were not harvested — never infer what they are. This is the same condition the resume checks call a `truncated` count; here it must be stated per screen rather than left to the depth-limit note elsewhere in this skill. (In `77-64.json`, `maxDepth` 6 cuts `comment-root` `77:137`/`77:176` and `reply-list` `77:149`.)
 
    Run against `phase-05-video-watch-page` this flags `download-icon` (`67:68`) and nothing else: the other five icon nodes across both screens — `play-icon` ×3, `volume-icon`, `video-off-icon` — all have rows. One true positive, zero false positives, which is what makes it worth running.
+
+   Against the three Phase 06 caches a correct sweep returns **4 / 1 / 1** icons for `77-64.json` (real harvest), `75-62.json` (partial harvest) and `59-2.json` (real harvest). A sweep that walks only `children` returns 4 / **0** / 1 — the regression this rule exists to prevent, found during `/screen-inventory 06` only because the sub-agent read the JSON itself and distrusted the parent's count.
 
    An icon that is deliberately **not** implemented still needs its row, carrying the reason in `Notes` (e.g. the player-control glyphs ruled illustrative by `video-watch-page/TD-01`). "Has a row saying we will not build it" and "is missing" must not look the same to the next stage.
 
@@ -371,7 +384,7 @@ URL: [full URL]
 
 Your task:
 1. Read .claude/skills/screen-inventory/SKILL.md, sections "How to classify components", "How to derive verbs of intent", and "Output structure" (for the exact screen section format to emit). These are the rules you must follow.
-2. Read the cached component tree at [cache JSON path]. This file is the committed harvest of this exact node; its `_envelope` records fileKey, nodeId, fetched_at and the maxDepth it was walked to. Do NOT call any Figma MCP tool — not get_design_context, not get_screenshot, not get_metadata. The tree on disk is your only source, and it is complete for this node by construction of the harvest.
+2. Read the cached component tree at [cache JSON path]. This file is the committed harvest of this exact node; its `_envelope` records fileKey, nodeId, fetched_at and the maxDepth it was walked to. Do NOT call any Figma MCP tool — not get_design_context, not get_screenshot, not get_metadata. The file on disk is your only source. It holds its children either as a nested `children` tree (a real harvest, complete for this node) or as a flat `known_child_ids` map with **no `children` key** (a partial harvest, where ids the fallback would have had to guess were left out on purpose) — read whichever is present, and when it is the latter, read `_envelope.provenance` and declare in Observations that the sweep of this screen is incomplete by construction. Do not treat an absent `children` key as "this node has no children".
 3. Look at the rendered screenshot at [cache PNG path] when one exists. If the path is absent, work from the tree alone and note the absence in Observations.
 4. List every component in the tree. Classify each as Presentational, Local-interactive, or Server-connected, using evidence from BOTH the Figma output AND the phase capabilities listed below.
 5. For each Server-connected component, derive one or more verbs of intent and map each verb to exactly one capability from the list below (quote the capability verbatim).
@@ -412,7 +425,7 @@ Rules:
 - Do NOT define API contracts, endpoints, or HTTP specifics. Verbs are intents, not endpoints.
 - Do NOT ask questions — return ambiguities as markers instead.
 - Components visible only in the screenshot but absent from the cached tree MUST be flagged in the Observations subsection, not silently filled in.
-- If a node in the tree carries a `truncated` count, the harvest stopped at its depth limit and that node has unlisted children. Say so in Observations, naming the node and the count — never infer what the missing children are.
+- If a node in the tree carries a `truncated` count, the harvest stopped at its depth limit and that node has unlisted children. Say so in Observations, naming the node and the count — never infer what the missing children are. The count is not always there: a container reached at `_envelope.maxDepth` arrives with no `children` key at all and reads as a genuine leaf, so treat a container-shaped node (one carrying `layout`) at that depth as truncated too, cross-checking `_envelope.note`, and report it the same way.
 ```
 
 ### Parent processing after sub-agents return
