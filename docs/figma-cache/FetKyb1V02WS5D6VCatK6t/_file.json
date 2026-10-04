@@ -5,9 +5,9 @@
     "id": "0:1",
     "name": "Seus vídeos"
   },
-  "harvested_at": "2026-10-04T22:14:23Z",
+  "harvested_at": "2026-10-04T23:05:27Z",
   "harvested_by": "figma-batch",
-  "mcp_calls_spent": 7,
+  "mcp_calls_spent": 8,
   "blocks": [
     "tree",
     "screenshots"
@@ -20,7 +20,7 @@
     "75:62": 10,
     "77:137": 10,
     "77:176": 10,
-    "77:149": 10
+    "77:149": 6
   },
   "nodes": {
     "59:2": {
@@ -156,7 +156,8 @@
     "ARMADILHA DE LAYOUT: 59:15 (main-dashed-container de 59:2) reporta layoutMode 'VERTICAL', mas seus 14 filhos sao TODOS layoutPositioning 'ABSOLUTE' com x/y proprios. Ler layoutMode do pai NAO diz como um filho e posicionado. Ao inserir um no ali, setar layoutPositioning='ABSOLUTE' e x/y explicitos; caso contrario ele entra no fluxo e empilha no canto. Conferir layoutPositioning dos irmaos antes de escolher.",
     "77:64 e 59:2 sao harvests de verdade (arvore colhida depois da escrita). 75:62 nao e: ver _envelope.provenance naquele arquivo.",
     "A rota de 75:62 (/channel/subscriptions) foi decidida pelo usuario em 2026-10-03, seguindo a convencao do grupo autenticado (/channel/videos, /channel/settings). Nao estava no TD-07, que decidiu o conteudo da area sem nomear o endereco.",
-    "2026-10-04 — colheita de 1 chamada fechando a OQ-17 e a maior parte da OQ-18 da Fase 06: 75:62 ganhou arvore real, e os tres nos de comentario de 77:64 que estavam no limite de profundidade foram colhidos isolados a maxDepth 10. errors: [] na chamada. Pendencia: a lista de children de 77:149 pode estar incompleta (corte de leitura, nao de harvest)."
+    "2026-10-04 — colheita de 1 chamada fechando a OQ-17 e a maior parte da OQ-18 da Fase 06: 75:62 ganhou arvore real, e os tres nos de comentario de 77:64 que estavam no limite de profundidade foram colhidos isolados a maxDepth 10. errors: [] na chamada. Pendencia: a lista de children de 77:149 pode estar incompleta (corte de leitura, nao de harvest).",
+    "Colheita 8 (2026-10-04T23:05Z, 1 chamada, errors: []): 77:149 reply-list colhido ISOLADO com projecao lean para fechar a OQ-21. childCount: 3 observado — 77:150, 77:162 e 77:174 replies-load-more (TEXT, \"Ver mais 4 respostas\"). O 77:174 e o node id que faltava ao RepliesLoadMore. Pai 77:136 confirmado com childCount: 2. 77-149.json e MERGE: a sub-arvore de 77:150 conserva fills/fonts da colheita 7."
   ],
   "errors": []
 }
