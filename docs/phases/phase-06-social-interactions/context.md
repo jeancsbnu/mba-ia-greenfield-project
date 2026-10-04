@@ -14,7 +14,7 @@ sources_mtime:
   docs/phases/phase-03-upload-processing/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-04-video-channel-management/context.md: "2026-09-22T21:20:53-03:00"
   docs/phases/phase-05-video-watch-page/context.md: "2026-09-29T22:45:01-03:00"
-  docs/inventories/screen-inventory-phase-06-social-interactions.md: "2026-10-04T19:23:39-03:00"
+  docs/inventories/screen-inventory-phase-06-social-interactions.md: "2026-10-04T20:15:00-03:00"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "2026-06-29T19:03:26-03:00"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
@@ -30,7 +30,7 @@ sources_hash:
   docs/phases/phase-03-upload-processing/context.md: "d10c73e13267"
   docs/phases/phase-04-video-channel-management/context.md: "71811d3a87ee"
   docs/phases/phase-05-video-watch-page/context.md: "71f919de97f4"
-  docs/inventories/screen-inventory-phase-06-social-interactions.md: "36cfa7e31451"
+  docs/inventories/screen-inventory-phase-06-social-interactions.md: "ad0611ba9f29"
   .claude/skills/testing-guide-nestjs-project/SKILL.md: "f302b87517e4"
   .claude/skills/testing-guide-next-frontend/SKILL.md: "9942ebfdb06d"
 ---
@@ -626,7 +626,7 @@ _As Fases 03, 04 e 05 têm `## Non-UI / Deferred Capabilities` vazia ou `_None._
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Exibir os comentários do vídeo com as respostas pré-carregadas, dos mais recentes para os mais antigos | "Interface completa de comentários, likes e inscrições" | CommentsSection |
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar a próxima página de comentários-raiz | "Interface completa de comentários, likes e inscrições" | CommentsLoadMore |
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Publicar um novo comentário no vídeo | "Comentários em vídeos (usuários autenticados)" | NewCommentForm |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar as respostas restantes de uma thread, além das pré-carregadas | "Respostas a comentários (comentários aninhados)" | RepliesLoadMore |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar as respostas restantes de uma thread, além das pré-carregadas | "Respostas a comentários (comentários aninhados)" | RepliesLoadMore (77:174) |
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentLikeButton |
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentDislikeButton |
 | Área de canais seguidos | /channel/subscriptions | Listar os canais que o usuário segue, com acesso rápido à página de cada um | "Área de canais seguidos com acesso rápido aos vídeos" | channel-list |
@@ -646,7 +646,7 @@ _As Fases 03, 04 e 05 têm `## Non-UI / Deferred Capabilities` vazia ou `_None._
 - `NewCommentForm` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
 - `CommentLikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
 - `CommentDislikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `RepliesLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `RepliesLoadMore (77:174)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
 - `CommentsLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
 - `VideoCard` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-card.tsx`
 - `SidebarLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/sidebar-load-more.tsx`
@@ -664,7 +664,7 @@ _As Fases 03, 04 e 05 têm `## Non-UI / Deferred Capabilities` vazia ou `_None._
 - **Estado vazio da área de canais seguidos sem desenho.** A frame mostra só o estado povoado (3 canais); não há desenho para "o usuário não segue nenhum canal", nem para carregamento ou erro da lista. _Resolvido 2026-10-04 no /plan-resolve (PR #49), **OQ-14**: vazio, carregando e erro seguem os mesmos padroes da Fase 04 — mantido aqui como registro; o `validation.md` carrega a resolucao._
 - **A variante anônima dos controles novos não foi desenhada.** `anonymous-gate/TD-01` decidiu que os controles de ação renderizam para o anônimo e o clique leva ao login. A `59:2` mostra isso para o `SubscribeButton`, mas a watch page da Fase 06 (`77:64`) é só o estado autenticado — como `LikeButton`, `DislikeButton`, `NewCommentForm` e os controles de comentário aparecem para o visitante anônimo terá de ser derivado por argumento, não observado. _Resolvido 2026-10-04 no /plan-resolve (PR #49), **OQ-15**: derivada do `anonymous-gate/TD-01` + `TD-03`, que ja decidiram a regra e sao uniformes — controle visivel, clique leva ao login com `returnTo` — mantido aqui como registro; o `validation.md` carrega a resolucao._
 - **A capability "Área de canais seguidos com acesso rápido aos vídeos" fala em vídeos; o `TD-07` entrega canais.** O `TD-07` decidiu (opção A) que a área é uma **lista de canais com link para a página pública de cada um**, não um feed de vídeos — então o "acesso rápido aos vídeos" é indireto, em dois cliques. O verbo foi mapeado para essa bullet por ser a única candidata, mas a divergência entre o texto do plano e a decisão é real e cabe ao `plan-validate` julgar. _Resolvido 2026-10-04 no /plan-resolve (PR #49), promovida a **IC-5** e fechada por `**Revisions:**` no `TD-07`: "acesso rapido" e satisfeito pelo link para a pagina publica do canal, videos a dois cliques — mantido aqui como registro; o `validation.md` carrega a resolucao._
-- **O `RepliesLoadMore` continua sem node id.** _A colheita de 2026-10-04 (1 chamada, `maxDepth` 10) fechou o resto: o `75:62` ganhou árvore real e os três nós de comentário de `77:64` foram colhidos isolados, então `channel-avatar`, `unsubscribe-button` e toda a sub-estrutura de comentário passaram a ter id._ O que sobrou é um nó só: a leitura do payload foi cortada em 20kb dentro de `77:149`, depois do primeiro `comment-reply` (77:150). A altura do frame sugere mais filhos — provavelmente um segundo item de resposta e o controle "ver mais" —, mas isso é aritmética de layout e não observação, e nenhum id foi inventado. O `/implement` precisa de id para mirar o `figma-implement-design` nesse controle. Resolve com uma colheita de `77:149` isolado: **uma chamada**.
+- **O `RepliesLoadMore` continua sem node id.** _RESOLVIDO 2026-10-04 na amendment run (c): o controle é **`77:174` `replies-load-more`** (TEXT, "Ver mais 4 respostas"), colhido na colheita isolada de `77:149`. `childCount: 3` observado fecha a lista de filhos; o `transcription_truncated` saiu do `_envelope`. O `/implement` pode mirar o `figma-implement-design` nesse nó._ — registro histórico do que estava aberto: _A colheita de 2026-10-04 (1 chamada, `maxDepth` 10) fechou o resto: o `75:62` ganhou árvore real e os três nós de comentário de `77:64` foram colhidos isolados, então `channel-avatar`, `unsubscribe-button` e toda a sub-estrutura de comentário passaram a ter id._ O que sobrou é um nó só: a leitura do payload foi cortada em 20kb dentro de `77:149`, depois do primeiro `comment-reply` (77:150). A altura do frame sugere mais filhos — provavelmente um segundo item de resposta e o controle "ver mais" —, mas isso é aritmética de layout e não observação, e nenhum id foi inventado. O `/implement` precisa de id para mirar o `figma-implement-design` nesse controle. Resolve com uma colheita de `77:149` isolado: **uma chamada**.
 - **`/channel/subscriptions` ainda não existe no repositório.** As irmãs do grupo autenticado (`/channel/videos`, `/channel/settings`) vivem em `next-frontend/app/(studio)/`, que é onde esta rota deve nascer. A implementação desta tela também **altera** `components/layout/site-navbar.tsx`, porque o ponto de entrada de navegação exigido pelo `TD-07` é um `<Link>` inline ali. _Resolvido 2026-10-04 no /plan-resolve (PR #49), **OQ-19**: fechado como nota de escopo — a rota nasce em `app/(studio)/` seguindo a convenção das irmãs, e alterar a `site-navbar` é escopo explícito desta fase; mantido aqui como registro._
 
 ## Non-UI / Deferred Capabilities

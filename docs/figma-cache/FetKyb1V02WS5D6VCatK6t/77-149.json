@@ -3,50 +3,129 @@
     "fileKey": "FetKyb1V02WS5D6VCatK6t",
     "nodeId": "77:149",
     "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=77-149",
-    "fetched_at": "2026-10-04T22:14:23Z",
-    "blocks": ["tree"],
+    "fetched_at": "2026-10-04T23:05:27Z",
+    "blocks": [
+      "tree"
+    ],
     "harvested_by": "figma-batch",
-    "maxDepth": 10,
-    "transcription_truncated": true,
+    "maxDepth": 6,
     "notes": [
-      "ATENCAO — este arquivo e PARCIAL, e a causa nao e o harvest: o payload da chamada foi cortado em 20kb na leitura do agente, dentro deste no. A arvore abaixo e o que foi efetivamente observado.",
-      "O que esta completo: o primeiro comment-reply (77:150) e toda a sua sub-estrutura, 77:151 a 77:161.",
-      "O que NAO se sabe: se reply-list tem filhos DEPOIS de 77:150. A altura do frame (145) com gap 12 e um filho de 53 sugere que ha mais, possivelmente um segundo comment-reply e um controle de 'ver mais respostas' — mas isso e inferencia por aritmetica de layout, nao observacao, e por isso nenhum id adicional foi escrito aqui. Ids atribuidos de memoria estariam errados.",
-      "Consequencia para o consumidor: tratar a lista de children como possivelmente incompleta. O RepliesLoadMore do inventario segue SEM node id. Fechar isso custa uma colheita nova deste no isolado — uma chamada."
-    ]
+      "COMPLETO. A colheita de 2026-10-04T23:05Z colheu este no ISOLADO, com projecao lean, e voltou com errors: [] e sem corte. childCount: 3 e observado, nao inferido.",
+      "Os tres filhos de reply-list: 77:150 comment-reply, 77:162 comment-reply, 77:174 replies-load-more (TEXT, \"Ver mais 4 respostas\").",
+      "77:174 e o node id que faltava ao RepliesLoadMore do inventario e fecha a OQ-21.",
+      "O corte de 20kb da colheita anterior era volume de payload no lote de 4 nos, nao falha do harvest: o mesmo no isolado e com campos enxutos passou inteiro.",
+      "Arquivo e MERGE, nao sobrescrita: a sub-arvore de 77:150 preserva fills/fonts da colheita anterior, que a projecao lean nao reemitiria. Ver field_projection.",
+      "O pai 77:136 comment-thread foi confirmado com childCount: 2 (77:137 + 77:149) — nada mais se perdeu no corte original."
+    ],
+    "field_projection": {
+      "77:150 (e descendentes 77:151-77:161)": "rico — fills/fonts/padding da colheita de 22:14Z",
+      "77:162 (e descendentes 77:163-77:173), 77:174": "lean — id/name/type/size/characters/layout(mode,gap) da colheita de 23:05Z"
+    }
   },
   "id": "77:149",
   "name": "reply-list",
   "type": "FRAME",
-  "size": { "w": 695, "h": 145 },
-  "layout": { "mode": "VERTICAL", "gap": 12, "padding": [0, 0, 0, 48], "primary": "MIN", "counter": "MIN" },
-  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+  "size": {
+    "w": 695,
+    "h": 145
+  },
+  "layout": {
+    "mode": "VERTICAL",
+    "gap": 12,
+    "padding": [
+      0,
+      0,
+      0,
+      48
+    ],
+    "primary": "MIN",
+    "counter": "MIN"
+  },
+  "fills": [
+    {
+      "type": "SOLID",
+      "color": "#ffffff",
+      "opacity": 1
+    }
+  ],
   "children": [
     {
       "id": "77:150",
       "name": "comment-reply",
       "type": "FRAME",
-      "size": { "w": 647, "h": 53 },
-      "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
-      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+      "size": {
+        "w": 647,
+        "h": 53
+      },
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 12,
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "primary": "MIN",
+        "counter": "MIN"
+      },
+      "fills": [
+        {
+          "type": "SOLID",
+          "color": "#ffffff",
+          "opacity": 1
+        }
+      ],
       "children": [
         {
           "id": "77:151",
           "name": "avatar",
           "type": "FRAME",
-          "size": { "w": 28, "h": 28 },
-          "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
-          "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+          "size": {
+            "w": 28,
+            "h": 28
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0,
+            "padding": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "primary": "CENTER",
+            "counter": "CENTER"
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "color": "#7a6e65",
+              "opacity": 1
+            }
+          ],
           "radius": 28,
           "children": [
             {
               "id": "77:152",
               "name": "avatar-initials",
               "type": "TEXT",
-              "size": { "w": 12, "h": 11 },
-              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "size": {
+                "w": 12,
+                "h": 11
+              },
+              "fills": [
+                {
+                  "type": "SOLID",
+                  "color": "#ffffff",
+                  "opacity": 1
+                }
+              ],
               "characters": "JC",
-              "font": { "family": "Inter", "style": "Bold" },
+              "font": {
+                "family": "Inter",
+                "style": "Bold"
+              },
               "fontSize": 9,
               "textAutoResize": "WIDTH_AND_HEIGHT"
             }
@@ -56,26 +135,78 @@
           "id": "77:153",
           "name": "comment-body",
           "type": "FRAME",
-          "size": { "w": 607, "h": 53 },
-          "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
-          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "size": {
+            "w": 607,
+            "h": 53
+          },
+          "layout": {
+            "mode": "VERTICAL",
+            "gap": 4,
+            "padding": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "primary": "MIN",
+            "counter": "MIN"
+          },
+          "fills": [
+            {
+              "type": "SOLID",
+              "color": "#ffffff",
+              "opacity": 1
+            }
+          ],
           "children": [
             {
               "id": "77:154",
               "name": "comment-meta",
               "type": "FRAME",
-              "size": { "w": 124, "h": 16 },
-              "layout": { "mode": "HORIZONTAL", "gap": 8, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
-              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "size": {
+                "w": 124,
+                "h": 16
+              },
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 8,
+                "padding": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "primary": "MIN",
+                "counter": "CENTER"
+              },
+              "fills": [
+                {
+                  "type": "SOLID",
+                  "color": "#ffffff",
+                  "opacity": 1
+                }
+              ],
               "children": [
                 {
                   "id": "77:155",
                   "name": "comment-author",
                   "type": "TEXT",
-                  "size": { "w": 68, "h": 16 },
-                  "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                  "size": {
+                    "w": 68,
+                    "h": 16
+                  },
+                  "fills": [
+                    {
+                      "type": "SOLID",
+                      "color": "#1c2d37",
+                      "opacity": 1
+                    }
+                  ],
                   "characters": "Joana Cria",
-                  "font": { "family": "Inter", "style": "Bold" },
+                  "font": {
+                    "family": "Inter",
+                    "style": "Bold"
+                  },
                   "fontSize": 13,
                   "textAutoResize": "WIDTH_AND_HEIGHT"
                 },
@@ -83,10 +214,22 @@
                   "id": "77:156",
                   "name": "comment-when",
                   "type": "TEXT",
-                  "size": { "w": 48, "h": 13 },
-                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "size": {
+                    "w": 48,
+                    "h": 13
+                  },
+                  "fills": [
+                    {
+                      "type": "SOLID",
+                      "color": "#7a6e65",
+                      "opacity": 1
+                    }
+                  ],
                   "characters": "há 1 hora",
-                  "font": { "family": "Inter", "style": "Regular" },
+                  "font": {
+                    "family": "Inter",
+                    "style": "Regular"
+                  },
                   "fontSize": 11,
                   "textAutoResize": "WIDTH_AND_HEIGHT"
                 }
@@ -96,10 +239,22 @@
               "id": "77:157",
               "name": "comment-text",
               "type": "TEXT",
-              "size": { "w": 607, "h": 16 },
-              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "size": {
+                "w": 607,
+                "h": 16
+              },
+              "fills": [
+                {
+                  "type": "SOLID",
+                  "color": "#1e293b",
+                  "opacity": 1
+                }
+              ],
               "characters": "Uma 35mm — valeu demais!",
-              "font": { "family": "Inter", "style": "Regular" },
+              "font": {
+                "family": "Inter",
+                "style": "Regular"
+              },
               "fontSize": 13,
               "textAutoResize": "HEIGHT"
             },
@@ -107,18 +262,50 @@
               "id": "77:158",
               "name": "comment-actions",
               "type": "FRAME",
-              "size": { "w": 198, "h": 13 },
-              "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
-              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "size": {
+                "w": 198,
+                "h": 13
+              },
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 16,
+                "padding": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "primary": "MIN",
+                "counter": "CENTER"
+              },
+              "fills": [
+                {
+                  "type": "SOLID",
+                  "color": "#ffffff",
+                  "opacity": 1
+                }
+              ],
               "children": [
                 {
                   "id": "77:159",
                   "name": "comment-like",
                   "type": "TEXT",
-                  "size": { "w": 51, "h": 13 },
-                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "size": {
+                    "w": 51,
+                    "h": 13
+                  },
+                  "fills": [
+                    {
+                      "type": "SOLID",
+                      "color": "#7a6e65",
+                      "opacity": 1
+                    }
+                  ],
                   "characters": "Gostei · 3",
-                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "font": {
+                    "family": "Inter",
+                    "style": "Semi Bold"
+                  },
                   "fontSize": 11,
                   "textAutoResize": "WIDTH_AND_HEIGHT"
                 },
@@ -126,10 +313,22 @@
                   "id": "77:160",
                   "name": "comment-dislike",
                   "type": "TEXT",
-                  "size": { "w": 57, "h": 13 },
-                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "size": {
+                    "w": 57,
+                    "h": 13
+                  },
+                  "fills": [
+                    {
+                      "type": "SOLID",
+                      "color": "#7a6e65",
+                      "opacity": 1
+                    }
+                  ],
                   "characters": "Não gostei",
-                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "font": {
+                    "family": "Inter",
+                    "style": "Semi Bold"
+                  },
                   "fontSize": 11,
                   "textAutoResize": "WIDTH_AND_HEIGHT"
                 },
@@ -137,10 +336,22 @@
                   "id": "77:161",
                   "name": "comment-reply-action",
                   "type": "TEXT",
-                  "size": { "w": 58, "h": 13 },
-                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "size": {
+                    "w": 58,
+                    "h": 13
+                  },
+                  "fills": [
+                    {
+                      "type": "SOLID",
+                      "color": "#3f72af",
+                      "opacity": 1
+                    }
+                  ],
                   "characters": "Responder",
-                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "font": {
+                    "family": "Inter",
+                    "style": "Semi Bold"
+                  },
                   "fontSize": 11,
                   "textAutoResize": "WIDTH_AND_HEIGHT"
                 }
@@ -148,7 +359,169 @@
             }
           ]
         }
+      ],
+      "childCount": 2
+    },
+    {
+      "id": "77:162",
+      "name": "comment-reply",
+      "type": "FRAME",
+      "size": {
+        "w": 647,
+        "h": 53
+      },
+      "layout": {
+        "mode": "HORIZONTAL",
+        "gap": 12
+      },
+      "childCount": 2,
+      "children": [
+        {
+          "id": "77:163",
+          "name": "avatar",
+          "type": "FRAME",
+          "size": {
+            "w": 28,
+            "h": 28
+          },
+          "layout": {
+            "mode": "HORIZONTAL",
+            "gap": 0
+          },
+          "childCount": 1,
+          "children": [
+            {
+              "id": "77:164",
+              "name": "avatar-initials",
+              "type": "TEXT",
+              "size": {
+                "w": 12,
+                "h": 11
+              },
+              "characters": "DF"
+            }
+          ]
+        },
+        {
+          "id": "77:165",
+          "name": "comment-body",
+          "type": "FRAME",
+          "size": {
+            "w": 607,
+            "h": 53
+          },
+          "layout": {
+            "mode": "VERTICAL",
+            "gap": 4
+          },
+          "childCount": 3,
+          "children": [
+            {
+              "id": "77:166",
+              "name": "comment-meta",
+              "type": "FRAME",
+              "size": {
+                "w": 172,
+                "h": 16
+              },
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 8
+              },
+              "childCount": 2,
+              "children": [
+                {
+                  "id": "77:167",
+                  "name": "comment-author",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 89,
+                    "h": 16
+                  },
+                  "characters": "Dev do Futuro"
+                },
+                {
+                  "id": "77:168",
+                  "name": "comment-when",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 75,
+                    "h": 13
+                  },
+                  "characters": "há 40 minutos"
+                }
+              ]
+            },
+            {
+              "id": "77:169",
+              "name": "comment-text",
+              "type": "TEXT",
+              "size": {
+                "w": 607,
+                "h": 16
+              },
+              "characters": "Também fiquei curioso, obrigado por responder."
+            },
+            {
+              "id": "77:170",
+              "name": "comment-actions",
+              "type": "FRAME",
+              "size": {
+                "w": 198,
+                "h": 13
+              },
+              "layout": {
+                "mode": "HORIZONTAL",
+                "gap": 16
+              },
+              "childCount": 3,
+              "children": [
+                {
+                  "id": "77:171",
+                  "name": "comment-like",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 51,
+                    "h": 13
+                  },
+                  "characters": "Gostei · 0"
+                },
+                {
+                  "id": "77:172",
+                  "name": "comment-dislike",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 57,
+                    "h": 13
+                  },
+                  "characters": "Não gostei"
+                },
+                {
+                  "id": "77:173",
+                  "name": "comment-reply-action",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 58,
+                    "h": 13
+                  },
+                  "characters": "Responder"
+                }
+              ]
+            }
+          ]
+        }
       ]
+    },
+    {
+      "id": "77:174",
+      "name": "replies-load-more",
+      "type": "TEXT",
+      "size": {
+        "w": 122,
+        "h": 15
+      },
+      "characters": "Ver mais 4 respostas"
     }
-  ]
+  ],
+  "childCount": 3
 }
