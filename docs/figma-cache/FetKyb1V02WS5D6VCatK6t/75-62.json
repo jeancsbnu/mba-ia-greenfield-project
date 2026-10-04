@@ -3,67 +3,493 @@
     "fileKey": "FetKyb1V02WS5D6VCatK6t",
     "nodeId": "75:62",
     "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=75-62",
-    "fetched_at": "2026-10-01T23:00:00Z",
-    "blocks": [
-      "screenshot"
-    ],
-    "harvested_by": "authoring-script",
-    "provenance": "Nao e um harvest completo. O frame foi criado por script em 2026-10-01 e corrigido no mesmo dia; uma colheita de arvore foi pedida na chamada de correcao, mas a resposta foi truncada antes de terminar este no. Os ids abaixo sao os que as duas chamadas devolveram de fato -- os demais filhos estao AUSENTES de proposito, porque inventa-los seria pior que omiti-los.",
-    "maxDepth": null
+    "fetched_at": "2026-10-04T22:14:23Z",
+    "blocks": ["tree"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 10,
+    "notes": [
+      "Substitui o harvest parcial de 2026-10-01, que tinha known_child_ids (16 entradas) e nenhum children. Esta e uma arvore real.",
+      "Colheita sem truncamento: nenhum no reportou `truncated` a maxDepth 10.",
+      "Resolve a OQ-17 da Fase 06: channel-avatar (75:81, 75:89, 75:97) e unsubscribe-button (75:86, 75:94, 75:102) agora tem id."
+    ]
   },
   "id": "75:62",
   "name": "canais-seguidos",
   "type": "FRAME",
-  "size": {
-    "w": 1100,
-    "h": 551
-  },
-  "layout": {
-    "mode": "VERTICAL",
-    "gap": 0,
-    "padding": [
-      0,
-      0,
-      0,
-      0
-    ]
-  },
-  "fills": [
-    {
-      "type": "SOLID",
-      "color": "#f8fafc",
-      "opacity": 1
-    }
-  ],
+  "size": { "w": 1100, "h": 551 },
+  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+  "fills": [{ "type": "SOLID", "color": "#f8fafc", "opacity": 1 }],
   "radius": 24,
-  "known_child_ids": {
-    "top-decorative-strip": "75:63",
-    "navbar": "75:64",
-    "brand-logo": "75:65",
-    "logo-box": "75:66",
-    "play-icon": "75:67",
-    "play": "75:68",
-    "Vector": "75:69",
-    "EstúdioCriador": "75:70",
-    "nav-link-canais-seguidos": "75:74",
-    "user-menu": "75:71",
-    "avatar": "77:62",
-    "sair-label": "75:73",
-    "main-dashed-container": "75:75",
-    "page-heading": "75:76",
-    "channel-list": "75:79",
-    "channel-row": [
-      "75:80",
-      "75:88",
-      "75:96"
-    ]
-  },
-  "known_defects": [],
-  "resolved_defects": [
+  "children": [
     {
-      "defect": "A navbar foi clonada de 66:44 (pagina publica de video, estado anonimo) e por isso exibia 'Entrar' numa area autenticada.",
-      "fixed_at": "2026-10-01T23:00:00Z",
-      "fix": "O texto 75:73 passou de 'Entrar' para 'Sair' (renomeado para sair-label) e um avatar 'JC' (77:62) foi inserido antes do botao, espelhando next-frontend/components/layout/user-menu.tsx, que e Avatar + botao 'Sair'. Verificado por screenshot em 75-62.png."
+      "id": "75:63",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": { "w": 1100, "h": 32 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.0313725508749485 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "dash": [6, 4]
+    },
+    {
+      "id": "75:64",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": { "w": 1100, "h": 76 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [20, 48, 20, 48], "primary": "SPACE_BETWEEN", "counter": "CENTER" },
+      "fills": [],
+      "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+      "children": [
+        {
+          "id": "75:65",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": { "w": 183, "h": 36 },
+          "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+          "fills": [],
+          "children": [
+            {
+              "id": "75:66",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": { "w": 36, "h": 36 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+              "radius": 10,
+              "children": [
+                {
+                  "id": "75:67",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": { "w": 16, "h": 16 },
+                  "layout": { "mode": "VERTICAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+                  "fills": [],
+                  "children": [
+                    {
+                      "id": "75:68",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": { "w": 16, "h": 16 },
+                      "fills": [],
+                      "children": [
+                        {
+                          "id": "75:69",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": { "w": 11, "h": 12 },
+                          "fills": [],
+                          "strokes": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                          "strokeWeight": 2
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "75:70",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": { "w": 135, "h": 22 },
+              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "characters": "EstúdioCriador",
+              "font": { "family": "Inter", "style": "Extra Bold" },
+              "fontSize": 18,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            }
+          ]
+        },
+        {
+          "id": "75:74",
+          "name": "nav-link-canais-seguidos",
+          "type": "TEXT",
+          "size": { "w": 106, "h": 16 },
+          "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+          "characters": "Canais seguidos",
+          "font": { "family": "Inter", "style": "Bold" },
+          "fontSize": 13,
+          "textAutoResize": "WIDTH_AND_HEIGHT"
+        },
+        {
+          "id": "75:71",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": { "w": 103, "h": 33 },
+          "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+          "fills": [],
+          "children": [
+            {
+              "id": "77:62",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": { "w": 32, "h": 32 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+              "radius": 32,
+              "children": [
+                {
+                  "id": "77:63",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": { "w": 15, "h": 13 },
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                  "characters": "JC",
+                  "font": { "family": "Inter", "style": "Bold" },
+                  "fontSize": 11,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                }
+              ]
+            },
+            {
+              "id": "75:72",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": { "w": 59, "h": 33 },
+              "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16], "primary": "MIN", "counter": "MIN" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "strokeWeight": 1,
+              "radius": 10,
+              "children": [
+                {
+                  "id": "75:73",
+                  "name": "sair-label",
+                  "type": "TEXT",
+                  "size": { "w": 27, "h": 17 },
+                  "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                  "characters": "Sair",
+                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "fontSize": 14,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75:75",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": { "w": 1100, "h": 443 },
+      "layout": { "mode": "VERTICAL", "gap": 24, "padding": [48, 48, 48, 48], "primary": "MIN", "counter": "MIN" },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 0.029999999329447746 }],
+      "strokes": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "strokeWeight": 1,
+      "dash": [8, 6],
+      "children": [
+        {
+          "id": "75:76",
+          "name": "page-heading",
+          "type": "FRAME",
+          "size": { "w": 1002, "h": 51 },
+          "layout": { "mode": "VERTICAL", "gap": 6, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "children": [
+            {
+              "id": "75:77",
+              "name": "heading-title",
+              "type": "TEXT",
+              "size": { "w": 1002, "h": 29 },
+              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "characters": "Canais que você segue",
+              "font": { "family": "Inter", "style": "Extra Bold" },
+              "fontSize": 24,
+              "textAutoResize": "HEIGHT"
+            },
+            {
+              "id": "75:78",
+              "name": "heading-count",
+              "type": "TEXT",
+              "size": { "w": 1002, "h": 16 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "3 canais",
+              "font": { "family": "Inter", "style": "Regular" },
+              "fontSize": 13,
+              "textAutoResize": "HEIGHT"
+            }
+          ]
+        },
+        {
+          "id": "75:79",
+          "name": "channel-list",
+          "type": "FRAME",
+          "size": { "w": 1002, "h": 270 },
+          "layout": { "mode": "VERTICAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "children": [
+            {
+              "id": "75:80",
+              "name": "channel-row",
+              "type": "FRAME",
+              "size": { "w": 1002, "h": 82 },
+              "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [16, 20, 16, 20], "primary": "MIN", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "strokeWeight": 1,
+              "radius": 12,
+              "children": [
+                {
+                  "id": "75:81",
+                  "name": "channel-avatar",
+                  "type": "FRAME",
+                  "size": { "w": 48, "h": 48 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "radius": 24,
+                  "children": [
+                    {
+                      "id": "75:82",
+                      "name": "avatar-initials",
+                      "type": "TEXT",
+                      "size": { "w": 26, "h": 19 },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                      "characters": "MR",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 16,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:83",
+                  "name": "channel-info",
+                  "type": "FRAME",
+                  "size": { "w": 803, "h": 37 },
+                  "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                  "children": [
+                    {
+                      "id": "75:84",
+                      "name": "channel-name",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 18 },
+                      "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                      "characters": "Maria Rocha",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 15,
+                      "textAutoResize": "HEIGHT"
+                    },
+                    {
+                      "id": "75:85",
+                      "name": "channel-meta",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                      "characters": "12,4 mil inscritos · 48 vídeos",
+                      "font": { "family": "Inter", "style": "Regular" },
+                      "fontSize": 12,
+                      "textAutoResize": "HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:86",
+                  "name": "unsubscribe-button",
+                  "type": "FRAME",
+                  "size": { "w": 77, "h": 31 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16], "primary": "MIN", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+                  "radius": 8,
+                  "children": [
+                    {
+                      "id": "75:87",
+                      "name": "unsubscribe-label",
+                      "type": "TEXT",
+                      "size": { "w": 45, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                      "characters": "Inscrito",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 12,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "75:88",
+              "name": "channel-row",
+              "type": "FRAME",
+              "size": { "w": 1002, "h": 82 },
+              "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [16, 20, 16, 20], "primary": "MIN", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "strokeWeight": 1,
+              "radius": 12,
+              "children": [
+                {
+                  "id": "75:89",
+                  "name": "channel-avatar",
+                  "type": "FRAME",
+                  "size": { "w": 48, "h": 48 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "radius": 24,
+                  "children": [
+                    {
+                      "id": "75:90",
+                      "name": "avatar-initials",
+                      "type": "TEXT",
+                      "size": { "w": 21, "h": 19 },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                      "characters": "DF",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 16,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:91",
+                  "name": "channel-info",
+                  "type": "FRAME",
+                  "size": { "w": 803, "h": 37 },
+                  "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                  "children": [
+                    {
+                      "id": "75:92",
+                      "name": "channel-name",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 18 },
+                      "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                      "characters": "Dev do Futuro",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 15,
+                      "textAutoResize": "HEIGHT"
+                    },
+                    {
+                      "id": "75:93",
+                      "name": "channel-meta",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                      "characters": "3,1 mil inscritos · 17 vídeos",
+                      "font": { "family": "Inter", "style": "Regular" },
+                      "fontSize": 12,
+                      "textAutoResize": "HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:94",
+                  "name": "unsubscribe-button",
+                  "type": "FRAME",
+                  "size": { "w": 77, "h": 31 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16], "primary": "MIN", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+                  "radius": 8,
+                  "children": [
+                    {
+                      "id": "75:95",
+                      "name": "unsubscribe-label",
+                      "type": "TEXT",
+                      "size": { "w": 45, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                      "characters": "Inscrito",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 12,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "75:96",
+              "name": "channel-row",
+              "type": "FRAME",
+              "size": { "w": 1002, "h": 82 },
+              "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [16, 20, 16, 20], "primary": "MIN", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "strokes": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+              "strokeWeight": 1,
+              "radius": 12,
+              "children": [
+                {
+                  "id": "75:97",
+                  "name": "channel-avatar",
+                  "type": "FRAME",
+                  "size": { "w": 48, "h": 48 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "radius": 24,
+                  "children": [
+                    {
+                      "id": "75:98",
+                      "name": "avatar-initials",
+                      "type": "TEXT",
+                      "size": { "w": 24, "h": 19 },
+                      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                      "characters": "AC",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 16,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:99",
+                  "name": "channel-info",
+                  "type": "FRAME",
+                  "size": { "w": 803, "h": 37 },
+                  "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+                  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+                  "children": [
+                    {
+                      "id": "75:100",
+                      "name": "channel-name",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 18 },
+                      "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                      "characters": "Ana Carvalho",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 15,
+                      "textAutoResize": "HEIGHT"
+                    },
+                    {
+                      "id": "75:101",
+                      "name": "channel-meta",
+                      "type": "TEXT",
+                      "size": { "w": 803, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                      "characters": "856 inscritos · 9 vídeos",
+                      "font": { "family": "Inter", "style": "Regular" },
+                      "fontSize": 12,
+                      "textAutoResize": "HEIGHT"
+                    }
+                  ]
+                },
+                {
+                  "id": "75:102",
+                  "name": "unsubscribe-button",
+                  "type": "FRAME",
+                  "size": { "w": 77, "h": 31 },
+                  "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [8, 16, 8, 16], "primary": "MIN", "counter": "CENTER" },
+                  "fills": [{ "type": "SOLID", "color": "#e2e8f0", "opacity": 1 }],
+                  "radius": 8,
+                  "children": [
+                    {
+                      "id": "75:103",
+                      "name": "unsubscribe-label",
+                      "type": "TEXT",
+                      "size": { "w": 45, "h": 15 },
+                      "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+                      "characters": "Inscrito",
+                      "font": { "family": "Inter", "style": "Bold" },
+                      "fontSize": 12,
+                      "textAutoResize": "WIDTH_AND_HEIGHT"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
