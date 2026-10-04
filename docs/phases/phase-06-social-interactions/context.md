@@ -3,10 +3,11 @@ kind: phase
 name: phase-06-social-interactions
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-social-interactions.md: "2026-10-01T21:50:20-03:00"
+  docs/decisions/technical-decisions-social-interactions.md: "2026-10-03T21:55:58-03:00"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T21:50:20-03:00"
-  docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-06-29T19:03:26-03:00"
+  docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-10-03T21:48:21-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
+  docs/decisions/technical-decisions-openapi-docs-nestjs.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-01-configuracao-base/context.md: "2026-10-01T21:50:20-03:00"
   docs/phases/phase-02-auth/context.md: "2026-06-29T19:03:26-03:00"
   docs/phases/phase-02-auth-frontend/context.md: "2026-06-29T19:03:26-03:00"
@@ -18,10 +19,11 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-social-interactions.md: "a1543ab14522"
+  docs/decisions/technical-decisions-social-interactions.md: "5d77800087a5"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "b08d6f49f958"
-  docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "dce35a1a5901"
+  docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "371ec55c2f2a"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
+  docs/decisions/technical-decisions-openapi-docs-nestjs.md: "7696624c8b2f"
   docs/phases/phase-01-configuracao-base/context.md: "aed82fcbcf53"
   docs/phases/phase-02-auth/context.md: "2f6ccb7eaebc"
   docs/phases/phase-02-auth-frontend/context.md: "3f0f1efff30f"
@@ -72,19 +74,18 @@ sources_hash:
 
 | Ref | Source | Scope | Topic | Status | Decision | Libraries |
 |-----|--------|-------|-------|--------|----------|-----------|
-| social-interactions/TD-01 | phase | Backend | Modelagem das reações (like/dislike em vídeos e comentários) | decided | A (duas tabelas dedicadas — `video_reactions`, `comment_reactions`) | — |
-| social-interactions/TD-02 | phase | Backend | Manutenção dos contadores desnormalizados | decided | A (delta no serviço, mesma transação do evento) | — |
-| social-interactions/TD-03 | phase | Cross-layer | Superfície pública do dislike | decided | A (só estado do próprio usuário; sem `dislikes_count`) | — |
+| social-interactions/TD-01 | phase | Backend | Modelagem das reações (like/dislike vídeos e comentários) | decided | A (duas tabelas dedicadas — `video_reactions`, `comment_reactions`, cada uma com FK real) | — |
+| social-interactions/TD-02 | phase | Backend | Mecanismo de manutenção dos contadores desnormalizados | decided | A (delta no serviço, mesma transação do evento que o origina) | — |
+| social-interactions/TD-03 | phase | Cross-layer | Superfície pública do dislike | decided | A (só o estado do próprio usuário; sem `dislikes_count` e sem contagem na API) | — |
 | social-interactions/TD-04 | phase | Backend | Profundidade e armazenamento dos comentários aninhados | decided | A (profundidade 1 — `parent_id` nulável) | — |
 | social-interactions/TD-05 | phase | Cross-layer | Ordenação e carregamento das respostas | decided | B (recentes primeiro; 10 raízes/página, até 3 respostas pré-carregadas; offset/limit) | — |
-| social-interactions/TD-06 | phase | Backend | Modelagem da inscrição e origem da contagem de inscritos | decided | B (`subscribers_count` desnormalizado em `channels`) | — |
+| social-interactions/TD-06 | phase | Backend | Modelagem da inscrição e origem da contagem de inscritos | decided | B (`subscribers_count` desnormalizado em `channels`, mantido na mesma transação) | — |
 | social-interactions/TD-07 | phase | Cross-layer | O que é a "área de canais seguidos" | decided | A (lista de canais seguidos + ponto de entrada em `SiteNavbar`/`UserMenu`) | — |
 | social-interactions/TD-08 | phase | Frontend | Feedback da interação na interface | decided | A (`useOptimistic` do React 19) | — |
+| social-interactions/TD-09 | phase | Backend | Orçamento de rate limit das rotas sociais de escrita | pending | — | — |
 | social-interactions-anonymous-gate/TD-01 | ad-hoc | Cross-layer | O que o visitante anônimo vê e o que acontece ao agir | decided | A (leitura pública; controles renderizam, clique leva ao login) | — |
 | social-interactions-anonymous-gate/TD-02 | ad-hoc | Cross-layer | Como o estado pessoal do visitante chega à página | decided | A (endpoint público com auth opcional, payload único) | — |
 | social-interactions-anonymous-gate/TD-03 | ad-hoc | Frontend | Retorno ao ponto de interação depois do login | decided | A (`returnTo` na query de `/login`, validado por `safeReturnTo`) | — |
-
-_Nenhum TD em escopo define `**Renders in:**` (todos `—`); o default-by-inference é resolvido pelo filtro A2 do `plan-build` junto com o `ui_in_scope` da fase. Nenhum TD carrega `**Libraries:**`, bloco `**Revisions:**` ou marcador de superseded. Os dois docs têm frontmatter `status: pending`, mas os 11 TDs têm `**Decision:**` concreto — nenhum é `_[pending]_` — então todos contam como `decided` pela regra do campo Decision._
 
 _Source files:_
 
@@ -95,14 +96,14 @@ _Source files:_
 
 | Capability (from project-plan.md) | Covered by |
 |-----------------------------------|------------|
-| Like e dislike em vídeos (usuários autenticados) | social-interactions/TD-01, /TD-02, /TD-03, anonymous-gate/TD-01, /TD-02 |
-| Comentários em vídeos (usuários autenticados) | social-interactions/TD-02, /TD-05, anonymous-gate/TD-01 |
-| Respostas a comentários (comentários aninhados) | social-interactions/TD-04, /TD-05 |
-| Like e dislike em comentários (usuários autenticados) | social-interactions/TD-01, /TD-02, /TD-03, anonymous-gate/TD-01, /TD-02 |
-| Inscrição em canais (seguir/deixar de seguir) | social-interactions/TD-06, anonymous-gate/TD-01, /TD-02 |
+| Like e dislike em vídeos (usuários autenticados) | social-interactions/TD-01, social-interactions/TD-02, social-interactions/TD-03, social-interactions/TD-09, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
+| Comentários em vídeos (usuários autenticados) | social-interactions/TD-02, social-interactions/TD-05, social-interactions/TD-09, social-interactions-anonymous-gate/TD-01 |
+| Respostas a comentários (comentários aninhados) | social-interactions/TD-04, social-interactions/TD-05, social-interactions/TD-09 |
+| Like e dislike em comentários (usuários autenticados) | social-interactions/TD-01, social-interactions/TD-02, social-interactions/TD-03, social-interactions/TD-09, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
+| Inscrição em canais (seguir/deixar de seguir) | social-interactions/TD-06, social-interactions/TD-09, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02 |
 | Área de canais seguidos com acesso rápido aos vídeos | social-interactions/TD-07 |
 | Contagem de inscritos na página do canal | social-interactions/TD-06 |
-| Interface completa de comentários, likes e inscrições | social-interactions/TD-03, /TD-05, /TD-08, anonymous-gate/TD-01, /TD-02, /TD-03 |
+| Interface completa de comentários, likes e inscrições | social-interactions/TD-03, social-interactions/TD-05, social-interactions/TD-08, social-interactions-anonymous-gate/TD-01, social-interactions-anonymous-gate/TD-02, social-interactions-anonymous-gate/TD-03 |
 
 ## Decisions Detail
 
@@ -482,6 +483,10 @@ Uma consequência que precisa ser aceita junto: a fachada de mídia da Option A 
 **Recommendation:** **Option A (single `lib/api/contracts.ts` with explicit aliases)**. It is the only option that (i) handles pass-through and reshape with the same mechanism, (ii) gives a single grep target for "what shape does the BFF expose", and (iii) decouples Component imports from App Router file paths (Components import `from "@/lib/api/contracts"`, not `from "@/app/api/videos/route"`). Option B is theoretically minimal but fragile against Next's actual RSC/Client/Route-Handler typing; Option C scatters the contract surface and creates drift opportunities. The "long file" concern is bounded — for the scope of StreamTube, the BFF will likely have <30 contract aliases at peak; sectioning by feature header comments is sufficient. Make `lib/api/contracts.ts` the only file that imports `paths` from `types.gen.ts` (lintable later); every other consumer imports from `contracts.ts`.
 **Libraries:** —
 
+**Revisions:**
+
+- 2026-10-03 — Scope reclassificado de Frontend para Cross-layer (mesma Option A; `lib/api/contracts.ts` continua sendo o único importador de `paths`, nada muda no mecanismo). Rationale: resolve MD-2 (/plan-validate social-interactions) — a cadeia de contrato nasce no backend (`openapi-docs-nestjs` gera o `openapi.json`) e termina nos componentes do frontend; a Fase 06 acrescenta três grupos de rotas (reações, comentários, inscrições) que precisam atravessá-la, e com `Scope: Frontend` a decisão é filtrada das subseções voltadas a backend do artefato de build. Mesmo motivo e mesmo precedente de `video-channel-management/TD-08` em 2026-07-31.
+
 ### next-frontend-openapi-typing/TD-05
 **Recommendation:** **Option A (hand-written, typed via `paths`)**. Reasons: (1) **Determinism over auto-generation** — BFF integration tests assert on specific values; randomized fixtures are anti-helpful. (2) **Coherence with TD-01 recommendation** — `openapi-typescript`'s `paths` type is the single contract anchor; reusing it in MSW handlers means "spec ↔ handler ↔ assertion" is one type chain. (3) **Scale fit** — Phase 02 introduces few endpoints; the manual cost is negligible at this stage. If the API grows to dozens of endpoints and authoring overhead becomes real, this TD can be superseded with a Kubb-or-hey-api MSW plugin without touching TD-01's `paths` import sites (the generator just produces additional handler files; the existing manual handlers stay valid). Option B locks the project into a heavier TD-01 choice for marginal mock-authoring savings; Option C is Option A with an unnecessary detour.
 **Libraries:** —
@@ -553,6 +558,22 @@ afterAll(() => server.close());
 ```
 
 Phase 02+ tests need no additional setup — they `import { POST } from "@/app/api/auth/signup/route"`, build a `Request`, await the handler, and assert. Per-test deviations call `server.use(...)` inline.
+**Libraries:** —
+
+### openapi-docs-nestjs/TD-01
+**Recommendation:** **Option A (`@nestjs/swagger`)** — é a única opção que preserva as decisões anteriores (`class-validator` em TD-06 de phase-02-auth) sem re-platform; o CLI plugin com `classValidatorShim: true` aproveita os decoradores `class-validator` existentes para inferir schemas, mantendo o boilerplate baixo. Nestia tem mérito técnico real mas o custo de migração do stack de validação inviabiliza-a sem uma decisão upstream de supersede de TD-06. Manual authoring é descartado.
+**Libraries:** @nestjs/swagger
+
+**Revisions:**
+
+- 2026-05-12 — Esclarece que o CLI plugin (`classValidatorShim: true`) cobre apenas inferência de schemas de DTOs a partir de `class-validator`; documentação de operações, respostas tipadas por status code, contratos de erro (alinhados ao envelope de phase-02-auth/TD-07) e exemplos exigem decoradores explícitos (`@ApiOperation`, `@ApiResponse`, `@ApiBody`, `@ApiParam`, `@ApiQuery`, `@ApiExtraModels`). _Rationale:_ openapi.json gerado pelo bootstrap atual está genérico — sem detalhes de parâmetros, schemas de retorno por status, nem contratos de erro — porque a base instalada se apoiou só na introspecção automática. Esta revisão fixa que enriquecimento via decoradores explícitos faz parte da Option A escolhida, não é trabalho fora do escopo do TD.
+
+### openapi-docs-nestjs/TD-02
+**Recommendation:** **Option C (Ambos)** — o custo marginal sobre Option A é apenas um npm script (~15 linhas) e o benefício é uma fundação correta para futura integração FE (codegen offline) sem perder a UI interativa que dev/QA usam. Option B sozinho pune a experiência de desenvolvimento em dev/local; Option A sozinho compromete o pipeline de codegen futuro. Combinar é dominante.
+**Libraries:** —
+
+### openapi-docs-nestjs/TD-03
+**Recommendation:** **Option B (Apenas em dev/staging)** — alinha com a postura defensiva já estabelecida em phase 02 e não compromete consumidores legítimos (o `openapi.json` commitado em TD-02 cumpre o papel de "spec consultável fora da UI"). Re-abrir como Option A ou C é trivial no futuro se um caso de uso de API pública aparecer.
 **Libraries:** —
 
 ## Inherited Conventions
