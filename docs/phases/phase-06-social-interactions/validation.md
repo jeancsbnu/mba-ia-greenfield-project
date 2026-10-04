@@ -2,14 +2,14 @@
 kind: phase
 name: phase-06-social-interactions
 status: dirty
-issue_count: 3
+issue_count: 1
 sources_mtime:
-  docs/phases/phase-06-social-interactions/context.md: "2026-10-04T18:21:21-03:00"
-  docs/decisions/technical-decisions-social-interactions.md: "2026-10-03T21:55:58-03:00"
+  docs/phases/phase-06-social-interactions/context.md: "2026-10-04T19:35:59-03:00"
+  docs/decisions/technical-decisions-social-interactions.md: "2026-10-04T18:59:57-03:00"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T21:50:20-03:00"
 sources_hash:
-  docs/phases/phase-06-social-interactions/context.md: "06484f0d1796"
-  docs/decisions/technical-decisions-social-interactions.md: "5d77800087a5"
+  docs/phases/phase-06-social-interactions/context.md: "8a51fe229940"
+  docs/decisions/technical-decisions-social-interactions.md: "6383d9ab58c1"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "b08d6f49f958"
 issues:
   - id: IC-1
@@ -25,8 +25,9 @@ issues:
     summary: "anonymous-gate/TD-03 tem Scope Frontend com UI diferida — segundo TD orfao"
     resolved_by: screen-inventory-phase-06 (UI scope ativo)
   - id: IC-4
-    status: open
+    status: resolved
     summary: "Duas linhas do join de UI citam capability da Fase 04, ausente do escopo da Fase 06"
+    resolved_by: screen-inventory-phase-06 (amendment run, PR #50)
   - id: IC-5
     status: resolved
     summary: "Bullet diz acesso rapido aos videos; TD-07 entrega lista de canais, videos a dois cliques"
@@ -120,11 +121,13 @@ issues:
     summary: "Contagem de inscritos tem duas formas de render entre as duas telas"
     resolved_by: clarification
   - id: OQ-17
-    status: open
+    status: resolved
     summary: "75:62 sem harvest completo; duas linhas do inventario sem node id"
+    resolved_by: figma-harvest 2026-10-04 (PR #51)
   - id: OQ-18
-    status: open
+    status: resolved
     summary: "Tres nos de comentario colhidos no maxDepth 6; sub-estrutura sem node id"
+    resolved_by: figma-harvest 2026-10-04 (PR #51); residuo em OQ-21
   - id: OQ-19
     status: resolved
     summary: "/channel/subscriptions nao existe no repo e a tela altera a site-navbar"
@@ -133,6 +136,9 @@ issues:
     status: resolved
     summary: "TD-09 pending — orcamento de rate limit das rotas sociais de escrita"
     resolved_by: social-interactions/TD-09
+  - id: OQ-21
+    status: open
+    summary: "RepliesLoadMore sem node id — corte de leitura do payload dentro de 77:149"
 advisories: []
 ---
 
@@ -142,7 +148,7 @@ advisories: []
 
 ### Inconsistencies
 
-- **IC-4** — Duas linhas de `## UI Inventory → UI ↔ Capability Join`, ambas na tela `Página pública do canal` (`/@{nickname}`), têm a coluna Capability preenchida com `— (coberta na Fase 04: "Página pública do canal com informações e listagem de vídeos")`. Essa string não é nenhuma das oito bullets de `## Capability Coverage`. São os dois verbos pré-existentes da tela — exibir as informações do canal e listar seus vídeos —, que a Fase 06 não entrega: ela apenas **estende** a tela com inscrição e contagem. O inventário marcou as linhas de propósito para que a reconciliação não as confundisse com cobertura da Fase 06, e isso foi correto; o problema é a jusante. A matriz de rastreabilidade do `/plan-build` faz join pela capability, então essas duas linhas ou são descartadas em silêncio ou produzem linha malformada. Explicit choice: (a) remover os dois verbos do inventário via extension run do `/screen-inventory`, já que pertencem ao inventário da Fase 04 e não a este; (b) manter e ensinar o `/plan-build` a tratar o marcador `—` como "coberto em fase anterior, não rastrear aqui" — mudança de skill, não de artefato; (c) acrescentar a bullet da Fase 04 ao escopo da Fase 06 no `project-plan.md`, o que seria falso: a fase não reentrega aquela capability.
+_None._ _(A `IC-4` fechou e a categoria zera pela primeira vez nesta fase. O amendment run do inventário (PR #50) removeu da tabela de verbos da `Página pública do canal` os dois cujo Capability era `— (coberta na Fase 04: …)`, e a verificação desta rodada confirma no `context.md` reagregado: **nenhuma** das 14 linhas do `### UI ↔ Capability Join` cita capability fora das oito bullets do escopo. O join caiu de 16 para 14 verbos exatamente por isso. A `IC-5` havia fechado no resolve anterior, por `**Revisions:**` no `TD-07`.)_
 
 ### Ambiguities
 
@@ -164,16 +170,19 @@ _None._ _(Quatro pares verificados em particular. `TD-02` e `TD-06` contra `vide
 
 ### Unresolved Open Questions
 
-Nenhum TD está `pending` — o `TD-09` foi decidido neste resolve (Option B), fechando a `OQ-20`. Das nove entradas do inventário, seis foram resolvidas por argumento neste mesmo ciclo (`OQ-12` a `OQ-16` e `OQ-19`) e uma segue promovida a `IC-5`, agora resolvida. Restam as duas que dependem de uma colheita do Figma, indivisíveis entre si:
+Nenhum TD está `pending`. Das sete entradas de `### Open Questions from Inventory`, **seis carregam anotação de resolução** apontando para o `/plan-resolve` (PR #49) e foram descartadas pela regra de merge — `(categoria, summary)` já presente como `resolved`. Resta uma, nova nesta rodada:
 
-- **OQ-17** — `75:62` não tem harvest completo. O frame foi criado por script e a colheita truncou antes de terminar o nó, então o cache traz `known_child_ids` parcial em vez de árvore; duas linhas do inventário (`Avatar` dentro de `channel-row`, `SubscriptionToggleButton`) estão sem node id, e o `/implement` precisa de id para mirar o `figma-implement-design`. Resolution: resolver via `/plan-resolve social-interactions` — resolve junto com OQ-18 numa colheita só.
-- **OQ-18** — Três nós da watch page ficaram no limite de profundidade. `comment-root` (`77:137`, `77:176`) e `reply-list` (`77:149`) foram colhidos a `maxDepth` 6 e vieram sem filhos; toda a sub-estrutura de comentário foi lida do screenshot e está sem node id. Mesma consequência para o `/implement`. Resolution: resolver via `/plan-resolve social-interactions` — uma colheita com `maxDepth` maior cobrindo esses três nós e o `75:62` da OQ-17 fecha as duas de uma vez.
+- **OQ-21** — O `RepliesLoadMore` continua **sem node id**. A colheita de 2026-10-04 (PR #51, uma chamada, `maxDepth` 10) fechou todo o resto do déficit de ids: o `75:62` virou árvore real de 44 nós e os três nós de comentário de `77:64` foram colhidos isolados, então `channel-avatar`, `unsubscribe-button`, `channel-name`, `channel-meta` e a sub-estrutura inteira de comentário passaram a ter id. O que sobrou é um nó: a leitura do payload foi cortada em 20kb dentro de `77:149`, depois do primeiro `comment-reply` (77:150). A altura do frame sugere mais filhos, mas isso é aritmética de layout e não observação, e nenhum id foi inventado — o `77-149.json` registra `_envelope.transcription_truncated: true`. **A causa não foi o harvest:** nenhum nó reportou `truncated`. Consequência real e limitada: o `/implement` precisa de node id para mirar o `figma-implement-design` nesse controle; o `/plan-build` não precisa dele para escrever o SI. Resolution: colher `77:149` isolado (uma chamada) e rodar um amendment run do `/screen-inventory`; **ou** decidir por argumento no `/plan-resolve` que esse controle é implementado a partir do screenshot e da prosa do inventário, assumindo a perda da amarração desenho↔código nele.
 
 ### UI Coverage Gaps
 
-_None._ _(O `## UI Inventory` está populado com 3 telas e 16 linhas de junção, e as oito capabilities da fase têm ≥1 verbo cobrindo — likes e dislikes de vídeo por `LikeButton`/`DislikeButton`, comentários por `NewCommentForm`, respostas por `RepliesLoadMore`, reações a comentários por `CommentLikeButton`/`CommentDislikeButton`, inscrição por `SubscribeButton` e `SubscriptionToggleButton`, a área de canais por `channel-list`, a contagem por `ChannelHeader`, e a interface completa por `CommentsSection`/`CommentsLoadMore`. A cobertura parcial de "Respostas a comentários" — só o lado de leitura — **não** dispara UIG-N, porque a condição do check é ausência de verbo e o verbo existe; a lacuna de publicação está em `OQ-12`, que é onde ela pertence. `## Non-UI / Deferred Capabilities` está em `_None._`, então a terceira condição do check não suprime nada.)_
+_None._ _(O `## UI Inventory` está populado com 3 telas e **14** linhas de junção — eram 16 antes da `IC-4` remover os dois verbos da Fase 04 —, e as oito capabilities da fase continuam com ≥1 verbo cobrindo, verificado linha a linha nesta rodada: likes e dislikes de vídeo por `LikeButton`/`DislikeButton`, comentários por `NewCommentForm`, respostas por `RepliesLoadMore`, reações a comentários por `CommentLikeButton`/`CommentDislikeButton`, inscrição por `SubscribeButton` (nas duas telas) e `SubscriptionToggleButton`, a área de canais por `channel-list`/`channel-row`, a contagem por **`SubscriberCount` (59:86)** — que substituiu `ChannelHeader via ChannelMeta` pela `OQ-16` — e a interface completa por `CommentsSection`/`CommentsLoadMore`. **A remoção de verbos não abriu lacuna:** os dois que saíram cobriam capability da Fase 04, não desta fase. A cobertura parcial de "Respostas a comentários" — só o lado de leitura — **não** dispara UIG-N, porque a condição do check é ausência de verbo e o verbo existe; a lacuna de publicação foi fechada por argumento na `OQ-12`. `## Non-UI / Deferred Capabilities` está em `_None._`, então a terceira condição do check não suprime nada.)_
 
 ## Resolved Issues
+
+- **IC-4** _(resolved_by screen-inventory-phase-06, amendment run PR #50)_ — Duas linhas do `### UI ↔ Capability Join` citavam a capability da Fase 04 na tela `/@{nickname}`, e o `/plan-build` faz join pela capability, então sairiam descartadas em silêncio ou malformadas na matriz. A opção (a) foi executada: os dois verbos foram removidos do inventário, por pertencerem ao inventário da Fase 04 — esta fase apenas **estende** a tela. As linhas de componente de `ChannelHeader` e `VideoCard` permaneceram, porque os componentes estão de fato na tela e o contrato de UI precisa deles; o que saiu foi só o mapeamento verbo→capability.
+- **OQ-17** _(resolved_by figma-harvest 2026-10-04, PR #51)_ — O `75:62` era harvest parcial: `known_child_ids` com 16 entradas e nenhum `children`, porque o frame nasceu de script de autoria e a colheita truncou. Re-colhido a `maxDepth` 10, virou árvore real de 44 nós sem nenhum `truncated`. As duas linhas que estavam sem id ganharam id — `channel-avatar` (75:81, 75:89, 75:97) e `unsubscribe-button` (75:86, 75:94, 75:102) —, e de quebra `channel-name` (75:84, 75:92, 75:100) e `channel-meta` (75:85, 75:93, 75:101), que antes só existiam descritos nas Notes do pai.
+- **OQ-18** _(resolved_by figma-harvest 2026-10-04, PR #51; resíduo em OQ-21)_ — `comment-root` (`77:137`, `77:176`) e `reply-list` (`77:149`) vinham sem filhos por bater no `maxDepth` 6 da colheita de `77:64`. Colhidos isolados a `maxDepth` 10, a sub-estrutura de comentário deixou de ser leitura de screenshot: avatar (77:138, 77:177), `comment-meta` (77:141, 77:180) com autor e timestamp, `comment-text` (77:144, 77:183), `comment-actions` (77:145, 77:184), like (77:146, 77:185), dislike (77:147, 77:186), responder (77:148, 77:187 na raiz e 77:161 na resposta) e `comment-reply` (77:150). As duas threads têm estrutura idêntica, o que confirma `comment-root` como padrão repetido. Fica registrada uma colisão de nome que morde o `/implement`: o nó que o Figma chama `comment-body` é o **contêiner** (77:140, 77:179), enquanto a linha homônima do inventário descreve o **texto**, que é `comment-text` — mirar por id, não por nome. O único id que a colheita não recuperou segue em `OQ-21`.
 
 - **IC-5** _(resolved_by social-interactions/TD-07, revision 2026-10-04)_ — A bullet do plano promete "acesso rápido aos vídeos" e o TD-07 entrega lista de canais. Das três formas de alinhar as duas fontes, a escolhida foi a revisão de prosa: um `**Revisions:**` no TD-07 registra que "acesso rápido" é satisfeito pelo link para a página pública do canal, com os vídeos a dois cliques. Mesma Option A, nenhuma mudança de mecanismo; o `project-plan.md` não foi tocado e o feed da Fase 07 não foi antecipado.
 - **OQ-12** _(resolved_by clarification)_ — O `ReplyForm` é o `NewCommentForm` reusado com `parent_id`. Fecha o lado de publicação de "Respostas a comentários" sem desenhar estado novo nem gastar cota do Figma, e é coerente com o TD-04 (profundidade 1 — resposta é comentário com pai).
