@@ -1,0 +1,154 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "77:149",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=77-149",
+    "fetched_at": "2026-10-04T22:14:23Z",
+    "blocks": ["tree"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 10,
+    "transcription_truncated": true,
+    "notes": [
+      "ATENCAO — este arquivo e PARCIAL, e a causa nao e o harvest: o payload da chamada foi cortado em 20kb na leitura do agente, dentro deste no. A arvore abaixo e o que foi efetivamente observado.",
+      "O que esta completo: o primeiro comment-reply (77:150) e toda a sua sub-estrutura, 77:151 a 77:161.",
+      "O que NAO se sabe: se reply-list tem filhos DEPOIS de 77:150. A altura do frame (145) com gap 12 e um filho de 53 sugere que ha mais, possivelmente um segundo comment-reply e um controle de 'ver mais respostas' — mas isso e inferencia por aritmetica de layout, nao observacao, e por isso nenhum id adicional foi escrito aqui. Ids atribuidos de memoria estariam errados.",
+      "Consequencia para o consumidor: tratar a lista de children como possivelmente incompleta. O RepliesLoadMore do inventario segue SEM node id. Fechar isso custa uma colheita nova deste no isolado — uma chamada."
+    ]
+  },
+  "id": "77:149",
+  "name": "reply-list",
+  "type": "FRAME",
+  "size": { "w": 695, "h": 145 },
+  "layout": { "mode": "VERTICAL", "gap": 12, "padding": [0, 0, 0, 48], "primary": "MIN", "counter": "MIN" },
+  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+  "children": [
+    {
+      "id": "77:150",
+      "name": "comment-reply",
+      "type": "FRAME",
+      "size": { "w": 647, "h": 53 },
+      "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+      "children": [
+        {
+          "id": "77:151",
+          "name": "avatar",
+          "type": "FRAME",
+          "size": { "w": 28, "h": 28 },
+          "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+          "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+          "radius": 28,
+          "children": [
+            {
+              "id": "77:152",
+              "name": "avatar-initials",
+              "type": "TEXT",
+              "size": { "w": 12, "h": 11 },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "characters": "JC",
+              "font": { "family": "Inter", "style": "Bold" },
+              "fontSize": 9,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            }
+          ]
+        },
+        {
+          "id": "77:153",
+          "name": "comment-body",
+          "type": "FRAME",
+          "size": { "w": 607, "h": 53 },
+          "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "children": [
+            {
+              "id": "77:154",
+              "name": "comment-meta",
+              "type": "FRAME",
+              "size": { "w": 124, "h": 16 },
+              "layout": { "mode": "HORIZONTAL", "gap": 8, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "children": [
+                {
+                  "id": "77:155",
+                  "name": "comment-author",
+                  "type": "TEXT",
+                  "size": { "w": 68, "h": 16 },
+                  "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+                  "characters": "Joana Cria",
+                  "font": { "family": "Inter", "style": "Bold" },
+                  "fontSize": 13,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                },
+                {
+                  "id": "77:156",
+                  "name": "comment-when",
+                  "type": "TEXT",
+                  "size": { "w": 48, "h": 13 },
+                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "characters": "há 1 hora",
+                  "font": { "family": "Inter", "style": "Regular" },
+                  "fontSize": 11,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                }
+              ]
+            },
+            {
+              "id": "77:157",
+              "name": "comment-text",
+              "type": "TEXT",
+              "size": { "w": 607, "h": 16 },
+              "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+              "characters": "Uma 35mm — valeu demais!",
+              "font": { "family": "Inter", "style": "Regular" },
+              "fontSize": 13,
+              "textAutoResize": "HEIGHT"
+            },
+            {
+              "id": "77:158",
+              "name": "comment-actions",
+              "type": "FRAME",
+              "size": { "w": 198, "h": 13 },
+              "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+              "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+              "children": [
+                {
+                  "id": "77:159",
+                  "name": "comment-like",
+                  "type": "TEXT",
+                  "size": { "w": 51, "h": 13 },
+                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "characters": "Gostei · 3",
+                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "fontSize": 11,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                },
+                {
+                  "id": "77:160",
+                  "name": "comment-dislike",
+                  "type": "TEXT",
+                  "size": { "w": 57, "h": 13 },
+                  "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+                  "characters": "Não gostei",
+                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "fontSize": 11,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                },
+                {
+                  "id": "77:161",
+                  "name": "comment-reply-action",
+                  "type": "TEXT",
+                  "size": { "w": 58, "h": 13 },
+                  "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+                  "characters": "Responder",
+                  "font": { "family": "Inter", "style": "Semi Bold" },
+                  "fontSize": 11,
+                  "textAutoResize": "WIDTH_AND_HEIGHT"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

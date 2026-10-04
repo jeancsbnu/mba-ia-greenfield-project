@@ -1,0 +1,142 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "77:176",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=77-176",
+    "fetched_at": "2026-10-04T22:14:23Z",
+    "blocks": ["tree"],
+    "harvested_by": "figma-batch",
+    "maxDepth": 10,
+    "notes": [
+      "Segunda thread de comment-root dentro de 77:64. Mesma estrutura de 77:137, o que confirma que comment-root e um padrao repetido e nao duas formas distintas.",
+      "Colheita sem truncamento: nenhum no reportou `truncated` a maxDepth 10.",
+      "Resolve metade da OQ-18 da Fase 06."
+    ]
+  },
+  "id": "77:176",
+  "name": "comment-root",
+  "type": "FRAME",
+  "size": { "w": 695, "h": 53 },
+  "layout": { "mode": "HORIZONTAL", "gap": 12, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+  "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+  "children": [
+    {
+      "id": "77:177",
+      "name": "avatar",
+      "type": "FRAME",
+      "size": { "w": 36, "h": 36 },
+      "layout": { "mode": "HORIZONTAL", "gap": 0, "padding": [0, 0, 0, 0], "primary": "CENTER", "counter": "CENTER" },
+      "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+      "radius": 36,
+      "children": [
+        {
+          "id": "77:178",
+          "name": "avatar-initials",
+          "type": "TEXT",
+          "size": { "w": 18, "h": 15 },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "characters": "AC",
+          "font": { "family": "Inter", "style": "Bold" },
+          "fontSize": 12,
+          "textAutoResize": "WIDTH_AND_HEIGHT"
+        }
+      ]
+    },
+    {
+      "id": "77:179",
+      "name": "comment-body",
+      "type": "FRAME",
+      "size": { "w": 647, "h": 53 },
+      "layout": { "mode": "VERTICAL", "gap": 4, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "MIN" },
+      "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+      "children": [
+        {
+          "id": "77:180",
+          "name": "comment-meta",
+          "type": "FRAME",
+          "size": { "w": 149, "h": 16 },
+          "layout": { "mode": "HORIZONTAL", "gap": 8, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "children": [
+            {
+              "id": "77:181",
+              "name": "comment-author",
+              "type": "TEXT",
+              "size": { "w": 86, "h": 16 },
+              "fills": [{ "type": "SOLID", "color": "#1c2d37", "opacity": 1 }],
+              "characters": "Ana Carvalho",
+              "font": { "family": "Inter", "style": "Bold" },
+              "fontSize": 13,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            {
+              "id": "77:182",
+              "name": "comment-when",
+              "type": "TEXT",
+              "size": { "w": 55, "h": 13 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "há 5 horas",
+              "font": { "family": "Inter", "style": "Regular" },
+              "fontSize": 11,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            }
+          ]
+        },
+        {
+          "id": "77:183",
+          "name": "comment-text",
+          "type": "TEXT",
+          "size": { "w": 647, "h": 16 },
+          "fills": [{ "type": "SOLID", "color": "#1e293b", "opacity": 1 }],
+          "characters": "Esse setup cabe num quarto pequeno? Estou montando o meu agora.",
+          "font": { "family": "Inter", "style": "Regular" },
+          "fontSize": 13,
+          "textAutoResize": "HEIGHT"
+        },
+        {
+          "id": "77:184",
+          "name": "comment-actions",
+          "type": "FRAME",
+          "size": { "w": 198, "h": 13 },
+          "layout": { "mode": "HORIZONTAL", "gap": 16, "padding": [0, 0, 0, 0], "primary": "MIN", "counter": "CENTER" },
+          "fills": [{ "type": "SOLID", "color": "#ffffff", "opacity": 1 }],
+          "children": [
+            {
+              "id": "77:185",
+              "name": "comment-like",
+              "type": "TEXT",
+              "size": { "w": 51, "h": 13 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "Gostei · 2",
+              "font": { "family": "Inter", "style": "Semi Bold" },
+              "fontSize": 11,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            {
+              "id": "77:186",
+              "name": "comment-dislike",
+              "type": "TEXT",
+              "size": { "w": 57, "h": 13 },
+              "fills": [{ "type": "SOLID", "color": "#7a6e65", "opacity": 1 }],
+              "characters": "Não gostei",
+              "font": { "family": "Inter", "style": "Semi Bold" },
+              "fontSize": 11,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            {
+              "id": "77:187",
+              "name": "comment-reply-action",
+              "type": "TEXT",
+              "size": { "w": 58, "h": 13 },
+              "fills": [{ "type": "SOLID", "color": "#3f72af", "opacity": 1 }],
+              "characters": "Responder",
+              "font": { "family": "Inter", "style": "Semi Bold" },
+              "fontSize": 11,
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

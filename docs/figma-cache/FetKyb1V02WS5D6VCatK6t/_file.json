@@ -5,14 +5,23 @@
     "id": "0:1",
     "name": "Seus vídeos"
   },
-  "harvested_at": "2026-10-03T00:00:00Z",
+  "harvested_at": "2026-10-04T22:14:23Z",
   "harvested_by": "figma-batch",
-  "mcp_calls_spent": 6,
+  "mcp_calls_spent": 7,
   "blocks": [
     "tree",
     "screenshots"
   ],
-  "maxDepth": 6,
+  "maxDepth": {
+    "59:2": 5,
+    "66:42": 6,
+    "68:62": 6,
+    "77:64": 6,
+    "75:62": 10,
+    "77:137": 10,
+    "77:176": 10,
+    "77:149": 10
+  },
   "nodes": {
     "59:2": {
       "name": "pagina-publica-canal",
@@ -43,9 +52,8 @@
       "route": "/channel/subscriptions",
       "file": "75-62.json",
       "screenshot": "75-62.png",
-      "source": "authoring-script",
-      "tree": "parcial — ver _envelope.provenance",
-      "session_state": "autenticado"
+      "session_state": "autenticado",
+      "note": "re-colhido 2026-10-04 a maxDepth 10 — substitui o harvest parcial que tinha known_child_ids e nenhum children (OQ-17)"
     },
     "77:64": {
       "name": "assistir-video-interacoes",
@@ -54,32 +62,88 @@
       "file": "77-64.json",
       "screenshot": "77-64.png",
       "session_state": "autenticado"
+    },
+    "77:137": {
+      "name": "comment-root",
+      "phase": 6,
+      "route": "/videos/{publicId}",
+      "file": "77-137.json",
+      "screenshot": "77-64.png (o pai; estes nos nao tem PNG proprio)",
+      "parent": "77:64",
+      "note": "primeira thread; colhido 2026-10-04 a maxDepth 10 porque o harvest de 77:64 a maxDepth 6 devolveu este no sem filhos (OQ-18)"
+    },
+    "77:176": {
+      "name": "comment-root",
+      "phase": 6,
+      "route": "/videos/{publicId}",
+      "file": "77-176.json",
+      "screenshot": "77-64.png (o pai; estes nos nao tem PNG proprio)",
+      "parent": "77:64",
+      "note": "segunda thread; colhido 2026-10-04 a maxDepth 10 porque o harvest de 77:64 a maxDepth 6 devolveu este no sem filhos (OQ-18)"
+    },
+    "77:149": {
+      "name": "reply-list",
+      "phase": 6,
+      "route": "/videos/{publicId}",
+      "file": "77-149.json",
+      "screenshot": "77-64.png (o pai; estes nos nao tem PNG proprio)",
+      "parent": "77:64",
+      "note": "respostas pre-carregadas da primeira thread; colhido 2026-10-04 a maxDepth 10 porque o harvest de 77:64 a maxDepth 6 devolveu este no sem filhos (OQ-18). ARQUIVO PARCIAL — a leitura do payload foi cortada em 20kb dentro deste no; ver _envelope.notes do 77-149.json"
     }
   },
   "write_in_same_call": {
     "note": "Fase 06 desenhada em 4 chamadas use_figma (2 em 2026-10-01, 2 em 2026-10-03).",
     "call_1": {
       "date": "2026-10-01",
-      "createdNodeIds": ["77:62", "77:64", "77:118", "77:119", "77:121", "77:123", "77:125", "77:188", "77:190"],
-      "mutatedNodeIds": ["75:73", "75:71", "77:94"],
+      "createdNodeIds": [
+        "77:62",
+        "77:64",
+        "77:118",
+        "77:119",
+        "77:121",
+        "77:123",
+        "77:125",
+        "77:188",
+        "77:190"
+      ],
+      "mutatedNodeIds": [
+        "75:73",
+        "75:71",
+        "77:94"
+      ],
       "reason": "Conserta a navbar de 75:62; cria assistir-video-interacoes (77:64) clonando 66:42; cria canal-publico (77:190) — este ultimo por engano, ver call_3."
     },
     "call_2": {
       "date": "2026-10-01",
-      "createdNodeIds": ["78:82", "78:83"],
-      "mutatedNodeIds": ["77:75", "77:73"],
+      "createdNodeIds": [
+        "78:82",
+        "78:83"
+      ],
+      "mutatedNodeIds": [
+        "77:75",
+        "77:73"
+      ],
       "reason": "Conserta o estado de sessao da navbar de 77:64 e colhe as arvores."
     },
     "call_3": {
       "date": "2026-10-03",
-      "createdNodeIds": ["79:82", "79:83"],
-      "mutatedNodeIds": ["59:86"],
-      "removedNodeIds": ["77:190"],
+      "createdNodeIds": [
+        "79:82",
+        "79:83"
+      ],
+      "mutatedNodeIds": [
+        "59:86"
+      ],
+      "removedNodeIds": [
+        "77:190"
+      ],
       "reason": "Desfaz a duplicata: 77:190 reivindicava a rota /@{nickname}, que ja e a 59:2 da Fase 04. Remove 77:190 e acrescenta a 59:2 o subscribe-button e a contagem de inscritos (TD-06)."
     },
     "call_4": {
       "date": "2026-10-03",
-      "mutatedNodeIds": ["79:82"],
+      "mutatedNodeIds": [
+        "79:82"
+      ],
       "reason": "Reposiciona o subscribe-button: entrou como filho de fluxo e caiu sobre o avatar. Ver a nota sobre layoutMode x layoutPositioning abaixo."
     }
   },
@@ -91,7 +155,8 @@
     "Estado de sessao e uma propriedade da TELA, nao do componente: 66:42 e 59:2 sao anonimas (navbar com 'Entrar'), 75:62 e 77:64 sao autenticadas (avatar + 'Sair'). Clonar chrome entre telas sem conferir o estado de origem ja produziu defeito duas vezes aqui.",
     "ARMADILHA DE LAYOUT: 59:15 (main-dashed-container de 59:2) reporta layoutMode 'VERTICAL', mas seus 14 filhos sao TODOS layoutPositioning 'ABSOLUTE' com x/y proprios. Ler layoutMode do pai NAO diz como um filho e posicionado. Ao inserir um no ali, setar layoutPositioning='ABSOLUTE' e x/y explicitos; caso contrario ele entra no fluxo e empilha no canto. Conferir layoutPositioning dos irmaos antes de escolher.",
     "77:64 e 59:2 sao harvests de verdade (arvore colhida depois da escrita). 75:62 nao e: ver _envelope.provenance naquele arquivo.",
-    "A rota de 75:62 (/channel/subscriptions) foi decidida pelo usuario em 2026-10-03, seguindo a convencao do grupo autenticado (/channel/videos, /channel/settings). Nao estava no TD-07, que decidiu o conteudo da area sem nomear o endereco."
+    "A rota de 75:62 (/channel/subscriptions) foi decidida pelo usuario em 2026-10-03, seguindo a convencao do grupo autenticado (/channel/videos, /channel/settings). Nao estava no TD-07, que decidiu o conteudo da area sem nomear o endereco.",
+    "2026-10-04 — colheita de 1 chamada fechando a OQ-17 e a maior parte da OQ-18 da Fase 06: 75:62 ganhou arvore real, e os tres nos de comentario de 77:64 que estavam no limite de profundidade foram colhidos isolados a maxDepth 10. errors: [] na chamada. Pendencia: a lista de children de 77:149 pode estar incompleta (corte de leitura, nao de harvest)."
   ],
   "errors": []
 }
