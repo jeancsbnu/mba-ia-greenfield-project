@@ -168,7 +168,7 @@ Same as Option A (script + committed `types.gen.ts`), plus a CI job that runs th
 
 ## TD-04: Type Sharing Between BFF Layer and Components Layer
 
-**Scope:** Frontend
+**Scope:** Cross-layer
 
 **Trigger:** Decide the contract relationship between the **upstream types** (what NestJS endpoints return) and the **BFF-facing types** (what Route Handlers return to Components). These are conceptually two contracts: the user explicitly asks how to ensure "Route Handlers share the same contract on both sides."
 
@@ -213,6 +213,10 @@ Each feature folder owns its own contract file (e.g., `app/(videos)/_contracts.t
 **Recommendation:** **Option A (single `lib/api/contracts.ts` with explicit aliases)**. It is the only option that (i) handles pass-through and reshape with the same mechanism, (ii) gives a single grep target for "what shape does the BFF expose", and (iii) decouples Component imports from App Router file paths (Components import `from "@/lib/api/contracts"`, not `from "@/app/api/videos/route"`). Option B is theoretically minimal but fragile against Next's actual RSC/Client/Route-Handler typing; Option C scatters the contract surface and creates drift opportunities. The "long file" concern is bounded — for the scope of StreamTube, the BFF will likely have <30 contract aliases at peak; sectioning by feature header comments is sufficient. Make `lib/api/contracts.ts` the only file that imports `paths` from `types.gen.ts` (lintable later); every other consumer imports from `contracts.ts`.
 
 **Decision:** A (single `lib/api/contracts.ts` with explicit aliases)
+
+**Revisions:**
+
+- 2026-10-03 — Scope reclassificado de Frontend para Cross-layer (mesma Option A; `lib/api/contracts.ts` continua sendo o único importador de `paths`, nada muda no mecanismo). Rationale: resolve MD-2 (/plan-validate social-interactions) — a cadeia de contrato nasce no backend (`openapi-docs-nestjs` gera o `openapi.json`) e termina nos componentes do frontend; a Fase 06 acrescenta três grupos de rotas (reações, comentários, inscrições) que precisam atravessá-la, e com `Scope: Frontend` a decisão é filtrada das subseções voltadas a backend do artefato de build. Mesmo motivo e mesmo precedente de `video-channel-management/TD-08` em 2026-07-31.
 
 ---
 
