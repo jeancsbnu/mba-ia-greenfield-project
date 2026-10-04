@@ -3,7 +3,7 @@ kind: phase
 name: phase-06-social-interactions
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-social-interactions.md: "2026-10-03T21:55:58-03:00"
+  docs/decisions/technical-decisions-social-interactions.md: "2026-10-04T18:49:32-03:00"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T21:50:20-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-10-03T21:48:21-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
@@ -19,7 +19,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-social-interactions.md: "5d77800087a5"
+  docs/decisions/technical-decisions-social-interactions.md: "6383d9ab58c1"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "b08d6f49f958"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "371ec55c2f2a"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
@@ -81,8 +81,9 @@ sources_hash:
 | social-interactions/TD-05 | phase | Cross-layer | Ordenação e carregamento das respostas | decided | B (recentes primeiro; 10 raízes/página, até 3 respostas pré-carregadas; offset/limit) | — |
 | social-interactions/TD-06 | phase | Backend | Modelagem da inscrição e origem da contagem de inscritos | decided | B (`subscribers_count` desnormalizado em `channels`, mantido na mesma transação) | — |
 | social-interactions/TD-07 | phase | Cross-layer | O que é a "área de canais seguidos" | decided | A (lista de canais seguidos + ponto de entrada em `SiteNavbar`/`UserMenu`) | — |
+|     └─ Last revision: 2026-10-04 — "acesso rápido aos vídeos" satisfeito pelo link da página do canal | | | | | | |
 | social-interactions/TD-08 | phase | Frontend | Feedback da interação na interface | decided | A (`useOptimistic` do React 19) | — |
-| social-interactions/TD-09 | phase | Backend | Orçamento de rate limit das rotas sociais de escrita | pending | — | — |
+| social-interactions/TD-09 | phase | Backend | Orçamento de rate limit das rotas sociais de escrita | decided | B (dois orçamentos por perfil: 60/60 s reações e inscrição, 5/60 s comentário e resposta) | — |
 | social-interactions-anonymous-gate/TD-01 | ad-hoc | Cross-layer | O que o visitante anônimo vê e o que acontece ao agir | decided | A (leitura pública; controles renderizam, clique leva ao login) | — |
 | social-interactions-anonymous-gate/TD-02 | ad-hoc | Cross-layer | Como o estado pessoal do visitante chega à página | decided | A (endpoint público com auth opcional, payload único) | — |
 | social-interactions-anonymous-gate/TD-03 | ad-hoc | Frontend | Retorno ao ponto de interação depois do login | decided | A (`returnTo` na query de `/login`, validado por `safeReturnTo`) | — |
@@ -142,9 +143,19 @@ _Source files:_
 **Recommendation:** o entregável da fase diz "listagem de canais seguidos", e a Fase 07 tem como bullets próprios a grade de vídeos, a paginação e o scroll infinito. Construir um feed aqui é antecipar o trabalho da 07 num lugar onde ele será reavaliado, e a Option C paga a complexidade do feed sem entregar o feed. Se a intenção do produto for realmente um feed, o lugar natural é a Fase 07, onde a infraestrutura de listagem será construída uma vez e usada pela home e por esta área. **Esta é a recomendação com maior chance de estar errada por leitura de escopo** — se "acesso rápido aos vídeos" significa feed para você, a Option B é defensável e o custo de decidir isso agora é muito menor que o de descobrir depois.
 **Libraries:** —
 
+**Revisions:**
+- 2026-10-04 — Registrado que o "acesso rápido aos vídeos" da bullet do plano é satisfeito pelo **link para a página pública do canal**: os vídeos ficam a dois cliques, não a um. Mesma Option A, nenhuma mudança de mecanismo nem de escopo. Rationale: resolve IC-5 (/plan-validate) — a bullet do `project-plan.md` promete acesso aos vídeos e este TD entrega lista de canais; das três formas de alinhar as duas fontes, a escolhida foi registrar a leitura por escrito aqui, sem editar o plano e sem antecipar para esta fase o feed que a Fase 07 vai construir. O próprio `**Recommendation:**` acima já marcava esta como a recomendação com maior chance de erro por leitura de escopo; a divergência passa a ser decisão consciente e não omissão.
+
 ### social-interactions/TD-08
 
 **Recommendation:** é a única que entrega o feedback imediato sem acrescentar dependência, e a primitiva já está na versão instalada. A Option B é mais simples e seria suficiente para a inscrição, que é clicada uma vez; para like e dislike, que são clicados muito e esperados como instantâneos, ela entrega a pior sensação da fase. A Option C resolve mais do que o problema desta fase e cria um segundo cache ao lado do que o App Router já mantém — se a Fase 07 mostrar necessidade real de cache de cliente, aí é a hora de reabrir, com mais evidência do que botões de like.
+**Libraries:** —
+
+### social-interactions/TD-09
+
+**Recommendation:** **Option B**, com a Option C declarada como caminho para quando houver evidência de colisão por NAT ou de abuso que troca de IP — exatamente a forma como o `video-watch-page/TD-05` declarou o Redis para o caso multi-instância. Três razões. (1) A Option D está fora por um argumento verificável e não por gosto: 10/60 s compartilhado entre like, dislike, comentário e inscrição é estourado por leitura normal de uma thread, e o modo de falha é um botão que para de responder sem explicação. (2) Entre A e B, o que decide é que **as duas pontas têm perfis de abuso opostos** e um número único não serve às duas — e o custo de B sobre A é um segundo valor no mesmo decorator, não um mecanismo novo. (3) A Option C acerta no diagnóstico — por IP é mesmo o rastreador errado para rota autenticada — mas paga com alteração no `forRoot` de outra fase e com código custom para resolver um cenário que o projeto ainda não observou; é uma Revision barata de aplicar depois, sem trocar a letra, se a evidência aparecer.
+
+Valores sugeridos para o preenchimento: **60/60 s** para reações e inscrição, **5/60 s** para criação de comentário e de resposta. Cinco comentários por minuto já é digitação humana rápida; sessenta toggles por minuto cobre leitura ativa de uma thread longa com folga. Os dois números são parâmetros e podem ser revisados por `/decide` sem trocar a opção.
 **Libraries:** —
 
 ### social-interactions-anonymous-gate/TD-01
