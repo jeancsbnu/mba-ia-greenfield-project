@@ -620,42 +620,42 @@ _As Fases 03, 04 e 05 têm `## Non-UI / Deferred Capabilities` vazia ou `_None._
 
 | Screen | Route | Verb | Capability | Covering Component |
 |--------|-------|------|------------|-------------------|
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Inscrever-se no canal do vídeo e cancelar a inscrição a partir da própria página de assistir | "Inscrição em canais (seguir/deixar de seguir)" | SubscribeButton |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário no vídeo, exibindo a contagem resultante | "Like e dislike em vídeos (usuários autenticados)" | LikeButton |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário no vídeo, sem exibir contagem | "Like e dislike em vídeos (usuários autenticados)" | DislikeButton |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Exibir os comentários do vídeo com as respostas pré-carregadas, dos mais recentes para os mais antigos | "Interface completa de comentários, likes e inscrições" | CommentsSection |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar a próxima página de comentários-raiz | "Interface completa de comentários, likes e inscrições" | CommentsLoadMore |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Publicar um novo comentário no vídeo | "Comentários em vídeos (usuários autenticados)" | NewCommentForm |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Inscrever-se no canal do vídeo e cancelar a inscrição a partir da própria página de assistir | "Inscrição em canais (seguir/deixar de seguir)" | SubscribeButton (77:119) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário no vídeo, exibindo a contagem resultante | "Like e dislike em vídeos (usuários autenticados)" | LikeButton (77:121) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário no vídeo, sem exibir contagem | "Like e dislike em vídeos (usuários autenticados)" | DislikeButton (77:123) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Exibir os comentários do vídeo com as respostas pré-carregadas, dos mais recentes para os mais antigos | "Interface completa de comentários, likes e inscrições" | CommentsSection (77:125) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar a próxima página de comentários-raiz | "Interface completa de comentários, likes e inscrições" | CommentsLoadMore (77:188) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Publicar um novo comentário no vídeo | "Comentários em vídeos (usuários autenticados)" | NewCommentForm (77:129) |
 | Página de visualização do vídeo — interações sociais | /videos/{publicId} | Carregar as respostas restantes de uma thread, além das pré-carregadas | "Respostas a comentários (comentários aninhados)" | RepliesLoadMore (77:174) |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentLikeButton |
-| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentDislikeButton |
-| Área de canais seguidos | /channel/subscriptions | Listar os canais que o usuário segue, com acesso rápido à página de cada um | "Área de canais seguidos com acesso rápido aos vídeos" | channel-list |
-| Área de canais seguidos | /channel/subscriptions | Exibir a contagem de inscritos de cada canal seguido | "Área de canais seguidos com acesso rápido aos vídeos" | channel-row |
-| Área de canais seguidos | /channel/subscriptions | Deixar de seguir um canal a partir da lista | "Inscrição em canais (seguir/deixar de seguir)" | SubscriptionToggleButton em channel-row |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o like do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentLikeButton (77:146, 77:185) |
+| Página de visualização do vídeo — interações sociais | /videos/{publicId} | Registrar ou retirar o dislike do usuário em um comentário ou resposta | "Like e dislike em comentários (usuários autenticados)" | CommentDislikeButton (77:147, 77:186) |
+| Área de canais seguidos | /channel/subscriptions | Listar os canais que o usuário segue, com acesso rápido à página de cada um | "Área de canais seguidos com acesso rápido aos vídeos" | channel-list (75:79) |
+| Área de canais seguidos | /channel/subscriptions | Exibir a contagem de inscritos de cada canal seguido | "Área de canais seguidos com acesso rápido aos vídeos" | channel-row (75:80, 75:88, 75:96) |
+| Área de canais seguidos | /channel/subscriptions | Deixar de seguir um canal a partir da lista | "Inscrição em canais (seguir/deixar de seguir)" | SubscriptionToggleButton (75:86, 75:94, 75:102) em channel-row |
 | Página pública do canal | /@{nickname} | Exibir a contagem de inscritos do canal | "Contagem de inscritos na página do canal" | SubscriberCount (59:86) |
 | Página pública do canal | /@{nickname} | Inscrever-se no canal e cancelar a inscrição | "Inscrição em canais (seguir/deixar de seguir)" | SubscribeButton (79:82) |
 
 ### Server-connected Components
 
-- `VideoWatchPage` (Página de visualização do vídeo — interações sociais) — `Reuse?: app/videos/[publicId]/page.tsx`
-- `VideoPlayer` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-player.tsx`
-- `SubscribeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `LikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `DislikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `CommentsSection` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `NewCommentForm` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `CommentLikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `CommentDislikeButton` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `VideoWatchPage (77:64)` (Página de visualização do vídeo — interações sociais) — `Reuse?: app/videos/[publicId]/page.tsx`
+- `VideoPlayer (77:78)` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-player.tsx`
+- `SubscribeButton (77:119)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `LikeButton (77:121)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `DislikeButton (77:123)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentsSection (77:125)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `NewCommentForm (77:129)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentLikeButton (77:146, 77:185)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `CommentDislikeButton (77:147, 77:186)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
 - `RepliesLoadMore (77:174)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `CommentsLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
-- `VideoCard` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-card.tsx`
-- `SidebarLoadMore` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/sidebar-load-more.tsx`
-- `channel-list` (Área de canais seguidos) — `Reuse?: new`
-- `channel-row` (Área de canais seguidos) — `Reuse?: new`
-- `SubscriptionToggleButton` (Área de canais seguidos) — `Reuse?: new`
-- `ChannelHeader` (Página pública do canal) — `Reuse?: components/channels/channel-header.tsx`
-- `SubscribeButton` (Página pública do canal) — `Reuse?: new`
-- `VideoCard` (Página pública do canal) — `Reuse?: components/videos/video-card.tsx`
+- `CommentsLoadMore (77:188)` (Página de visualização do vídeo — interações sociais) — `Reuse?: new`
+- `VideoCard (77:112, 77:113, 77:114, 77:115)` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/video-card.tsx`
+- `SidebarLoadMore (77:116)` (Página de visualização do vídeo — interações sociais) — `Reuse?: components/videos/sidebar-load-more.tsx`
+- `channel-list (75:79)` (Área de canais seguidos) — `Reuse?: new`
+- `channel-row (75:80, 75:88, 75:96)` (Área de canais seguidos) — `Reuse?: new`
+- `SubscriptionToggleButton (75:86, 75:94, 75:102)` (Área de canais seguidos) — `Reuse?: new`
+- `ChannelHeader (59:16, 59:85, 59:86, 59:87, 79:82)` (Página pública do canal) — `Reuse?: components/channels/channel-header.tsx`
+- `SubscribeButton (79:82)` (Página pública do canal) — `Reuse?: new`
+- `VideoCard (59:88)` (Página pública do canal) — `Reuse?: components/videos/video-card.tsx`
 
 ### Open Questions from Inventory
 
