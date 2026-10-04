@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""recommendation-chars.py — prints "<td> <chars>" per Recommendation block.
+"""recommendation-chars.py — prints "<slug>/<td> <chars>" per Recommendation block.
 
 Used by the /plan-context gate 5b (Recommendation completeness) to detect
 `decisions-detail-reader` truncating Recommendation prose. The same counter
 runs over both sides of the comparison:
 
-  - the source decisions docs, where a TD opens as `## TD-01: Titulo`
-  - the agent's output, where a TD opens as `### {slug}/TD-01`
+  - the source decisions docs, where a TD opens as `## TD-01: Titulo` and the
+    slug comes from the filename (`technical-decisions-<slug>.md`)
+  - the agent's output, where a TD opens as `### {slug}/TD-01` and the slug is
+    already in the heading
+
+Every key is qualified by the slug, because TD numbering restarts per document:
+a kept set holding two decisions docs normally has two different `TD-01`s. A
+bare `TD-NN` key makes the second doc overwrite the first in the consumer's
+dictionary, which the gate then reports as a pile of MISMATCH + missing TDs.
 
 Normalization (identical on both sides, so the comparison is exact, not a
 tolerance band):
@@ -23,13 +30,14 @@ multi-byte in UTF-8 and would otherwise inflate every total.
 Usage: recommendation-chars.py FILE [FILE ...]
 """
 
+import os
 import re
 import sys
 
 # `## TD-01: Titulo` (source doc) — the colon and title are optional.
 RE_SOURCE_TD = re.compile(r"^## (TD-[0-9]+)\b")
 # `### {slug}/TD-01` (agent output).
-RE_AGENT_TD = re.compile(r"^### [a-z0-9-]+/(TD-[0-9]+)\b")
+RE_AGENT_TD = re.compile(r"^### ([a-z0-9-]+)/(TD-[0-9]+)\b")
 
 RE_RECOMMENDATION = re.compile(r"^\*\*Recommendation:\*\*\s*")
 
@@ -46,10 +54,32 @@ RE_OPTION_PREFIX = re.compile(
 # A Recommendation block ends at the next bolded field, rule, or heading.
 RE_BLOCK_END = re.compile(r"^(?:\*\*[A-Za-z]|---|### |## )")
 
+DOC_PREFIX = "technical-decisions-"
 
-def count_file(path):
-    """Yield (td, chars) for each Recommendation block in `path`."""
-    td = None
+
+def slug_for(path):
+    """Derive the decisions-doc slug from `path`'s filename.
+
+    `docs/decisions/technical-decisions-social-interactions.md` →
+    `social-interactions`. A filename that does not carry the project prefix
+    falls back to its stem, so an ad-hoc or scratch file still gets a stable,
+    non-empty key component.
+    """
+    stem = os.path.splitext(os.path.basename(path))[0]
+    if stem.startswith(DOC_PREFIX) and len(stem) > len(DOC_PREFIX):
+        return stem[len(DOC_PREFIX):]
+    return stem
+
+
+def count_file(path, slug=None):
+    """Yield (`{slug}/TD-NN`, chars) for each Recommendation block in `path`.
+
+    `slug` overrides the filename-derived slug used for source-shaped
+    (`## TD-NN`) headings; agent-shaped (`### {slug}/TD-NN`) headings always
+    carry their own slug and ignore both.
+    """
+    file_slug = slug if slug is not None else slug_for(path)
+    key = None
     in_rec = False
     total = 0
 
@@ -58,13 +88,17 @@ def count_file(path):
             line = raw.rstrip("\n").rstrip("\r")
 
             if in_rec and RE_BLOCK_END.match(line):
-                yield td, total
+                yield key, total
                 in_rec = False
                 # fall through: this same line may open the next TD/block
 
-            m = RE_AGENT_TD.match(line) or RE_SOURCE_TD.match(line)
+            m = RE_AGENT_TD.match(line)
             if m:
-                td = m.group(1)
+                key = f"{m.group(1)}/{m.group(2)}"
+                continue
+            m = RE_SOURCE_TD.match(line)
+            if m:
+                key = f"{file_slug}/{m.group(1)}"
                 continue
 
             if RE_RECOMMENDATION.match(line):
@@ -78,7 +112,7 @@ def count_file(path):
                 total += len(line.strip())
 
     if in_rec:
-        yield td, total
+        yield key, total
 
 
 def main(argv):
@@ -86,8 +120,8 @@ def main(argv):
         print(__doc__.strip().splitlines()[-1], file=sys.stderr)
         return 2
     for path in argv:
-        for td, chars in count_file(path):
-            print(td, chars)
+        for key, chars in count_file(path):
+            print(key, chars)
     return 0
 
 
