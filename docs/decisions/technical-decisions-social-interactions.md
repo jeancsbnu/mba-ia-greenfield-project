@@ -239,6 +239,9 @@ _Subprojects in scope:_
 
 **Decision:** A (lista de canais seguidos, com link para a página pública de cada um) — inclui o **ponto de entrada de navegação** para a área, acrescentado ao chrome autenticado entregue na Fase 04 (`SiteNavbar` / `UserMenu`), que hoje não tem link algum. (resolve DG-1 do /plan-validate)
 
+**Revisions:**
+- 2026-10-04 — Registrado que o "acesso rápido aos vídeos" da bullet do plano é satisfeito pelo **link para a página pública do canal**: os vídeos ficam a dois cliques, não a um. Mesma Option A, nenhuma mudança de mecanismo nem de escopo. Rationale: resolve IC-5 (/plan-validate) — a bullet do `project-plan.md` promete acesso aos vídeos e este TD entrega lista de canais; das três formas de alinhar as duas fontes, a escolhida foi registrar a leitura por escrito aqui, sem editar o plano e sem antecipar para esta fase o feed que a Fase 07 vai construir. O próprio `**Recommendation:**` acima já marcava esta como a recomendação com maior chance de erro por leitura de escopo; a divergência passa a ser decisão consciente e não omissão.
+
 ---
 
 ## TD-08: Feedback da interação na interface
@@ -318,7 +321,7 @@ Nenhum decorator; as rotas novas herdam o orçamento do `AuthModule`, e a decis�
 
 Valores sugeridos para o preenchimento: **60/60 s** para reações e inscrição, **5/60 s** para criação de comentário e de resposta. Cinco comentários por minuto já é digitação humana rápida; sessenta toggles por minuto cobre leitura ativa de uma thread longa com folga. Os dois números são parâmetros e podem ser revisados por `/decide` sem trocar a opção.
 
-**Decision:** _[pending]_
+**Decision:** B (dois orçamentos por perfil de abuso, via `@Throttle({ default: ... })` por rota, rastreador por IP) — **60/60 s** para reagir a vídeo, reagir a comentário e inscrever-se/desinscrever-se; **5/60 s** para criar comentário e resposta. A Option C (throttler nomeado com `getTracker` por usuário) fica declarada como caminho para quando houver evidência de colisão por NAT ou de abuso que troque de IP — é Revision barata, sem trocar a letra. Storage em memória é herança de `video-watch-page/TD-05` e não se reabre aqui. (resolve OQ-20 do /plan-validate)
 
 ---
 
