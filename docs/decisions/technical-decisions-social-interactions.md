@@ -272,6 +272,56 @@ _Subprojects in scope:_
 
 ---
 
+## TD-09: Orçamento de rate limit das rotas sociais de escrita
+
+**Scope:** Backend
+
+**Capability:** Transversal — covers: "Like e dislike em vídeos (usuários autenticados)", "Comentários em vídeos (usuários autenticados)", "Respostas a comentários (comentários aninhados)", "Like e dislike em comentários (usuários autenticados)", "Inscrição em canais (seguir/deixar de seguir)"
+
+**Context:** Esta fase cria quatro grupos de rotas de **escrita**: reagir a vídeo, reagir a comentário, criar comentário (incluindo resposta) e inscrever-se/desinscrever-se. Hoje nenhuma delas tem orçamento próprio, e todas herdam o default global — verificado no disco, não suposto: `nestjs-project/src/auth/auth.module.ts:29` registra `ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }])` e a linha 35 provê `ThrottlerGuard` como `APP_GUARD`. Herdar não é decidir: **esse número foi escolhido para o fluxo de autenticação**, e o próprio `forRoot` vive dentro do `AuthModule`. Um usuário lendo uma thread e curtindo 11 comentários em um minuto é bloqueado — comportamento legítimo tratado como abuso.
+
+O projeto já tratou exatamente esse erro como digno de TD: `video-watch-page/TD-05` deu `@Throttle({ default: { limit: 30, ttl: 60000 } })` dedicado à rota de contagem de visualização (hoje em `videos.controller.ts:224`) justamente porque o orçamento de navegação não é o de login. Aquele TD também decidiu o **storage em memória**, deixando Redis declarado como caminho para quando houver mais de uma instância — isso é herança e **não se reabre aqui**.
+
+Dois fatos da API da versão instalada (`@nestjs/throttler` 6.5.0) condicionam as opções: `@Throttle()` **substitui** a configuração global da rota, não mescla; e o rastreador padrão é o **IP**, não o usuário — ainda que todas estas rotas sejam autenticadas.
+
+**Options:**
+
+### Option A: Um orçamento único para todas as quatro rotas
+
+Um mesmo `@Throttle({ default: { limit: N, ttl: 60000 } })` em cada rota de escrita social, mantendo o rastreador por IP.
+
+- **Pros:** menor peça móvel; segue literalmente a forma do `video-watch-page/TD-05`; nenhum código além do decorator. Um número só para justificar e revisar.
+- **Cons:** trata com o mesmo orçamento duas coisas de perfil oposto — curtir é clique rápido, repetido e legítimo; publicar comentário é o alvo clássico de spam. O número acaba frouxo para um e apertado para o outro.
+
+### Option B: Dois orçamentos, separados por perfil de abuso
+
+Reações e inscrição (toggles, alta frequência legítima, não produzem conteúdo) com limite alto; criação de comentário e de resposta com limite baixo. Ambos via `@Throttle({ default: ... })` por rota, rastreador por IP.
+
+- **Pros:** o orçamento acompanha o risco real. Um toggle idempotente não gera conteúdo visível a terceiros e pode ser generoso; comentário é o que polui a thread dos outros e merece aperto. Nenhuma máquina nova — continua sendo só decorator.
+- **Cons:** dois números a justificar e manter em vez de um; a fronteira entre os grupos vira convenção que o próximo autor de rota precisa conhecer.
+
+### Option C: Throttler nomeado dedicado, com rastreador por usuário
+
+Registrar um segundo throttler nomeado (`social`) no `forRoot` e um `getTracker` que use o id do usuário autenticado, caindo para o IP quando não houver sessão.
+
+- **Pros:** é o rastreador correto para rota autenticada. Por IP, usuários atrás de NAT compartilhado — universidade, CGNAT de operadora móvel — dividem um orçamento que não é deles, e quem abusa contorna trocando de IP.
+- **Cons:** exige `getTracker` custom e mexe no `forRoot`, que hoje mora dentro do `AuthModule` — alteração de um módulo de outra fase para servir a esta. O ganho é real mas o problema que ele resolve não foi observado no projeto; é otimização contra um cenário previsto, não medido.
+
+### Option D: Aceitar o default global de 10/60 s e registrar por escrito
+
+Nenhum decorator; as rotas novas herdam o orçamento do `AuthModule`, e a decisão fica registrada para que a próxima leitura não reabra a pergunta.
+
+- **Pros:** zero código e zero superfície nova. Honesto quanto ao fato de que o projeto não tem tráfego nem evidência de abuso.
+- **Cons:** 10 requisições por minuto cobrindo **todas** as interações sociais somadas é apertado para uso normal — curtir uma thread de comentários estoura sozinho. Repete o erro que o `video-watch-page/TD-05` já corrigiu uma vez, e o sintoma aparece como bug de UI, não como bloqueio legível.
+
+**Recommendation:** **Option B**, com a Option C declarada como caminho para quando houver evidência de colisão por NAT ou de abuso que troca de IP — exatamente a forma como o `video-watch-page/TD-05` declarou o Redis para o caso multi-instância. Três razões. (1) A Option D está fora por um argumento verificável e não por gosto: 10/60 s compartilhado entre like, dislike, comentário e inscrição é estourado por leitura normal de uma thread, e o modo de falha é um botão que para de responder sem explicação. (2) Entre A e B, o que decide é que **as duas pontas têm perfis de abuso opostos** e um número único não serve às duas — e o custo de B sobre A é um segundo valor no mesmo decorator, não um mecanismo novo. (3) A Option C acerta no diagnóstico — por IP é mesmo o rastreador errado para rota autenticada — mas paga com alteração no `forRoot` de outra fase e com código custom para resolver um cenário que o projeto ainda não observou; é uma Revision barata de aplicar depois, sem trocar a letra, se a evidência aparecer.
+
+Valores sugeridos para o preenchimento: **60/60 s** para reações e inscrição, **5/60 s** para criação de comentário e de resposta. Cinco comentários por minuto já é digitação humana rápida; sessenta toggles por minuto cobre leitura ativa de uma thread longa com folga. Os dois números são parâmetros e podem ser revisados por `/decide` sem trocar a opção.
+
+**Decision:** _[pending]_
+
+---
+
 ## Decisions Summary
 
 | ID | Scope | Decision | Recommendation | Choice |
@@ -284,3 +334,4 @@ _Subprojects in scope:_
 | TD-06 | Backend | Modelagem da inscrição e origem da contagem de inscritos | B (coluna desnormalizada, mesmo padrão do TD-02) | B |
 | TD-07 | Cross-layer | O que é a "área de canais seguidos" | A (lista de canais, não feed) | A |
 | TD-08 | Frontend | Feedback da interação na interface | A (`useOptimistic` do React 19) | A |
+| TD-09 | Backend | Orçamento de rate limit das rotas sociais de escrita | B (dois orçamentos: toggles generoso, comentário apertado) | _[pending]_ |
