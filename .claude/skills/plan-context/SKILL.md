@@ -177,7 +177,11 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
    python .claude/skills/plan-context/scripts/recommendation-chars.py <file> [<file> ...]
    ```
 
-   It prints `<TD-NN> <chars>` per Recommendation block and accepts both heading shapes — `## TD-01: Titulo` in the source docs and `### {slug}/TD-01` in the agent's output — keying both to the bare `TD-NN` so the join by TD lines up. The normalization is identical on both sides: it strips the `**Recommendation:**` marker and the option marker in every form this project uses (`Option A — `, `Option A (Name) — `, `**Option A (Name)** — `), trims leading/trailing spaces per line, and counts characters **excluding newlines**, so soft-wrap differences do not register. It counts characters, not bytes — the accented prose and em-dashes in these docs are multi-byte in UTF-8.
+   It prints `<slug>/<TD-NN> <chars>` per Recommendation block and accepts both heading shapes — `## TD-01: Titulo` in the source docs and `### {slug}/TD-01` in the agent's output — keying both to **`{slug}/TD-NN`**, taking the slug from the filename (`technical-decisions-<slug>.md`) on the source side and from the heading itself on the agent side. The scratch file holding the agent's output can therefore be named anything; its headings carry their own slug.
+
+   **Key by `{slug}/TD-NN`, never by the bare `TD-NN`.** TD numbering restarts per document, so a kept set of two decisions docs normally has two different `TD-01`s. Keyed by the bare id, the second doc overwrites the first in whatever dictionary the comparison is built from, and the gate reports the lost TDs as MISMATCH plus missing — a wholly false abort. Phase 06 hit exactly this: `technical-decisions-social-interactions.md` (TD-01..TD-09) alongside `technical-decisions-social-interactions-anonymous-gate.md` (TD-01..TD-03) produced 3 invented MISMATCH; keyed by slug it is 11/11 exact.
+
+   The normalization is identical on both sides: it strips the `**Recommendation:**` marker and the option marker in every form this project uses (`Option A — `, `Option A (Name) — `, `**Option A (Name)** — `), trims leading/trailing spaces per line, and counts characters **excluding newlines**, so soft-wrap differences do not register. It counts characters, not bytes — the accented prose and em-dashes in these docs are multi-byte in UTF-8.
 
    The counter is a versioned script with a test suite rather than a snippet embedded in this file, because an embedded snippet cannot be tested. The inline `awk` that used to live here silently inflated every count: its option-prefix regexes could not match the `Option A (Name) — ` form that every Recommendation in this project actually uses, so the surviving prefix was counted as content and the gate had no way to notice. Run the tests after touching either file:
 
@@ -185,7 +189,9 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
    python .claude/skills/plan-context/scripts/test_recommendation_chars.py
    ```
 
-   Compare per TD, matching the agent's `{slug}/TD-NN` against the source's `TD-NN` within that slug's file. **The counts must be equal** — the normalization is the same on both sides, so this is an exact check, not a tolerance band. On any mismatch, abort naming every offending TD:
+   Its golden counts come from the synthetic docs in `scripts/fixtures/`, not from the project's real decisions docs. An earlier version pinned the measured counts of a live doc, so adding TD-09 to it turned the suite red for a benign reason — and a gate whose own suite goes red on routine edits teaches you to ignore it. The real docs are still exercised, by tolerant checks (every TD keyed as `{slug}/TD-NN`, every count a positive integer, no duplicate keys across `docs/decisions/`) that adding a TD cannot break.
+
+   Compare per `{slug}/TD-NN` key — the counter emits the same key shape for both sides, so the join is a direct key-to-key match with no per-file bookkeeping. **The counts must be equal** — the normalization is the same on both sides, so this is an exact check, not a tolerance band. On any mismatch, abort naming every offending TD:
 
    `"decisions-detail-reader truncated Recommendation prose: {slug}/TD-NN source={X} chars, emitted={Y} chars (lost {X-Y}). Re-dispatch decisions-detail-reader and instruct it that Recommendation is a verbatim copy, never a summary."`
 
