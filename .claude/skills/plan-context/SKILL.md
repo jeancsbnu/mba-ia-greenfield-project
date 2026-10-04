@@ -174,8 +174,11 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
    Write the agent's output verbatim to a scratch file, then run the **same** counter over both the kept decisions docs and that file:
 
    ```bash
-   python .claude/skills/plan-context/scripts/recommendation-chars.py <file> [<file> ...]
+   python .claude/skills/plan-context/scripts/recommendation-chars.py --decided-only <kept_doc> [<kept_doc> ...]
+   python .claude/skills/plan-context/scripts/recommendation-chars.py <agent_output>
    ```
+
+   **`--decided-only` goes on the source side only.** A pending TD has Recommendation prose written but no `**Decision:**`, and `decisions-detail-reader` emits decided TDs only — so counting the pending one makes it read as a key the agent dropped. Phase 06's `social-interactions/TD-09` (pending, 1363 chars) produced exactly that false MISSING against output that was otherwise 11/11 exact. The flag applies the same `**Decision:** <CAPITAL>` test gate 5 uses for `expected`, so the two gates agree on what "decided" means. Agent output and `context.md` carry no `**Decision:**` field at all, so the flag would empty them; the counter warns on stderr if you point it there by mistake.
 
    It prints `<slug>/<TD-NN> <chars>` per Recommendation block and accepts both heading shapes — `## TD-01: Titulo` in the source docs and `### {slug}/TD-01` in the agent's output — keying both to **`{slug}/TD-NN`**, taking the slug from the filename (`technical-decisions-<slug>.md`) on the source side and from the heading itself on the agent side. The scratch file holding the agent's output can therefore be named anything; its headings carry their own slug.
 
@@ -183,13 +186,15 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
 
    The normalization is identical on both sides: it strips the `**Recommendation:**` marker and the option marker in every form this project uses (`Option A — `, `Option A (Name) — `, `**Option A (Name)** — `), trims leading/trailing spaces per line, and counts characters **excluding newlines**, so soft-wrap differences do not register. It counts characters, not bytes — the accented prose and em-dashes in these docs are multi-byte in UTF-8.
 
+   **A block ends at a known field label, not at any bold line.** The counter's `FIELD_NAMES` allowlist (`Context`, `Options`, `Decision`, `Libraries`, `Renders in`, `Revisions`, `Scope`, `Capability`, `Trigger`, `Note`) plus `---` and any heading are what close a Recommendation. The earlier rule closed it at any `^**Word`, which measured a Recommendation carrying a **bold prose subtitle** short on *both* sides — the counts matched, the gate went green, and the lost lines were never in the measured span. `msw-foundation/TD-02` is the live case: 5 lines after `**When Option A should be revisited**`, **1295 of 1773 characters (73%)**, outside the old span. A survey of every `## TD-` in `docs/decisions/` and `docs/phases/*/context.md` found exactly 2 blocks whose span changes under the allowlist (that TD and its copy in a prior `context.md`) — every other bold line sits after `**Decision:**` and is unaffected. Because an allowlist goes stale, a `**Label:**` line that is **not** a known field and therefore gets counted as body is reported on stderr; when that fires, decide whether the label is a new field and add it to `FIELD_NAMES`.
+
    The counter is a versioned script with a test suite rather than a snippet embedded in this file, because an embedded snippet cannot be tested. The inline `awk` that used to live here silently inflated every count: its option-prefix regexes could not match the `Option A (Name) — ` form that every Recommendation in this project actually uses, so the surviving prefix was counted as content and the gate had no way to notice. Run the tests after touching either file:
 
    ```bash
    python .claude/skills/plan-context/scripts/test_recommendation_chars.py
    ```
 
-   Its golden counts come from the synthetic docs in `scripts/fixtures/`, not from the project's real decisions docs. An earlier version pinned the measured counts of a live doc, so adding TD-09 to it turned the suite red for a benign reason — and a gate whose own suite goes red on routine edits teaches you to ignore it. The real docs are still exercised, by tolerant checks (every TD keyed as `{slug}/TD-NN`, every count a positive integer, no duplicate keys across `docs/decisions/`) that adding a TD cannot break.
+   Its golden counts come from the synthetic docs in `scripts/fixtures/`, not from the project's real decisions docs. An earlier version pinned the measured counts of a live doc, so adding TD-09 to it turned the suite red for a benign reason — and a gate whose own suite goes red on routine edits teaches you to ignore it. The real docs are still exercised, by tolerant checks (every TD keyed as `{slug}/TD-NN`, every count a positive integer, no duplicate keys across `docs/decisions/`, and a decided-TD count that must equal the doc's own `**Decision:** <CAPITAL>` line count) that adding a TD cannot break.
 
    Compare per `{slug}/TD-NN` key — the counter emits the same key shape for both sides, so the join is a direct key-to-key match with no per-file bookkeeping. **The counts must be equal** — the normalization is the same on both sides, so this is an exact check, not a tolerance band. On any mismatch, abort naming every offending TD:
 
@@ -199,11 +204,42 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
 
    This gate reads only integers into the main thread: the prose stays on disk and in the scratch file, so it costs nothing in context.
 
+5c. **`## Inherited Decisions Detail` completeness (FUNCTIONAL hard gate, runs in Step 7 once the section is assembled).** Gate 5b measures `decisions-detail-reader`'s output — the **current-scope** TDs. In Phase 06 that is 11 of the 73 `### {slug}/TD-NN` blocks in `context.md`. The other 62 reach the file through two paths that had **no gate at all**:
+
+   - **47 from `phases-reader`** (`## Inherited TD Details`), copied from the `## Decisions Detail` section of each prior phase's `context.md`;
+   - **15 from the Step 4 synthesis**, which the **main thread itself** writes from the correlator-confirmed docs.
+
+   The Step 4 path is the exposed one: it is prose copied by hand, which is the exact operation that lost 1128 of 1304 characters three times in this project. Measured for real, the Phase 06 artifact lost 5 lines of `next-frontend-msw-foundation/TD-02` with every other check green.
+
+   Run the counter section-scoped on the assembled `context.md` and against both source sets:
+
+   ```bash
+   # target — the assembled section
+   python .claude/skills/plan-context/scripts/recommendation-chars.py \
+     --section "Inherited Decisions Detail" <context.md>
+
+   # source A — each prior phase's own current-scope section
+   python .claude/skills/plan-context/scripts/recommendation-chars.py \
+     --section "Decisions Detail" <prior_context.md> [...]
+
+   # source B — each correlator-confirmed decisions doc
+   python .claude/skills/plan-context/scripts/recommendation-chars.py \
+     --decided-only <confirmed_doc> [...]
+   ```
+
+   `--section` is load-bearing: a prior `context.md` holds **both** `## Decisions Detail` and its own `## Inherited Decisions Detail`, and only the first is the source for this phase's inherited block. Without the flag the two sections collapse into one namespace and a prior phase's own inherited TD is mistaken for a current-scope one.
+
+   Compare per `{slug}/TD-NN` key, union of source A and source B against the target. **The counts must be equal**, same exact-check rationale as gate 5b. Because Step 7 applies dedupe (a TD already in `## Decisions Detail` is dropped from the inherited block), a key present in a source and absent from the target is a failure **only when** that key is not in `current_refs`. On any real mismatch, abort naming every offending TD:
+
+   `"Inherited Decisions Detail truncated: {slug}/TD-NN source={X} chars, assembled={Y} chars (lost {X-Y}). Source: {phases-reader | Step 4 synthesis}. Re-copy the Recommendation verbatim from {path}."`
+
+   The Phase 06 artifact on `main` passes this gate 59/59, so the gate is calibrated against a known-good assembly rather than asserted. Same cost profile as 5b — integers only.
+
 6. **Cosmetic detection (SOFT — warn to terminal, never abort).** Run only when decisions-detail-reader was dispatched.
    a. **Preamble.** Count chars before the first `## Decisions Detail for` line in agent output (`awk '/^## Decisions Detail for/{exit} {len+=length($0)+1} END{print len}'`). If `> 0`, emit to terminal: `"WARN [cosmetic]: decisions-detail-reader emitted {N} chars of preamble before the '## Decisions Detail for' heading."`
    b. **Option-X prefix retention.** Count Recommendation lines that retain the option marker (bolded OR plain): `prefix_kept = grep -cE '^\*\*Recommendation:\*\* (\*\*)?Option [A-Z]' <agent_output>`. Total Recommendation lines: `prefix_total = grep -cE '^\*\*Recommendation:\*\*' <agent_output>`. If `prefix_kept > 0`, emit: `"WARN [cosmetic]: {prefix_kept} of {prefix_total} Recommendation lines retain 'Option X' prefix (bolded `**Option X (Name)** —` or plain `Option X — `)."`
 
-**Quality bar (FUNCTIONAL hard / COSMETIC soft).** Gates 1–5 are FUNCTIONAL hard gates (mismatch → abort + re-dispatch). Gate 6 is COSMETIC soft (warns to terminal, never aborts). Cosmetic drift doesn't corrupt downstream artifacts — `context.md` Step 7 copies only `### {slug}/TD-XX` blocks (preamble dropped), and `plan-build` B4 reads `**Recommendation:**` prose verbatim without semantic parsing. Promote gate 6 to hard only with empirical evidence that the drift became functional.
+**Quality bar (FUNCTIONAL hard / COSMETIC soft).** Gates 1–5, 5b and 5c are FUNCTIONAL hard gates (mismatch → abort + re-dispatch; 5c aborts the assembly and re-copies rather than re-dispatching, since the Step 4 half of its input is written by the main thread). Gate 6 is COSMETIC soft (warns to terminal, never aborts). Cosmetic drift doesn't corrupt downstream artifacts — `context.md` Step 7 copies only `### {slug}/TD-XX` blocks (preamble dropped), and `plan-build` B4 reads `**Recommendation:**` prose verbatim without semantic parsing. Promote gate 6 to hard only with empirical evidence that the drift became functional.
 
 This verification is the **secondary defense layer**. The agents' primary defense is now structural — their Step 3 uses **atomic Grep calls** to compute the keep set from `S_adhoc ∩ S_NN`, eliminating per-file iteration (and therefore silent-skip) by construction. The Filter Trace + caller cross-check is a backstop guarding against future refactors that might reintroduce iteration, and an audit trail showing which files were considered.
 
@@ -283,6 +319,8 @@ For every file contributing to context.md, run **both** `stat -c '%y' <file>` (I
 ### Step 7 — Assemble `context.md` from subagent outputs + testing guide extract
 
 Use the template in "Output format" below. Each section is populated by one subagent's return (or the testing-guide extract). No reinterpretation, no re-reading source files. Write the file.
+
+**After writing it, run gate 5c** (Step 2 → 5c) over the assembled `## Inherited Decisions Detail`. It is the only gate on the 62-of-73 blocks that do not come from `decisions-detail-reader`, and half of them are prose this stage copies by hand in Step 4 — the operation with this project's worst truncation record. The gate must pass before the stage reports success.
 
 **Transformations applied during assembly:**
 

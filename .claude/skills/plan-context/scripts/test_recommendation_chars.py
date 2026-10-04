@@ -14,7 +14,14 @@ Two real defects shaped this suite:
     so each count came back inflated by the surviving prefix;
   - keying by the bare `TD-NN` collided across documents (TD numbering
     restarts per doc), so a kept set of two docs lost one of its `TD-01`s and
-    the gate reported a wall of false MISMATCH.
+    the gate reported a wall of false MISMATCH;
+  - the block-end rule ended a Recommendation at ANY bold line, so a
+    Recommendation carrying a bold prose subtitle was measured short on BOTH
+    sides: the counts matched, the gate passed, and the lost lines were
+    invisible (`msw-foundation/TD-02`, 1295 of 1773 characters);
+  - the source side counted pending TDs, which have Recommendation prose but
+    no `**Decision:**` and are never emitted by the agents, so a pending TD
+    read as a missing key (`social-interactions/TD-09`).
 
 The golden counts live in `fixtures/`, not in the project's real decisions
 docs: a real doc gains TDs as the project moves, and a golden assertion that
@@ -245,6 +252,15 @@ class TestGoldenFixture(unittest.TestCase):
         "technical-decisions-fixture-beta.md": {
             "fixture-beta/TD-01": 5,
         },
+        "technical-decisions-fixture-gamma.md": {
+            # 3 content lines of 10, 12 and 10 — the middle one a bold prose
+            # subtitle that must NOT end the block.
+            "fixture-gamma/TD-01": 32,
+            # Pending: counted here, dropped by --decided-only.
+            "fixture-gamma/TD-02": 5,
+            # 5 + the 19-char `**Naocampo:** abcde` line absorbed as body.
+            "fixture-gamma/TD-03": 24,
+        },
     }
 
     def test_counts_match_hand_derived_values(self):
@@ -291,6 +307,215 @@ class TestAgainstRealDecisionsDocs(unittest.TestCase):
             keys.extend(key for key, _ in rc.count_file(str(path)))
         duplicates = sorted({k for k in keys if keys.count(k) > 1})
         self.assertEqual(duplicates, [])
+
+
+class TestBlockEndFieldAllowlist(unittest.TestCase):
+    """A Recommendation ends at a KNOWN FIELD, not at any bold line.
+
+    The old rule ended it at any `^**Word`, which measured
+    `msw-foundation/TD-02` short on both sides — counts equal, gate green,
+    1295 of 1773 characters unmeasured.
+    """
+
+    def test_bold_prose_subtitle_stays_in_the_block(self):
+        got = count_text(
+            "## TD-01: T\n"
+            "**Recommendation:** abcde\n"
+            "**Quando reabrir esta decisao**\n"
+            "fghij\n"
+            "**Decision:** A\n"
+        )
+        # 5 + 31 + 5 — the subtitle line is body, not a terminator.
+        self.assertEqual(got["doc/TD-01"], 5 + len("**Quando reabrir esta decisao**") + 5)
+
+    def test_blockquote_line_stays_in_the_block(self):
+        got = count_text(
+            "## TD-01: T\n**Recommendation:** abcde\n> **Nota.** fghij\n"
+            "**Decision:** A\n"
+        )
+        self.assertEqual(got["doc/TD-01"], 5 + len("> **Nota.** fghij"))
+
+    def test_every_known_field_ends_the_block(self):
+        for field in sorted(rc.FIELD_NAMES - {"Recommendation"}):
+            with self.subTest(field=field):
+                got = count_text(
+                    "## TD-01: T\n"
+                    "**Recommendation:** abcde\n"
+                    f"**{field}:** esta prosa nao pode ser contada\n"
+                )
+                self.assertEqual(got["doc/TD-01"], 5)
+
+    def test_note_is_a_field_not_prose(self):
+        # `Note` sits between Recommendation and Libraries in the assembled
+        # context.md; it is a sibling field, so it terminates.
+        got = count_text(
+            "### prior/TD-02\n**Recommendation:** abcde\n"
+            "**Note:** Decision deliberately diverged from the Recommendation\n"
+            "**Libraries:** x\n"
+        )
+        self.assertEqual(got["prior/TD-02"], 5)
+
+    def test_unknown_label_is_absorbed_and_warned(self):
+        warnings = []
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "technical-decisions-doc.md"
+            path.write_text(
+                "## TD-01: T\n**Recommendation:** abcde\n"
+                "**Naocampo:** fghij\n**Decision:** A\n",
+                encoding="utf-8",
+            )
+            got = dict(rc.count_file(str(path), warn=warnings.append))
+        self.assertEqual(got["doc/TD-01"], 5 + len("**Naocampo:** fghij"))
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("**Naocampo:**", warnings[0])
+        self.assertIn("doc/TD-01", warnings[0])
+
+    def test_known_field_does_not_warn(self):
+        warnings = []
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "technical-decisions-doc.md"
+            path.write_text(
+                "## TD-01: T\n**Recommendation:** abcde\n**Libraries:** x\n",
+                encoding="utf-8",
+            )
+            dict(rc.count_file(str(path), warn=warnings.append))
+        self.assertEqual(warnings, [])
+
+
+class TestDecidedOnly(unittest.TestCase):
+    """`--decided-only` restricts the SOURCE side to decided TDs.
+
+    A pending TD carries Recommendation prose with no `**Decision:**`, and
+    `decisions-detail-reader` only ever emits decided TDs, so counting the
+    pending one made it read as a key the agent had dropped —
+    `social-interactions/TD-09` produced exactly that false MISSING.
+    """
+
+    DOC = (
+        "## TD-01: Decidido\n**Recommendation:** abcde\n**Decision:** A\n---\n"
+        "## TD-02: Pending\n**Recommendation:** abcdefghij\n"
+        "**Decision:** _[pending]_\n---\n"
+        "## TD-03: Decidido em negrito\n**Recommendation:** abc\n"
+        "**Decision:** **C (alguma coisa)**\n"
+    )
+
+    def _counts(self, **kw):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "technical-decisions-doc.md"
+            path.write_text(self.DOC, encoding="utf-8")
+            return dict(rc.count_file(str(path), **kw))
+
+    def test_without_the_flag_every_td_is_counted(self):
+        self.assertEqual(
+            self._counts(),
+            {"doc/TD-01": 5, "doc/TD-02": 10, "doc/TD-03": 3},
+        )
+
+    def test_with_the_flag_pending_is_dropped(self):
+        self.assertEqual(
+            self._counts(decided_only=True),
+            {"doc/TD-01": 5, "doc/TD-03": 3},
+        )
+
+    def test_bolded_decision_value_still_counts_as_decided(self):
+        self.assertIn("doc/TD-03", self._counts(decided_only=True))
+
+    def test_records_expose_the_decided_flag(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "technical-decisions-doc.md"
+            path.write_text(self.DOC, encoding="utf-8")
+            got = {k: d for k, _, d in rc.records(str(path))}
+        self.assertEqual(
+            got, {"doc/TD-01": True, "doc/TD-02": False, "doc/TD-03": True}
+        )
+
+    def test_agent_output_has_no_decision_field_so_the_flag_empties_it(self):
+        # The footgun the CLI warns about: agent output and context.md carry no
+        # `**Decision:**`, so the flag belongs on the source side only.
+        agent = "### slug/TD-01\n**Recommendation:** abcde\n**Libraries:** —\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "agent-output.md"
+            path.write_text(agent, encoding="utf-8")
+            self.assertEqual(dict(rc.count_file(str(path))), {"slug/TD-01": 5})
+            self.assertEqual(
+                dict(rc.count_file(str(path), decided_only=True)), {}
+            )
+
+
+class TestSectionScoping(unittest.TestCase):
+    """`--section` is what makes the inherited block measurable.
+
+    A context.md holds both `## Decisions Detail` (current scope) and
+    `## Inherited Decisions Detail`; the gate compares them against different
+    sources, so they must be countable separately.
+    """
+
+    FIXTURE = FIXTURES / "context-fixture.md"
+
+    def test_current_scope_section(self):
+        self.assertEqual(
+            dict(rc.count_file(str(self.FIXTURE), section="Decisions Detail")),
+            {"fixture-current/TD-01": 5},
+        )
+
+    def test_inherited_section(self):
+        self.assertEqual(
+            dict(
+                rc.count_file(
+                    str(self.FIXTURE), section="Inherited Decisions Detail"
+                )
+            ),
+            {"fixture-prior/TD-01": 10, "fixture-prior/TD-02": 3},
+        )
+
+    def test_without_a_section_both_land_in_one_namespace(self):
+        self.assertEqual(
+            dict(rc.count_file(str(self.FIXTURE))),
+            {
+                "fixture-current/TD-01": 5,
+                "fixture-prior/TD-01": 10,
+                "fixture-prior/TD-02": 3,
+            },
+        )
+
+    def test_unknown_section_name_yields_nothing(self):
+        self.assertEqual(
+            dict(rc.count_file(str(self.FIXTURE), section="Nao Existe")), {}
+        )
+
+    def test_a_section_with_no_recommendations_yields_nothing(self):
+        self.assertEqual(
+            dict(
+                rc.count_file(str(self.FIXTURE), section="Testing Requirements")
+            ),
+            {},
+        )
+
+
+class TestDecidedOnlyAgainstRealDocs(unittest.TestCase):
+    """Cross-check mirroring gate 5: the decided-TD count the counter reports
+    must equal the `**Decision:** <CAPITAL>` line count in the same doc.
+
+    Fixes no value, so a new TD cannot turn this red.
+    """
+
+    RE_DECIDED = re.compile(r"^\*\*Decision:\*\*\s*\*{0,2}[A-Z]")
+
+    def test_decided_count_matches_the_decision_lines(self):
+        if not DECISIONS.is_dir():
+            self.skipTest(f"no decisions directory at {DECISIONS}")
+        docs = sorted(DECISIONS.glob("technical-decisions-*.md"))
+        if not docs:
+            self.skipTest(f"no decisions docs under {DECISIONS}")
+        for path in docs:
+            with self.subTest(doc=path.name):
+                expected = sum(
+                    1
+                    for line in path.read_text(encoding="utf-8").splitlines()
+                    if self.RE_DECIDED.match(line)
+                )
+                got = dict(rc.count_file(str(path), decided_only=True))
+                self.assertEqual(len(got), expected)
 
 
 if __name__ == "__main__":
