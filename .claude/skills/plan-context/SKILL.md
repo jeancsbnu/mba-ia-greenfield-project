@@ -171,24 +171,18 @@ Both subagents emit a mandatory `## Filter Trace` block listing every globbed `d
 
 5b. **`decisions-detail-reader` Recommendation completeness (FUNCTIONAL hard gate, runs only when decisions-detail-reader was dispatched).** Step 5 counts `### {slug}/TD-NN` headings, so it passes a TD whose Recommendation prose came back truncated — the heading is there, the content is not. This has happened three times in this project; the worst case lost **1128 of 1304 characters (86%)** of a TD-06 Recommendation while every count-based check reported success. Measure the content.
 
-   Write the agent's output verbatim to a scratch file, then run the **same** counter over both the kept decisions docs and that file. The script normalizes identically on both sides — it strips the `Option X — ` prefix the agent is contracted to remove, trims leading/trailing spaces, and counts characters **excluding newlines**, so soft-wrap differences do not register:
+   Write the agent's output verbatim to a scratch file, then run the **same** counter over both the kept decisions docs and that file:
 
-   ```awk
-   # recommendation-chars.awk — prints "<td> <chars>" per Recommendation block.
-   # Normaliza a chave dos dois lados: a fonte escreve "## TD-01: Titulo"
-   # (com dois-pontos) e o agente escreve "### {slug}/TD-01". Sem isto o join
-   # por TD nao casa e a gate compara listas desalinhadas.
-   /^### [a-z0-9-]+\/TD-[0-9]+/ { td=$2; sub(/^.*\//,"",td); sub(/:$/,"",td); next }
-   /^## TD-/ { td=$2; sub(/:$/,"",td); next }
-   /^\*\*Recommendation:\*\*/ {
-     line=$0; sub(/^\*\*Recommendation:\*\* */,"",line)
-     sub(/^\*\*?Option [A-Z][^—]*\*\*? *— */,"",line)
-     sub(/^Option [A-Z] *— */,"",line)
-     n=length(line); inrec=1; next
-   }
-   inrec && (/^\*\*[A-Za-z]/ || /^---/ || /^### / || /^## /) { print td, n; inrec=0 }
-   inrec { gsub(/^ +| +$/,""); n+=length($0) }
-   END { if (inrec) print td, n }
+   ```bash
+   python .claude/skills/plan-context/scripts/recommendation-chars.py <file> [<file> ...]
+   ```
+
+   It prints `<TD-NN> <chars>` per Recommendation block and accepts both heading shapes — `## TD-01: Titulo` in the source docs and `### {slug}/TD-01` in the agent's output — keying both to the bare `TD-NN` so the join by TD lines up. The normalization is identical on both sides: it strips the `**Recommendation:**` marker and the option marker in every form this project uses (`Option A — `, `Option A (Name) — `, `**Option A (Name)** — `), trims leading/trailing spaces per line, and counts characters **excluding newlines**, so soft-wrap differences do not register. It counts characters, not bytes — the accented prose and em-dashes in these docs are multi-byte in UTF-8.
+
+   The counter is a versioned script with a test suite rather than a snippet embedded in this file, because an embedded snippet cannot be tested. The inline `awk` that used to live here silently inflated every count: its option-prefix regexes could not match the `Option A (Name) — ` form that every Recommendation in this project actually uses, so the surviving prefix was counted as content and the gate had no way to notice. Run the tests after touching either file:
+
+   ```bash
+   python .claude/skills/plan-context/scripts/test_recommendation_chars.py
    ```
 
    Compare per TD, matching the agent's `{slug}/TD-NN` against the source's `TD-NN` within that slug's file. **The counts must be equal** — the normalization is the same on both sides, so this is an exact check, not a tolerance band. On any mismatch, abort naming every offending TD:
