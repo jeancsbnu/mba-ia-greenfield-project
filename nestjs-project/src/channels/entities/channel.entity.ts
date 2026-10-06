@@ -28,6 +28,11 @@ export class Channel {
   @Column({ type: 'uuid', unique: true })
   user_id: string;
 
+  // Contagem de inscritos desnormalizada (social-interactions/TD-06, Option
+  // B), mantida na mesma transação da inscrição; só o ChannelsService a escreve.
+  @Column({ type: 'int', default: 0 })
+  subscribers_count: number;
+
   @CreateDateColumn()
   created_at: Date;
 

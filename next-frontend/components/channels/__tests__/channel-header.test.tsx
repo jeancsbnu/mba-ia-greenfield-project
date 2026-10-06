@@ -1,11 +1,37 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import type { ComponentProps } from "react";
+import { describe, it, expect, vi } from "vitest";
 
-import { ChannelHeader } from "../channel-header";
+import { ChannelHeader as BaseChannelHeader } from "../channel-header";
 
-// O cabeçalho da página pública mostra nome, @nickname · N vídeos, a descrição
-// quando existe, e o avatar com as iniciais (não há upload nesta fase).
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/@joana_cria",
+}));
+
+// Estado de inscrição padrão dos casos da Fase 04; os casos da Fase 06
+// sobrescrevem o que testam.
+function ChannelHeader(
+  props: Omit<
+    ComponentProps<typeof BaseChannelHeader>,
+    "subscribersCount" | "viewerSubscribed" | "isAuthenticated"
+  > &
+    Partial<ComponentProps<typeof BaseChannelHeader>>
+) {
+  return (
+    <BaseChannelHeader
+      subscribersCount={1200}
+      viewerSubscribed={false}
+      isAuthenticated={false}
+      {...props}
+    />
+  );
+}
+
+// O cabeçalho da página pública mostra nome, @nickname · N inscritos · N
+// vídeos, a descrição quando existe, o avatar com as iniciais (não há upload
+// nesta fase) e o botão de inscrição no estado de `viewerSubscribed`.
 describe("ChannelHeader", () => {
   it("renders the channel name as the page heading", () => {
     render(
@@ -16,25 +42,31 @@ describe("ChannelHeader", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the meta line with nickname and video count", () => {
+  it("renders the meta line with nickname, subscriber count and video count", () => {
     render(
       <ChannelHeader name="Joana Cria" nickname="joana_cria" videosCount={12} />
     );
-    expect(screen.getByText("@joana_cria · 12 vídeos")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 }).closest("header")).toHaveTextContent(
+      "@joana_cria · 1,2 mil inscritos · 12 vídeos"
+    );
   });
 
   it("uses the singular form for exactly one video", () => {
     render(
       <ChannelHeader name="Joana Cria" nickname="joana_cria" videosCount={1} />
     );
-    expect(screen.getByText("@joana_cria · 1 vídeo")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 }).closest("header")).toHaveTextContent(
+      "@joana_cria · 1,2 mil inscritos · 1 vídeo"
+    );
   });
 
   it("renders zero videos in the plural form", () => {
     render(
       <ChannelHeader name="Joana Cria" nickname="joana_cria" videosCount={0} />
     );
-    expect(screen.getByText("@joana_cria · 0 vídeos")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 }).closest("header")).toHaveTextContent(
+      "@joana_cria · 1,2 mil inscritos · 0 vídeos"
+    );
   });
 
   it("renders the description when present", () => {
@@ -69,5 +101,31 @@ describe("ChannelHeader", () => {
     const avatar = document.querySelector("[data-slot='avatar']");
     expect(avatar).toHaveAttribute("aria-label", "Joana Cria");
     expect(screen.getByText("JC")).toBeInTheDocument();
+  });
+
+  it("shows 'Inscrever-se' for a viewer who does not follow the channel", () => {
+    render(
+      <ChannelHeader name="Joana Cria" nickname="joana_cria" videosCount={12} />
+    );
+    expect(screen.getByRole("button", { name: "Inscrever-se" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+  });
+
+  it("shows 'Inscrito' when the viewer already follows the channel", () => {
+    render(
+      <ChannelHeader
+        name="Joana Cria"
+        nickname="joana_cria"
+        videosCount={12}
+        viewerSubscribed
+        isAuthenticated
+      />
+    );
+    expect(screen.getByRole("button", { name: "Inscrito" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
   });
 });

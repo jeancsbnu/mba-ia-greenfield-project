@@ -4,11 +4,11 @@ name: phase-06-social-interactions
 status: clean
 issue_count: 0
 sources_mtime:
-  docs/phases/phase-06-social-interactions/context.md: "2026-10-04T20:18:34-03:00"
+  docs/phases/phase-06-social-interactions/context.md: "2026-10-04T20:51:04-03:00"
   docs/decisions/technical-decisions-social-interactions.md: "2026-10-04T18:59:57-03:00"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "2026-10-01T21:50:20-03:00"
 sources_hash:
-  docs/phases/phase-06-social-interactions/context.md: "07bd0594ed70"
+  docs/phases/phase-06-social-interactions/context.md: "8732f61e249e"
   docs/decisions/technical-decisions-social-interactions.md: "6383d9ab58c1"
   docs/decisions/technical-decisions-social-interactions-anonymous-gate.md: "b08d6f49f958"
 issues:

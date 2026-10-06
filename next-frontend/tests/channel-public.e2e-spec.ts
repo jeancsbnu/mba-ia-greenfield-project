@@ -14,7 +14,7 @@ test.describe("channel-public", () => {
       page.getByRole("heading", { level: 1, name: "Joana Cria" })
     ).toBeVisible()
     await expect(page.getByText("Vídeos de culinária")).toBeVisible()
-    await expect(page.getByText("@joana_cria · 12 vídeos")).toBeVisible()
+    await expect(page.getByText("@joana_cria · 0 inscritos · 12 vídeos")).toBeVisible()
 
     // Nesta fase não há upload de avatar (OQ-21): o Avatar renderiza as
     // iniciais e carrega o nome via aria-label, não um <img alt>.
@@ -73,7 +73,7 @@ test.describe("channel-public", () => {
 
     // O total anunciado no meta tem de bater com o que a paginação entrega.
     expect(firstPage + secondPage).toBe(12)
-    await expect(page.getByText("@joana_cria · 12 vídeos")).toBeVisible()
+    await expect(page.getByText("@joana_cria · 0 inscritos · 12 vídeos")).toBeVisible()
   })
 
   test("1.4 canal-inexistente-mostra-nao-encontrado", async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe("channel-public", () => {
   test("1.5 canal-sem-videos-publicados", async ({ page }) => {
     await page.goto("/@sem_videos")
 
-    await expect(page.getByText("@sem_videos · 0 vídeos")).toBeVisible()
+    await expect(page.getByText("@sem_videos · 0 inscritos · 0 vídeos")).toBeVisible()
     await expect(
       page.getByText("Este canal ainda não tem vídeos publicados")
     ).toBeVisible()

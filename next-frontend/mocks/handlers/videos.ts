@@ -9,6 +9,7 @@ import {
   buildSuggestedVideoListItem,
   buildVideo,
 } from "../factories/videos";
+import { socialVideoOverrides } from "../factories/social";
 import { emailFromAuthHeader } from "./auth";
 
 type ApiErrorEnvelope =
@@ -83,7 +84,7 @@ const uploads = new Map<string, { length: number; offset: number }>();
 
 export const handlers = [
   // Rotas da Fase 05 primeiro: são mais específicas que /videos/:publicId.
-  http.get(`${env.API_URL}/videos/:publicId/public`, ({ params }) => {
+  http.get(`${env.API_URL}/videos/:publicId/public`, ({ params, request }) => {
     const publicId = params.publicId as string;
     if (publicId === NOT_FOUND_PUBLIC_ID) {
       return HttpResponse.json(
@@ -91,7 +92,14 @@ export const handlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json(buildPublicVideo({ publicId }));
+    // Triggers da Fase 06 acrescentam contadores sociais e o estado pessoal
+    // (com sessão) — ver ../factories/social.ts.
+    return HttpResponse.json(
+      buildPublicVideo({
+        publicId,
+        ...socialVideoOverrides(publicId, request.headers.has("authorization")),
+      })
+    );
   }),
 
   http.post(`${env.API_URL}/videos/:publicId/view`, ({ params }) => {

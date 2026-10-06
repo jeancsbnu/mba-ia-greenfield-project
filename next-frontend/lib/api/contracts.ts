@@ -113,3 +113,41 @@ export type SuggestedVideosPage =
   paths["/videos/{publicId}/suggestions"]["get"]["responses"][200]["content"]["application/json"];
 
 export type SuggestedVideoListItem = SuggestedVideosPage["items"][number];
+
+// ─── Interações sociais (Fase 06) ───────────────────────────────────────────
+
+// Uma reação por usuário por alvo (social-interactions/TD-01). Não há contagem
+// de dislikes em nenhuma forma — só o estado do próprio visitante (TD-03).
+export type SetReactionDto =
+  paths["/videos/{publicId}/reaction"]["put"]["requestBody"]["content"]["application/json"];
+
+export type ReactionType = SetReactionDto["type"];
+
+// Mesma forma para reação em vídeo e em comentário.
+export type ReactionState =
+  paths["/videos/{publicId}/reaction"]["put"]["responses"][200]["content"]["application/json"];
+
+// Raízes mais recentes primeiro, com até 3 respostas pré-carregadas
+// (social-interactions/TD-05).
+export type CommentsPage =
+  paths["/videos/{publicId}/comments"]["get"]["responses"][200]["content"]["application/json"];
+
+export type CommentThread = CommentsPage["items"][number];
+
+export type Comment =
+  paths["/videos/{publicId}/comments"]["post"]["responses"][201]["content"]["application/json"];
+
+export type CreateCommentDto =
+  paths["/videos/{publicId}/comments"]["post"]["requestBody"]["content"]["application/json"];
+
+export type RepliesPage =
+  paths["/comments/{commentId}/replies"]["get"]["responses"][200]["content"]["application/json"];
+
+export type SubscriptionState =
+  paths["/channels/{nickname}/subscription"]["put"]["responses"][200]["content"]["application/json"];
+
+// Área de canais seguidos: lista de canais, não feed (social-interactions/TD-07).
+export type SubscribedChannelsPage =
+  paths["/me/subscriptions"]["get"]["responses"][200]["content"]["application/json"];
+
+export type SubscribedChannel = SubscribedChannelsPage["items"][number];

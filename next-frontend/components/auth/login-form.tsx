@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { ApiErrorEnvelope } from "@/lib/api/contracts"
 import { mapLoginErrorToForm } from "@/lib/auth/error-mapping"
+import { safeReturnTo } from "@/lib/auth/return-to"
 import { cn } from "@/lib/utils"
 
 // Client-side validation mirror (authored per phase-02-auth-frontend/TD-04 —
@@ -25,7 +26,12 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>
 
-function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
+type LoginFormProps = {
+  /** Ponto de retorno vindo de `/login?returnTo=…`; ausente mantém o fluxo atual. */
+  returnTo?: string
+} & React.ComponentProps<"form">
+
+function LoginForm({ returnTo, className, ...props }: LoginFormProps) {
   const router = useRouter()
   const {
     register,
@@ -51,8 +57,13 @@ function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
     }
 
     // On 200 the BFF has already sealed the iron-session cookie (tokens never
-    // cross to the browser, per TD-02). Refresh so server chrome reflects the
-    // authenticated session (per phase-02-auth-frontend/TD-06).
+    // cross to the browser, per TD-02). Com returnTo, volta ao ponto de
+    // interação de onde o visitante anônimo saiu, validado por safeReturnTo
+    // (social-interactions-anonymous-gate/TD-03). Refresh so server chrome
+    // reflects the authenticated session (per phase-02-auth-frontend/TD-06).
+    if (returnTo) {
+      router.replace(safeReturnTo(returnTo))
+    }
     router.refresh()
   }
 

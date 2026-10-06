@@ -1,5 +1,10 @@
 import * as React from "react"
 
+import {
+  ChannelSubscriptionProvider,
+  ProvidedSubscriberCount,
+} from "@/components/channels/channel-subscription-provider"
+import { SubscribeButton } from "@/components/channels/subscribe-button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatVideosCount } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -9,6 +14,9 @@ type ChannelHeaderProps = {
   nickname: string
   description?: string | null
   videosCount: number
+  subscribersCount: number
+  viewerSubscribed: boolean
+  isAuthenticated: boolean
 } & Omit<React.ComponentProps<"header">, "children">
 
 // Iniciais do canal: não há upload de avatar nesta fase (decisão de /plan-resolve,
@@ -25,6 +33,9 @@ function ChannelHeader({
   nickname,
   description,
   videosCount,
+  subscribersCount,
+  viewerSubscribed,
+  isAuthenticated,
   className,
   ...props
 }: ChannelHeaderProps) {
@@ -38,18 +49,33 @@ function ChannelHeader({
       className={cn("flex flex-col gap-4", className)}
       {...props}
     >
-      <div className="flex items-center gap-4">
-        <Avatar size="xl" aria-label={name}>
-          <AvatarFallback>{initialsOf(name)}</AvatarFallback>
-        </Avatar>
+      {/* Contagem e botão dividem o provider da inscrição para "N inscritos"
+          acompanhar o clique (social-interactions/TD-06 e TD-08); o botão fica
+          à direita, na altura do nome (Figma `content-header` 59:16). */}
+      <ChannelSubscriptionProvider
+        nickname={nickname}
+        initialSubscribed={viewerSubscribed}
+        initialSubscribersCount={subscribersCount}
+        isAuthenticated={isAuthenticated}
+      >
+        <div className="flex items-center gap-4">
+          <Avatar size="xl" aria-label={name}>
+            <AvatarFallback>{initialsOf(name)}</AvatarFallback>
+          </Avatar>
 
-        <div className="flex flex-col gap-1">
-          <h1 className="text-h2">{name}</h1>
-          <p className="text-body-md text-muted-foreground">
-            {`@${nickname} · ${videosLabel}`}
-          </p>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-h2">{name}</h1>
+              <SubscribeButton size="md" />
+            </div>
+            <p className="text-body-md text-muted-foreground">
+              {`@${nickname} · `}
+              <ProvidedSubscriberCount />
+              {` · ${videosLabel}`}
+            </p>
+          </div>
         </div>
-      </div>
+      </ChannelSubscriptionProvider>
 
       {description ? (
         <p className="text-body-md text-muted-foreground">{description}</p>

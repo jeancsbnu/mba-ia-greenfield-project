@@ -7,14 +7,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { server } from "@/mocks/server"
 import { LoginForm } from "../login-form"
 
-const { refreshMock } = vi.hoisted(() => ({ refreshMock: vi.fn() }))
+const { refreshMock, replaceMock } = vi.hoisted(() => ({
+  refreshMock: vi.fn(),
+  replaceMock: vi.fn(),
+}))
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: refreshMock }),
+  useRouter: () => ({ refresh: refreshMock, replace: replaceMock }),
 }))
 
 beforeEach(() => {
   refreshMock.mockClear()
+  replaceMock.mockClear()
 })
 
 function envelope(statusCode: number, message: string) {
@@ -131,5 +135,50 @@ describe("<LoginForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Entrar" }))
 
     await waitFor(() => expect(onCall).toHaveBeenCalledTimes(1))
+  })
+})
+
+describe("<LoginForm /> returnTo (social-interactions-anonymous-gate/TD-03)", () => {
+  function acceptLogin() {
+    server.use(
+      http.post("/api/auth/login", () => HttpResponse.json({}, { status: 200 }))
+    )
+  }
+
+  it("returns to the interaction point after a successful login", async () => {
+    const user = userEvent.setup()
+    acceptLogin()
+
+    render(<LoginForm returnTo="/videos/abc123" />)
+    await fillValid(user)
+    await user.click(screen.getByRole("button", { name: "Entrar" }))
+
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith("/videos/abc123"))
+    expect(refreshMock).toHaveBeenCalledTimes(1)
+  })
+
+  it("falls back to an internal route for an external returnTo", async () => {
+    const user = userEvent.setup()
+    acceptLogin()
+
+    render(<LoginForm returnTo="https://outro.site" />)
+    await fillValid(user)
+    await user.click(screen.getByRole("button", { name: "Entrar" }))
+
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledTimes(1))
+    expect(replaceMock.mock.calls[0][0]).toMatch(/^\/(?!\/)/)
+    expect(replaceMock.mock.calls[0][0]).not.toContain("outro.site")
+  })
+
+  it("keeps the refresh-only flow when there is no returnTo", async () => {
+    const user = userEvent.setup()
+    acceptLogin()
+
+    render(<LoginForm />)
+    await fillValid(user)
+    await user.click(screen.getByRole("button", { name: "Entrar" }))
+
+    await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1))
+    expect(replaceMock).not.toHaveBeenCalled()
   })
 })

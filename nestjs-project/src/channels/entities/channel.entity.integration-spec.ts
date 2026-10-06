@@ -41,6 +41,20 @@ describe('Channel entity (integration)', () => {
     );
   }
 
+  it('should start a new channel with zero subscribers', async () => {
+    const user = await createUser();
+    const saved = await channelRepository.save(
+      channelRepository.create({
+        name: 'Fresh Channel',
+        nickname: 'fresh_channel',
+        user_id: user.id,
+      }),
+    );
+
+    const found = await channelRepository.findOneByOrFail({ id: saved.id });
+    expect(found.subscribers_count).toBe(0);
+  });
+
   it('should enforce unique nickname constraint', async () => {
     const user1 = await createUser();
     const user2 = await createUser();

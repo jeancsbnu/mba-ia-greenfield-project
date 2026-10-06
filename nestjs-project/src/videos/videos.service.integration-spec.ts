@@ -21,6 +21,8 @@ import {
   VideoStatus,
   VideoVisibility,
 } from './entities/video.entity';
+import { ReactionsService } from '../reactions/reactions.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { VideosService } from './videos.service';
 
 const SERVABLE_ENTITIES = [
@@ -46,6 +48,9 @@ describe('VideosService.resolveThumbnailUrl (integration)', () => {
       ],
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
         {
           provide: getRepositoryToken(Video),
           useValue: {} as Repository<Video>,
@@ -141,6 +146,9 @@ describe('VideosService.assertServable (integration)', () => {
       ],
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
         { provide: getRepositoryToken(Video), useValue: videoRepository },
         {
           provide: ChannelsService,
@@ -269,6 +277,9 @@ describe('VideosService.registerView (integration)', () => {
       ],
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
         { provide: getRepositoryToken(Video), useValue: videoRepository },
         {
           provide: ChannelsService,
@@ -372,6 +383,9 @@ describe('VideosService.listSuggestions (integration)', () => {
       ],
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
         { provide: getRepositoryToken(Video), useValue: videoRepository },
         {
           provide: ChannelsService,

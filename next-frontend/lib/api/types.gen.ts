@@ -288,6 +288,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos/{publicId}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Like or dislike a video
+         * @description Records or switches the reaction of the authenticated user on the video and returns the like count after the operation. One reaction per user per video; repeating the same reaction changes nothing. There is no public dislike count. Rate limited to 60 requests per 60 s per IP.
+         */
+        put: operations["VideosController_setReaction"];
+        post?: never;
+        /**
+         * Remove the reaction from a video
+         * @description Removes the reaction of the authenticated user and returns the like count after the operation. Idempotent: without a reaction, returns the current state. Rate limited to 60 requests per 60 s per IP.
+         */
+        delete: operations["VideosController_removeReaction"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/videos/{publicId}/suggestions": {
         parameters: {
             query?: never;
@@ -368,6 +392,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the channels the authenticated user follows
+         * @description Returns the followed channels, most recent subscription first, with subscriber count and the count of published, public videos. Paginated with offset/limit; the default page is 50.
+         */
+        get: operations["ChannelVideosController_listMySubscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/channels/{nickname}": {
         parameters: {
             query?: never;
@@ -377,7 +421,7 @@ export interface paths {
         };
         /**
          * Get a public channel
-         * @description Returns the public information of a channel. videosCount counts only published, public videos.
+         * @description Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed.
          */
         get: operations["ChannelVideosController_getPublicChannel"];
         put?: never;
@@ -403,6 +447,98 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{nickname}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Subscribe to a channel
+         * @description Follows the channel and returns the subscriber count after the operation. Idempotent: subscribing again keeps the count. Rate limited to 60 requests per 60 s per IP.
+         */
+        put: operations["SubscriptionsController_subscribe"];
+        post?: never;
+        /**
+         * Unsubscribe from a channel
+         * @description Stops following the channel and returns the subscriber count after the operation. Idempotent: unsubscribing again keeps the count. Rate limited to 60 requests per 60 s per IP.
+         */
+        delete: operations["SubscriptionsController_unsubscribe"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/videos/{publicId}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the comments of a video
+         * @description Returns root comments newest first, each with up to 3 preloaded replies and the thread reply count. Paginated with offset/limit; the default page is 10 roots. Accessible without authentication; a valid bearer token only fills viewerReaction.
+         */
+        get: operations["CommentsController_listComments"];
+        put?: never;
+        /**
+         * Post a comment or a reply
+         * @description Creates a root comment, or a reply when parentId is given. Replies are one level deep: replying to a reply attaches the new comment to the same root. Rate limited to 5 requests per 60 s per IP.
+         */
+        post: operations["CommentsController_createComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/comments/{commentId}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the replies of a comment
+         * @description Returns the replies of a root comment beyond the preloaded ones, newest first, with offset/limit pagination. A reply has no replies (one level deep), so asking for them returns an empty page. Accessible without authentication; a valid bearer token only fills viewerReaction.
+         */
+        get: operations["CommentsController_listReplies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/comments/{commentId}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Like or dislike a comment
+         * @description Records or switches the reaction of the authenticated user on a comment or reply and returns its like count after the operation. One reaction per user per comment. There is no public dislike count. Rate limited to 60 requests per 60 s per IP.
+         */
+        put: operations["CommentsController_setReaction"];
+        post?: never;
+        /**
+         * Remove the reaction from a comment
+         * @description Removes the reaction of the authenticated user from a comment or reply and returns its like count. Idempotent. Rate limited to 60 requests per 60 s per IP.
+         */
+        delete: operations["CommentsController_removeReaction"];
         options?: never;
         head?: never;
         patch?: never;
@@ -445,6 +581,22 @@ export interface components {
             /** @description Descrição do canal. String vazia grava null. */
             description?: string;
         };
+        SetReactionDto: {
+            /**
+             * @description Reação do usuário: like ou dislike.
+             * @enum {string}
+             */
+            type: "like" | "dislike";
+        };
+        CreateCommentDto: {
+            /** @description Texto do comentário; aparado nas pontas antes de validar. */
+            body: string;
+            /**
+             * Format: uuid
+             * @description Comentário respondido; ausente cria um comentário-raiz.
+             */
+            parentId?: string;
+        };
         ApiErrorEnvelope: {
             /** @example 401 */
             statusCode: number;
@@ -465,6 +617,10 @@ export interface components {
             description: string | null;
             /** @description Conta apenas vídeos publicados e públicos. */
             videosCount: number;
+            /** @description Contagem de inscritos (social-interactions/TD-06, desnormalizada). */
+            subscribersCount: number;
+            /** @description Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02). */
+            viewerSubscribed: boolean;
         };
         VideoDetailResponse: {
             publicId: string;
@@ -492,6 +648,20 @@ export interface components {
             /** @description Nome de exibição do canal. */
             name: string;
         };
+        PublicVideoDetailChannel: {
+            nickname: string;
+            /** @description Nome de exibição do canal. */
+            name: string;
+            /** @description Contagem de inscritos do canal (social-interactions/TD-06, desnormalizada). */
+            subscribersCount: number;
+            /** @description Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02). */
+            viewerSubscribed: boolean;
+        };
+        /**
+         * @description Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02).
+         * @enum {string}
+         */
+        ReactionType: "like" | "dislike";
         PublicVideoDetailResponse: {
             publicId: string;
             title: string;
@@ -504,8 +674,14 @@ export interface components {
             /** Format: date-time */
             publishedAt: string | null;
             viewsCount: number;
+            /** @description Contagem de likes do vídeo. */
+            likesCount: number;
+            /** @description Contagem de comentários publicados, raízes e respostas. */
+            commentsCount: number;
+            /** @description Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02). */
+            viewerReaction: components["schemas"]["ReactionType"] | null;
             thumbnailUrl: string | null;
-            channel: components["schemas"]["PublicVideoChannel"];
+            channel: components["schemas"]["PublicVideoDetailChannel"];
             /** @description URL pré-assinada de 6 h entregue inline; consumida pelo src do <video>. */
             streamUrl: string;
             /** @description URL pré-assinada de 6 h sobre a mesma chave, assinada com content-disposition attachment e filename. Vem junto com a página porque o atributo download do HTML é ignorado cross-origin. */
@@ -568,6 +744,88 @@ export interface components {
             items: components["schemas"]["SuggestedVideoListItem"][];
             /** @description Total de sugestões elegíveis, ignorando a página. */
             total: number;
+        };
+        ReactionStateResponse: {
+            /** @description Reação do usuário após a operação; null quando não há. */
+            viewerReaction: components["schemas"]["ReactionType"] | null;
+            /** @description Contagem de likes do alvo após a operação, lida na mesma transação. */
+            likesCount: number;
+        };
+        SubscriptionStateResponse: {
+            /** @description Se o usuário segue o canal após a operação. */
+            subscribed: boolean;
+            /** @description Contagem de inscritos do canal após a operação, lida na mesma transação. */
+            subscribersCount: number;
+        };
+        CommentAuthor: {
+            /** @description Nome de exibição do canal de quem comentou. */
+            name: string;
+            nickname: string;
+        };
+        CommentResponse: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Nulo para comentário-raiz; o id da raiz para resposta (profundidade 1).
+             */
+            parentId: string | null;
+            body: string;
+            /** Format: date-time */
+            createdAt: string;
+            likesCount: number;
+            /** @description Reação de quem pede; null para o visitante anônimo. */
+            viewerReaction: components["schemas"]["ReactionType"] | null;
+            author: components["schemas"]["CommentAuthor"];
+        };
+        CommentThreadResponse: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Nulo para comentário-raiz; o id da raiz para resposta (profundidade 1).
+             */
+            parentId: string | null;
+            body: string;
+            /** Format: date-time */
+            createdAt: string;
+            likesCount: number;
+            /** @description Reação de quem pede; null para o visitante anônimo. */
+            viewerReaction: components["schemas"]["ReactionType"] | null;
+            author: components["schemas"]["CommentAuthor"];
+            /** @description Até 3 respostas, das mais recentes para as mais antigas. */
+            replies: components["schemas"]["CommentResponse"][];
+            /** @description Total de respostas da thread. */
+            repliesCount: number;
+        };
+        CommentsPage: {
+            items: components["schemas"]["CommentThreadResponse"][];
+            /** @description Total de comentários-raiz do vídeo. */
+            total: number;
+            offset: number;
+            limit: number;
+        };
+        RepliesPage: {
+            items: components["schemas"]["CommentResponse"][];
+            /** @description Total de respostas da raiz. */
+            total: number;
+            offset: number;
+            limit: number;
+        };
+        SubscribedChannel: {
+            name: string;
+            nickname: string;
+            /** @description Contagem de inscritos do canal. */
+            subscribersCount: number;
+            /** @description Conta apenas vídeos publicados e públicos. */
+            videosCount: number;
+        };
+        SubscribedChannelsPage: {
+            items: components["schemas"]["SubscribedChannel"][];
+            /** @description Total de canais seguidos. */
+            total: number;
+            offset: number;
+            limit: number;
         };
     };
     responses: never;
@@ -1214,6 +1472,117 @@ export interface operations {
             };
         };
     };
+    VideosController_setReaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetReactionDto"];
+            };
+        };
+        responses: {
+            /** @description Reaction recorded */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionStateResponse"];
+                };
+            };
+            /** @description type missing or not one of like/dislike */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video not found, or a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_removeReaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reaction removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionStateResponse"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video not found, or a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
     VideosController_getSuggestions: {
         parameters: {
             query?: {
@@ -1378,6 +1747,49 @@ export interface operations {
             };
         };
     };
+    ChannelVideosController_listMySubscriptions: {
+        parameters: {
+            query?: {
+                /** @description Quantos canais pular. */
+                offset?: number;
+                /** @description Quantos canais retornar (máximo 100). */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Followed channels page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscribedChannelsPage"];
+                };
+            };
+            /** @description offset or limit out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
     ChannelVideosController_getPublicChannel: {
         parameters: {
             query?: never;
@@ -1445,6 +1857,376 @@ export interface operations {
             };
             /** @description Channel not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    SubscriptionsController_subscribe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subscribed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStateResponse"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Channel not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    SubscriptionsController_unsubscribe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unsubscribed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStateResponse"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Channel not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    CommentsController_listComments: {
+        parameters: {
+            query?: {
+                /** @description Quantos comentários-raiz pular. */
+                offset?: number;
+                /** @description Quantos comentários-raiz retornar. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Comments page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentsPage"];
+                };
+            };
+            /** @description offset or limit outside the accepted range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video not found, or a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    CommentsController_createComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommentDto"];
+            };
+        };
+        responses: {
+            /** @description Comment created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentResponse"];
+                };
+            };
+            /** @description Empty or too long body, or parentId that is not a uuid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Video not found or a draft of another channel, or parent comment not found in this video */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 5 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    CommentsController_listReplies: {
+        parameters: {
+            query?: {
+                /** @description Quantas respostas pular — o cliente começa em 3, depois das pré-carregadas. */
+                offset?: number;
+                /** @description Quantas respostas retornar. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Replies page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepliesPage"];
+                };
+            };
+            /** @description commentId is not a uuid, or offset/limit out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Comment not found, or its video is a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    CommentsController_setReaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetReactionDto"];
+            };
+        };
+        responses: {
+            /** @description Reaction recorded */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionStateResponse"];
+                };
+            };
+            /** @description commentId is not a uuid, or type is not like/dislike */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Comment not found, or its video is a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    CommentsController_removeReaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reaction removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionStateResponse"];
+                };
+            };
+            /** @description commentId is not a uuid */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description Comment not found, or its video is a draft of another channel */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 60 requests per 60 s from the same IP */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

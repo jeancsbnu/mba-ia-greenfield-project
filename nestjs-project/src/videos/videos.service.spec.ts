@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { ChannelsService } from '../channels/channels.service';
 import { StorageService } from '../storage/storage.service';
 import { Video, VideoCategory, VideoStatus } from './entities/video.entity';
+import { ReactionsService } from '../reactions/reactions.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { VideosService } from './videos.service';
 import { PLAYBACK_URL_TTL_SECONDS } from './videos.constants';
 
@@ -18,6 +20,8 @@ describe('VideosService (unit)', () => {
   let save: jest.Mock;
   let findByUserId: jest.Mock;
   let findByIdOrFail: jest.Mock;
+  let findVideoReaction: jest.Mock;
+  let isSubscribed: jest.Mock;
 
   beforeEach(async () => {
     getPresignedUrl = jest.fn().mockResolvedValue('https://signed.example/url');
@@ -25,13 +29,21 @@ describe('VideosService (unit)', () => {
     // save devolve o próprio objeto, como o TypeORM faz.
     save = jest.fn((video: Video) => Promise.resolve(video));
     findByUserId = jest.fn();
-    findByIdOrFail = jest
-      .fn()
-      .mockResolvedValue({ nickname: 'canal-do-dono', name: 'Canal do Dono' });
+    findByIdOrFail = jest.fn().mockResolvedValue({
+      id: 'channel-1',
+      nickname: 'canal-do-dono',
+      name: 'Canal do Dono',
+      subscribers_count: 3,
+    });
+    findVideoReaction = jest.fn().mockResolvedValue('like');
+    isSubscribed = jest.fn().mockResolvedValue(true);
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: { findVideoReaction } },
+        { provide: SubscriptionsService, useValue: { isSubscribed } },
         {
           provide: getRepositoryToken(Video),
           useValue: { save } as unknown as Repository<Video>,
@@ -239,14 +251,17 @@ describe('VideosService (unit)', () => {
         [
           'category',
           'channel',
+          'commentsCount',
           'description',
           'downloadUrl',
           'durationSeconds',
+          'likesCount',
           'publicId',
           'publishedAt',
           'streamUrl',
           'thumbnailUrl',
           'title',
+          'viewerReaction',
           'viewsCount',
           'visibility',
         ].sort(),
@@ -255,8 +270,42 @@ describe('VideosService (unit)', () => {
       expect(detail.channel).toEqual({
         nickname: 'canal-do-dono',
         name: 'Canal do Dono',
+        subscribersCount: 3,
+        viewerSubscribed: false,
       });
       expect(findByIdOrFail).toHaveBeenCalledWith('channel-1');
+    });
+
+    // SI-06.5 — sem visitante, o estado pessoal é neutro e nada é consultado.
+    it('returns a neutral personal state without querying when there is no viewer', async () => {
+      const video = buildVideo({
+        status: VideoStatus.READY,
+        channel_id: 'channel-1',
+        title: 'Aula',
+      });
+
+      const detail = await service.toPublicDetail(video);
+
+      expect(detail.viewerReaction).toBeNull();
+      expect(detail.channel.viewerSubscribed).toBe(false);
+      expect(findVideoReaction).not.toHaveBeenCalled();
+      expect(isSubscribed).not.toHaveBeenCalled();
+    });
+
+    it('fills the personal state from reactions and subscriptions for a viewer', async () => {
+      const video = buildVideo({
+        id: 'video-1',
+        status: VideoStatus.READY,
+        channel_id: 'channel-1',
+        title: 'Aula',
+      });
+
+      const detail = await service.toPublicDetail(video, 'viewer-1');
+
+      expect(detail.viewerReaction).toBe('like');
+      expect(detail.channel.viewerSubscribed).toBe(true);
+      expect(findVideoReaction).toHaveBeenCalledWith('video-1', 'viewer-1');
+      expect(isSubscribed).toHaveBeenCalledWith('viewer-1', 'channel-1');
     });
   });
 

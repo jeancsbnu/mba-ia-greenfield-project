@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, IsNull, Repository } from 'typeorm';
+import { EntityManager, Not, IsNull, Repository } from 'typeorm';
 import {
   VideoForbiddenException,
   VideoNotFoundException,
@@ -8,7 +8,12 @@ import {
   VideoNotReadyException,
 } from '../common/exceptions/domain.exception';
 import { ChannelsService } from '../channels/channels.service';
+import { ReactionStateResponse } from '../reactions/dto/reaction-state-response.dto';
+import { likesDelta } from '../reactions/reaction-delta';
+import { ReactionType } from '../reactions/reaction-type.enum';
+import { ReactionsService } from '../reactions/reactions.service';
 import { StorageService } from '../storage/storage.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { PLAYBACK_URL_TTL_SECONDS } from './videos.constants';
 import { PublicVideoDetailResponse } from './dto/public-video-detail-response.dto';
@@ -22,7 +27,55 @@ export class VideosService {
     private readonly videoRepository: Repository<Video>,
     private readonly channelsService: ChannelsService,
     private readonly storageService: StorageService,
+    private readonly reactionsService: ReactionsService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
+
+  /**
+   * Aplica o delta de comentários dentro da transação aberta pelo
+   * `CommentsService` (social-interactions/TD-02). `VideosService` é o único
+   * que escreve `comments_count`.
+   */
+  async adjustCommentsCount(
+    manager: EntityManager,
+    videoId: string,
+    delta: number,
+  ): Promise<void> {
+    if (delta === 0) {
+      return;
+    }
+    await manager.increment(Video, { id: videoId }, 'comments_count', delta);
+  }
+
+  /**
+   * Registra, troca ou retira (`next = null`) a reação do usuário no vídeo e
+   * mantém `likes_count` na mesma transação (social-interactions/TD-02).
+   * `VideosService` é o único que escreve `likes_count`; a tabela de reações
+   * é escrita só pelo `ReactionsService`.
+   */
+  async setReaction(
+    video: Video,
+    userId: string,
+    next: ReactionType | null,
+  ): Promise<ReactionStateResponse> {
+    return this.videoRepository.manager.transaction(async (manager) => {
+      const previous = await this.reactionsService.applyVideoReaction(
+        manager,
+        video.id,
+        userId,
+        next,
+      );
+      const delta = likesDelta(previous, next);
+      if (delta !== 0) {
+        await manager.increment(Video, { id: video.id }, 'likes_count', delta);
+      }
+      const updated = await manager.findOneOrFail(Video, {
+        where: { id: video.id },
+        select: { id: true, likes_count: true },
+      });
+      return { viewerReaction: next, likesCount: updated.likes_count };
+    });
+  }
 
   async findByPublicIdOrFail(publicId: string): Promise<Video> {
     const video = await this.videoRepository.findOne({
@@ -87,6 +140,34 @@ export class VideosService {
         visibility: VideoVisibility.PUBLIC,
       },
     });
+  }
+
+  /**
+   * Vídeos publicados e públicos de vários canais, numa query agrupada só —
+   * mesma regra de `countPublicByChannel`. Canal sem vídeo entra com 0.
+   */
+  async countPublicByChannels(
+    channelIds: string[],
+  ): Promise<Map<string, number>> {
+    const counts = new Map(channelIds.map((id) => [id, 0]));
+    if (channelIds.length === 0) {
+      return counts;
+    }
+    const rows = await this.videoRepository
+      .createQueryBuilder('video')
+      .select('video.channel_id', 'channel_id')
+      .addSelect('COUNT(*)', 'count')
+      .where('video.channel_id IN (:...channelIds)', { channelIds })
+      .andWhere('video.published_at IS NOT NULL')
+      .andWhere('video.visibility = :visibility', {
+        visibility: VideoVisibility.PUBLIC,
+      })
+      .groupBy('video.channel_id')
+      .getRawMany<{ channel_id: string; count: string }>();
+    for (const row of rows) {
+      counts.set(row.channel_id, Number(row.count));
+    }
+    return counts;
   }
 
   // Uma única operação de salvar: campos de texto, troca de thumbnail e
@@ -206,12 +287,32 @@ export class VideosService {
   // Projeção pública da watch page. Monta campo a campo de propósito: um
   // spread da entidade faria qualquer coluna nova de operação vazar para o
   // visitante anônimo no dia em que fosse acrescentada.
-  async toPublicDetail(video: Video): Promise<PublicVideoDetailResponse> {
+  /**
+   * Projeção pública com o estado pessoal de quem pede no mesmo payload
+   * (social-interactions-anonymous-gate/TD-02). Sem visitante, o estado é
+   * neutro e nenhuma leitura de reação ou inscrição é feita.
+   */
+  async toPublicDetail(
+    video: Video,
+    viewerId?: string,
+  ): Promise<PublicVideoDetailResponse> {
     const channel = await this.channelsService.findByIdOrFail(video.channel_id);
-    const [streamUrl, downloadUrl, thumbnailUrl] = await Promise.all([
+    const [
+      streamUrl,
+      downloadUrl,
+      thumbnailUrl,
+      viewerReaction,
+      viewerSubscribed,
+    ] = await Promise.all([
       this.getStreamUrl(video),
       this.getDownloadUrl(video),
       this.resolveThumbnailUrl(video),
+      viewerId
+        ? this.reactionsService.findVideoReaction(video.id, viewerId)
+        : Promise.resolve(null),
+      viewerId
+        ? this.subscriptionsService.isSubscribed(viewerId, channel.id)
+        : Promise.resolve(false),
     ]);
 
     return {
@@ -223,8 +324,16 @@ export class VideosService {
       visibility: video.visibility,
       publishedAt: video.published_at,
       viewsCount: video.views_count,
+      likesCount: video.likes_count,
+      commentsCount: video.comments_count,
+      viewerReaction,
       thumbnailUrl,
-      channel: { nickname: channel.nickname, name: channel.name },
+      channel: {
+        nickname: channel.nickname,
+        name: channel.name,
+        subscribersCount: channel.subscribers_count,
+        viewerSubscribed,
+      },
       streamUrl,
       downloadUrl,
     };

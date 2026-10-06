@@ -233,7 +233,9 @@ test.describe("video-watch-page", () => {
     const cards = page.locator("[data-slot='video-card']")
     await expect(cards).toHaveCount(4)
 
-    const loadMore = page.getByRole("button", { name: "Ver mais" })
+    // `exact`: desde a Fase 06 a página também tem "Ver mais N respostas" na
+    // seção de comentários.
+    const loadMore = page.getByRole("button", { name: "Ver mais", exact: true })
     await expect(loadMore).toBeVisible()
 
     // waitForResponse, nao waitForRequest: a segunda resolve quando a
