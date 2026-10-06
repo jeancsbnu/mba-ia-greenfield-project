@@ -38,4 +38,16 @@ export class PublicChannelResponse {
     description: 'Conta apenas vídeos publicados e públicos.',
   })
   videosCount: number;
+
+  @ApiProperty({
+    description:
+      'Contagem de inscritos (social-interactions/TD-06, desnormalizada).',
+  })
+  subscribersCount: number;
+
+  @ApiProperty({
+    description:
+      'Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02).',
+  })
+  viewerSubscribed: boolean;
 }

@@ -166,4 +166,40 @@ describe('ChannelsService (integration)', () => {
       expect(updated.name).toBe('Outro nome');
     });
   });
+  describe('adjustSubscribersCount', () => {
+    it('adds both deltas when two transactions increment concurrently', async () => {
+      const user = await createUser();
+      const channel = await channelsService.createChannel(
+        user.id,
+        'concurrent@example.com',
+      );
+
+      await Promise.all([
+        dataSource.transaction((manager) =>
+          channelsService.adjustSubscribersCount(manager, channel.id, 1),
+        ),
+        dataSource.transaction((manager) =>
+          channelsService.adjustSubscribersCount(manager, channel.id, 1),
+        ),
+      ]);
+
+      const found = await channelRepository.findOneByOrFail({ id: channel.id });
+      expect(found.subscribers_count).toBe(2);
+    });
+
+    it('reads the count written inside the same transaction', async () => {
+      const user = await createUser();
+      const channel = await channelsService.createChannel(
+        user.id,
+        'readback@example.com',
+      );
+
+      const count = await dataSource.transaction(async (manager) => {
+        await channelsService.adjustSubscribersCount(manager, channel.id, 3);
+        return channelsService.readSubscribersCount(manager, channel.id);
+      });
+
+      expect(count).toBe(3);
+    });
+  });
 });

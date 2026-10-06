@@ -20,6 +20,10 @@ export const buildChannel = (overrides: Partial<Channel> = {}): Channel => ({
 const basePublicChannel: PublicChannel = {
   ...baseChannel,
   videosCount: 0,
+  // Fase 06: contagem de inscritos e estado pessoal neutro — o do anônimo
+  // (social-interactions-anonymous-gate/TD-02).
+  subscribersCount: 0,
+  viewerSubscribed: false,
 };
 
 export const buildPublicChannel = (

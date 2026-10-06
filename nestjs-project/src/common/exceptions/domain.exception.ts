@@ -90,6 +90,14 @@ export class VideoNotPublishableException extends DomainException {
   }
 }
 
+// Comentário inexistente, pai de outro vídeo, ou comentário cujo vídeo é
+// rascunho de outro canal — o caminho lateral não revela o vídeo.
+export class CommentNotFoundException extends DomainException {
+  constructor() {
+    super('COMMENT_NOT_FOUND', 404, 'Comment not found');
+  }
+}
+
 export class VideoForbiddenException extends DomainException {
   constructor() {
     super('FORBIDDEN', 403, 'You do not have access to this video');

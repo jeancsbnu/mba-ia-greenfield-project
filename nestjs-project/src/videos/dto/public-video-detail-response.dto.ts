@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ReactionType } from '../../reactions/reaction-type.enum';
 import { VideoCategory, VideoVisibility } from '../entities/video.entity';
 
 /**
@@ -10,6 +11,25 @@ export class PublicVideoChannel {
 
   @ApiProperty({ description: 'Nome de exibição do canal.' })
   name: string;
+}
+
+/**
+ * Canal dono no detalhe público, com a contagem de inscritos e o estado
+ * pessoal de quem pede. Classe própria para não vazar esses campos para a
+ * sidebar de sugestões, que reusa `PublicVideoChannel`.
+ */
+export class PublicVideoDetailChannel extends PublicVideoChannel {
+  @ApiProperty({
+    description:
+      'Contagem de inscritos do canal (social-interactions/TD-06, desnormalizada).',
+  })
+  subscribersCount: number;
+
+  @ApiProperty({
+    description:
+      'Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02).',
+  })
+  viewerSubscribed: boolean;
 }
 
 /**
@@ -45,11 +65,30 @@ export class PublicVideoDetailResponse {
   @ApiProperty()
   viewsCount: number;
 
+  @ApiProperty({ description: 'Contagem de likes do vídeo.' })
+  likesCount: number;
+
+  @ApiProperty({
+    description: 'Contagem de comentários publicados, raízes e respostas.',
+  })
+  commentsCount: number;
+
+  // Sem contagem de dislikes: só o estado do próprio visitante
+  // (social-interactions/TD-03).
+  @ApiProperty({
+    enum: ReactionType,
+    enumName: 'ReactionType',
+    nullable: true,
+    description:
+      'Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02).',
+  })
+  viewerReaction: ReactionType | null;
+
   @ApiProperty({ nullable: true, type: String })
   thumbnailUrl: string | null;
 
-  @ApiProperty({ type: PublicVideoChannel })
-  channel: PublicVideoChannel;
+  @ApiProperty({ type: PublicVideoDetailChannel })
+  channel: PublicVideoDetailChannel;
 
   @ApiProperty({
     description:

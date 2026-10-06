@@ -94,8 +94,17 @@ const basePublicVideo: PublicVideo = {
   visibility: "public",
   publishedAt: "2026-01-01T00:00:00.000Z",
   viewsCount: 1284,
+  // Fase 06: contadores sociais e estado pessoal neutro (o do anônimo).
+  likesCount: 0,
+  commentsCount: 0,
+  viewerReaction: null,
   thumbnailUrl: "/window.svg",
-  channel: { nickname: "fixture-channel", name: "Fixture Channel" },
+  channel: {
+    nickname: "fixture-channel",
+    name: "Fixture Channel",
+    subscribersCount: 0,
+    viewerSubscribed: false,
+  },
   streamUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=stream`,
   downloadUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=download&response-content-disposition=attachment%3B%20filename%3D%22fixture-watch-video.mp4%22`,
 };

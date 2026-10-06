@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import {
   ChannelNotFoundException,
   NicknameAlreadyExistsException,
@@ -107,6 +107,42 @@ export class ChannelsService {
       throw new ChannelNotFoundException();
     }
     return channel;
+  }
+
+  /**
+   * Aplica o delta de inscritos dentro da transação aberta pelo dono do evento
+   * (social-interactions/TD-06 + TD-02). `ChannelsService` é o único que
+   * escreve `subscribers_count`; o UPDATE ... SET x = x + :delta é atômico.
+   */
+  async adjustSubscribersCount(
+    manager: EntityManager,
+    channelId: string,
+    delta: number,
+  ): Promise<void> {
+    if (delta === 0) {
+      return;
+    }
+    await manager.increment(
+      Channel,
+      { id: channelId },
+      'subscribers_count',
+      delta,
+    );
+  }
+
+  /** Lê `subscribers_count` na mesma transação que acabou de alterá-lo. */
+  async readSubscribersCount(
+    manager: EntityManager,
+    channelId: string,
+  ): Promise<number> {
+    const channel = await manager.findOne(Channel, {
+      where: { id: channelId },
+      select: { id: true, subscribers_count: true },
+    });
+    if (!channel) {
+      throw new ChannelNotFoundException();
+    }
+    return channel.subscribers_count;
   }
 
   async findByUserId(userId: string): Promise<Channel | null> {

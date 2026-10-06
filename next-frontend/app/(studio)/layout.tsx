@@ -29,7 +29,7 @@ export default async function StudioLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteNavbar>
+      <SiteNavbar showSubscriptionsLink>
         <ChannelUserMenu channelName={channel.name} />
       </SiteNavbar>
 

@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 
 import { buildChannel, buildPublicChannel } from "../factories/channels";
 import { buildPublicVideoListItem } from "../factories/videos";
+import { socialChannelOverrides } from "../factories/social";
 import { emailFromAuthHeader } from "./auth";
 
 type ApiErrorEnvelope =
@@ -78,7 +79,7 @@ export const handlers = [
     );
   }),
 
-  http.get(`${env.API_URL}/channels/:nickname`, ({ params }) => {
+  http.get(`${env.API_URL}/channels/:nickname`, ({ params, request }) => {
     const nickname = params.nickname as string;
 
     if (nickname === UNKNOWN_NICKNAME) {
@@ -96,6 +97,11 @@ export const handlers = [
         name: isEmpty ? "Canal Sem Vídeos" : "Joana Cria",
         description: isEmpty ? null : "Vídeos de culinária",
         videosCount: isEmpty ? 0 : PUBLIC_VIDEOS_TOTAL,
+        // Fase 06: contagem de inscritos e estado pessoal por trigger.
+        ...socialChannelOverrides(
+          nickname,
+          request.headers.has("authorization")
+        ),
       })
     );
   }),

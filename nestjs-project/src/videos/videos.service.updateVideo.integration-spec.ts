@@ -20,6 +20,8 @@ import {
   VideoStatus,
   VideoVisibility,
 } from './entities/video.entity';
+import { ReactionsService } from '../reactions/reactions.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { VideosService } from './videos.service';
 
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken, Video];
@@ -51,6 +53,9 @@ describe('VideosService.updateVideo (integration)', () => {
       ],
       providers: [
         VideosService,
+
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
         { provide: getRepositoryToken(Video), useValue: videoRepository },
         { provide: ChannelsService, useValue: { findByUserId: jest.fn() } },
       ],

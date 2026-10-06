@@ -846,6 +846,158 @@
         ]
       }
     },
+    "/videos/{publicId}/reaction": {
+      "put": {
+        "description": "Records or switches the reaction of the authenticated user on the video and returns the like count after the operation. One reaction per user per video; repeating the same reaction changes nothing. There is no public dislike count. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "VideosController_setReaction",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetReactionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reaction recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "type missing or not one of like/dislike",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found, or a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Like or dislike a video",
+        "tags": [
+          "videos"
+        ]
+      },
+      "delete": {
+        "description": "Removes the reaction of the authenticated user and returns the like count after the operation. Idempotent: without a reaction, returns the current state. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "VideosController_removeReaction",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reaction removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found, or a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Remove the reaction from a video",
+        "tags": [
+          "videos"
+        ]
+      }
+    },
     "/videos/{publicId}/suggestions": {
       "get": {
         "description": "Returns published, public videos from the same category as the reference video, newest first, excluding the reference video itself, drafts and unlisted videos. Paginated with offset/limit; the default page is 4. An empty list is a legitimate result, not an error.",
@@ -1097,9 +1249,81 @@
         ]
       }
     },
+    "/me/subscriptions": {
+      "get": {
+        "description": "Returns the followed channels, most recent subscription first, with subscriber count and the count of published, public videos. Paginated with offset/limit; the default page is 50.",
+        "operationId": "ChannelVideosController_listMySubscriptions",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Quantos canais pular.",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantos canais retornar (máximo 100).",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Followed channels page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribedChannelsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "offset or limit out of range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List the channels the authenticated user follows",
+        "tags": [
+          "channels"
+        ]
+      }
+    },
     "/channels/{nickname}": {
       "get": {
-        "description": "Returns the public information of a channel. videosCount counts only published, public videos.",
+        "description": "Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed.",
         "operationId": "ChannelVideosController_getPublicChannel",
         "parameters": [
           {
@@ -1133,6 +1357,11 @@
             }
           }
         },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
         "summary": "Get a public channel",
         "tags": [
           "channels"
@@ -1211,6 +1440,545 @@
         "summary": "List the public videos of a channel",
         "tags": [
           "channels"
+        ]
+      }
+    },
+    "/channels/{nickname}/subscription": {
+      "put": {
+        "description": "Follows the channel and returns the subscriber count after the operation. Idempotent: subscribing again keeps the count. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "SubscriptionsController_subscribe",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscribed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Subscribe to a channel",
+        "tags": [
+          "channels"
+        ]
+      },
+      "delete": {
+        "description": "Stops following the channel and returns the subscriber count after the operation. Idempotent: unsubscribing again keeps the count. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "SubscriptionsController_unsubscribe",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unsubscribed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Unsubscribe from a channel",
+        "tags": [
+          "channels"
+        ]
+      }
+    },
+    "/videos/{publicId}/comments": {
+      "get": {
+        "description": "Returns root comments newest first, each with up to 3 preloaded replies and the thread reply count. Paginated with offset/limit; the default page is 10 roots. Accessible without authentication; a valid bearer token only fills viewerReaction.",
+        "operationId": "CommentsController_listComments",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Quantos comentários-raiz pular.",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantos comentários-raiz retornar.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comments page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "offset or limit outside the accepted range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found, or a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List the comments of a video",
+        "tags": [
+          "comments"
+        ]
+      },
+      "post": {
+        "description": "Creates a root comment, or a reply when parentId is given. Replies are one level deep: replying to a reply attaches the new comment to the same root. Rate limited to 5 requests per 60 s per IP.",
+        "operationId": "CommentsController_createComment",
+        "parameters": [
+          {
+            "name": "publicId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comment created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty or too long body, or parentId that is not a uuid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found or a draft of another channel, or parent comment not found in this video",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 5 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Post a comment or a reply",
+        "tags": [
+          "comments"
+        ]
+      }
+    },
+    "/comments/{commentId}/replies": {
+      "get": {
+        "description": "Returns the replies of a root comment beyond the preloaded ones, newest first, with offset/limit pagination. A reply has no replies (one level deep), so asking for them returns an empty page. Accessible without authentication; a valid bearer token only fills viewerReaction.",
+        "operationId": "CommentsController_listReplies",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Quantas respostas pular — o cliente começa em 3, depois das pré-carregadas.",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantas respostas retornar.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Replies page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepliesPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "commentId is not a uuid, or offset/limit out of range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found, or its video is a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List the replies of a comment",
+        "tags": [
+          "comments"
+        ]
+      }
+    },
+    "/comments/{commentId}/reaction": {
+      "put": {
+        "description": "Records or switches the reaction of the authenticated user on a comment or reply and returns its like count after the operation. One reaction per user per comment. There is no public dislike count. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "CommentsController_setReaction",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetReactionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reaction recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "commentId is not a uuid, or type is not like/dislike",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found, or its video is a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Like or dislike a comment",
+        "tags": [
+          "comments"
+        ]
+      },
+      "delete": {
+        "description": "Removes the reaction of the authenticated user from a comment or reply and returns its like count. Idempotent. Rate limited to 60 requests per 60 s per IP.",
+        "operationId": "CommentsController_removeReaction",
+        "parameters": [
+          {
+            "name": "commentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reaction removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "commentId is not a uuid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found, or its video is a draft of another channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 60 requests per 60 s from the same IP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Remove the reaction from a comment",
+        "tags": [
+          "comments"
         ]
       }
     }
@@ -1339,6 +2107,41 @@
           }
         }
       },
+      "SetReactionDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "Reação do usuário: like ou dislike.",
+            "enum": [
+              "like",
+              "dislike"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "CreateCommentDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "description": "Texto do comentário; aparado nas pontas antes de validar.",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Comentário respondido; ausente cria um comentário-raiz.",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
       "ApiErrorEnvelope": {
         "type": "object",
         "properties": {
@@ -1411,13 +2214,23 @@
           "videosCount": {
             "type": "number",
             "description": "Conta apenas vídeos publicados e públicos."
+          },
+          "subscribersCount": {
+            "type": "number",
+            "description": "Contagem de inscritos (social-interactions/TD-06, desnormalizada)."
+          },
+          "viewerSubscribed": {
+            "type": "boolean",
+            "description": "Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02)."
           }
         },
         "required": [
           "name",
           "nickname",
           "description",
-          "videosCount"
+          "videosCount",
+          "subscribersCount",
+          "viewerSubscribed"
         ]
       },
       "VideoDetailResponse": {
@@ -1511,6 +2324,40 @@
           "name"
         ]
       },
+      "PublicVideoDetailChannel": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome de exibição do canal."
+          },
+          "subscribersCount": {
+            "type": "number",
+            "description": "Contagem de inscritos do canal (social-interactions/TD-06, desnormalizada)."
+          },
+          "viewerSubscribed": {
+            "type": "boolean",
+            "description": "Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02)."
+          }
+        },
+        "required": [
+          "nickname",
+          "name",
+          "subscribersCount",
+          "viewerSubscribed"
+        ]
+      },
+      "ReactionType": {
+        "type": "string",
+        "enum": [
+          "like",
+          "dislike"
+        ],
+        "description": "Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02)."
+      },
       "PublicVideoDetailResponse": {
         "type": "object",
         "properties": {
@@ -1556,12 +2403,29 @@
           "viewsCount": {
             "type": "number"
           },
+          "likesCount": {
+            "type": "number",
+            "description": "Contagem de likes do vídeo."
+          },
+          "commentsCount": {
+            "type": "number",
+            "description": "Contagem de comentários publicados, raízes e respostas."
+          },
+          "viewerReaction": {
+            "nullable": true,
+            "description": "Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReactionType"
+              }
+            ]
+          },
           "thumbnailUrl": {
             "type": "string",
             "nullable": true
           },
           "channel": {
-            "$ref": "#/components/schemas/PublicVideoChannel"
+            "$ref": "#/components/schemas/PublicVideoDetailChannel"
           },
           "streamUrl": {
             "type": "string",
@@ -1581,6 +2445,9 @@
           "visibility",
           "publishedAt",
           "viewsCount",
+          "likesCount",
+          "commentsCount",
+          "viewerReaction",
           "thumbnailUrl",
           "channel",
           "streamUrl",
@@ -1806,6 +2673,272 @@
         "required": [
           "items",
           "total"
+        ]
+      },
+      "ReactionStateResponse": {
+        "type": "object",
+        "properties": {
+          "viewerReaction": {
+            "nullable": true,
+            "description": "Reação do usuário após a operação; null quando não há.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReactionType"
+              }
+            ]
+          },
+          "likesCount": {
+            "type": "number",
+            "description": "Contagem de likes do alvo após a operação, lida na mesma transação."
+          }
+        },
+        "required": [
+          "viewerReaction",
+          "likesCount"
+        ]
+      },
+      "SubscriptionStateResponse": {
+        "type": "object",
+        "properties": {
+          "subscribed": {
+            "type": "boolean",
+            "description": "Se o usuário segue o canal após a operação."
+          },
+          "subscribersCount": {
+            "type": "number",
+            "description": "Contagem de inscritos do canal após a operação, lida na mesma transação."
+          }
+        },
+        "required": [
+          "subscribed",
+          "subscribersCount"
+        ]
+      },
+      "CommentAuthor": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome de exibição do canal de quem comentou."
+          },
+          "nickname": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "nickname"
+        ]
+      },
+      "CommentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Nulo para comentário-raiz; o id da raiz para resposta (profundidade 1)."
+          },
+          "body": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "likesCount": {
+            "type": "number"
+          },
+          "viewerReaction": {
+            "nullable": true,
+            "description": "Reação de quem pede; null para o visitante anônimo.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReactionType"
+              }
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/CommentAuthor"
+          }
+        },
+        "required": [
+          "id",
+          "parentId",
+          "body",
+          "createdAt",
+          "likesCount",
+          "viewerReaction",
+          "author"
+        ]
+      },
+      "CommentThreadResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Nulo para comentário-raiz; o id da raiz para resposta (profundidade 1)."
+          },
+          "body": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "likesCount": {
+            "type": "number"
+          },
+          "viewerReaction": {
+            "nullable": true,
+            "description": "Reação de quem pede; null para o visitante anônimo.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReactionType"
+              }
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/CommentAuthor"
+          },
+          "replies": {
+            "description": "Até 3 respostas, das mais recentes para as mais antigas.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentResponse"
+            }
+          },
+          "repliesCount": {
+            "type": "number",
+            "description": "Total de respostas da thread."
+          }
+        },
+        "required": [
+          "id",
+          "parentId",
+          "body",
+          "createdAt",
+          "likesCount",
+          "viewerReaction",
+          "author",
+          "replies",
+          "repliesCount"
+        ]
+      },
+      "CommentsPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentThreadResponse"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de comentários-raiz do vídeo."
+          },
+          "offset": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ]
+      },
+      "RepliesPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentResponse"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de respostas da raiz."
+          },
+          "offset": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ]
+      },
+      "SubscribedChannel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "subscribersCount": {
+            "type": "number",
+            "description": "Contagem de inscritos do canal."
+          },
+          "videosCount": {
+            "type": "number",
+            "description": "Conta apenas vídeos publicados e públicos."
+          }
+        },
+        "required": [
+          "name",
+          "nickname",
+          "subscribersCount",
+          "videosCount"
+        ]
+      },
+      "SubscribedChannelsPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscribedChannel"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de canais seguidos."
+          },
+          "offset": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
         ]
       }
     }

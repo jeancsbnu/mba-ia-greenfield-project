@@ -175,7 +175,9 @@ describe('videos-public-detail', () => {
     expect(body.category).toBeDefined();
     expect(body.publishedAt).toEqual(expect.any(String));
     expect(typeof body.viewsCount).toBe('number');
-    expect(body.channel).toEqual({
+    // A Fase 06 estendeu o bloco do canal (subscribersCount, viewerSubscribed —
+    // SI-06.5); o contrato da Fase 05 é que estes dois campos sigam iguais.
+    expect(body.channel).toMatchObject({
       nickname: ownerChannel.nickname,
       name: ownerChannel.name,
     });

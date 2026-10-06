@@ -2,8 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ChannelHeader } from "@/components/channels/channel-header"
-import { SiteNavbar } from "@/components/layout/site-navbar"
-import { Button } from "@/components/ui/button"
+import { PublicSiteNavbar } from "@/components/layout/public-site-navbar"
 import {
   Pagination,
   PaginationContent,
@@ -14,9 +13,16 @@ import {
 } from "@/components/ui/pagination"
 import { VideoCard } from "@/components/videos/video-card"
 import type { PublicChannel, PublicVideosPage } from "@/lib/api/contracts"
+import { fetchWithOptionalAuth } from "@/lib/api/optional-auth"
 import { upstream } from "@/lib/api/upstream"
+import { getSession } from "@/lib/auth/session"
 import { formatRelativeDate } from "@/lib/format"
-import { parsePage, PUBLIC_PAGE_SIZE, toOffset, totalPages } from "@/lib/pagination"
+import {
+  parsePage,
+  PUBLIC_PAGE_SIZE,
+  toOffset,
+  totalPages,
+} from "@/lib/pagination"
 
 export default async function PublicChannelPage({
   params,
@@ -29,12 +35,20 @@ export default async function PublicChannelPage({
   const page = parsePage((await searchParams).page)
   const offset = toOffset(page, PUBLIC_PAGE_SIZE)
 
-  // Rota anônima: sem Bearer e sem o helper de sessão — um 401 aqui não faria
-  // sentido, e o canal precisa abrir para quem não tem conta (TD-08).
+  const session = await getSession()
+  const isAuthenticated = session.isLoggedIn === true
+
+  // Rota pública: o canal abre para quem não tem conta (TD-08 da Fase 04). O
+  // canal é lido com auth opcional para `viewerSubscribed` chegar na primeira
+  // pintura (social-interactions-anonymous-gate/TD-02); os vídeos seguem
+  // anônimos, como na Fase 04.
   const [channelResult, videosResult] = await Promise.all([
-    upstream.GET("/channels/{nickname}", {
-      params: { path: { nickname } },
-    }),
+    fetchWithOptionalAuth((init) =>
+      upstream.GET("/channels/{nickname}", {
+        ...init,
+        params: { path: { nickname } },
+      })
+    ),
     upstream.GET("/channels/{nickname}/videos", {
       params: {
         path: { nickname },
@@ -60,11 +74,7 @@ export default async function PublicChannelPage({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteNavbar>
-        <Button asChild variant="outline">
-          <Link href="/login">Entrar</Link>
-        </Button>
-      </SiteNavbar>
+      <PublicSiteNavbar loginVariant="outline" />
 
       <main className="flex flex-1 flex-col gap-6 px-12 py-12">
         <ChannelHeader
@@ -72,6 +82,9 @@ export default async function PublicChannelPage({
           nickname={channel.nickname}
           description={channel.description}
           videosCount={channel.videosCount}
+          subscribersCount={channel.subscribersCount}
+          viewerSubscribed={channel.viewerSubscribed}
+          isAuthenticated={isAuthenticated}
         />
 
         <hr className="border-border" />
@@ -105,11 +118,16 @@ export default async function PublicChannelPage({
                     <PaginationPrevious
                       href={`${basePath}?page=${String(page - 1)}`}
                       aria-disabled={page <= 1}
-                      className={page > 1 ? undefined : "pointer-events-none opacity-50"}
+                      className={
+                        page > 1 ? undefined : "pointer-events-none opacity-50"
+                      }
                     />
                   </PaginationItem>
                   <PaginationItem>
-                    <PaginationLink href={`${basePath}?page=${String(page)}`} isActive>
+                    <PaginationLink
+                      href={`${basePath}?page=${String(page)}`}
+                      isActive
+                    >
                       {page}
                     </PaginationLink>
                   </PaginationItem>
@@ -117,7 +135,11 @@ export default async function PublicChannelPage({
                     <PaginationNext
                       href={`${basePath}?page=${String(page + 1)}`}
                       aria-disabled={page >= lastPage}
-                      className={page < lastPage ? undefined : "pointer-events-none opacity-50"}
+                      className={
+                        page < lastPage
+                          ? undefined
+                          : "pointer-events-none opacity-50"
+                      }
                     />
                   </PaginationItem>
                 </PaginationContent>

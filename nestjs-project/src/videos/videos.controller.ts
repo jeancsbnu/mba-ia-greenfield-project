@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Query,
   HttpCode,
@@ -10,6 +11,7 @@ import {
   Param,
   Patch,
   ParseFilePipeBuilder,
+  Put,
   Redirect,
   UploadedFile,
   UseInterceptors,
@@ -29,6 +31,9 @@ import type { JwtPayload } from '../auth/auth.types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { ApiErrorEnvelope } from '../common/openapi/api-error-envelope.dto';
+import { SOCIAL_THROTTLE } from '../common/social-throttle.constants';
+import { ReactionStateResponse } from '../reactions/dto/reaction-state-response.dto';
+import { SetReactionDto } from '../reactions/dto/set-reaction.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideosService } from './videos.service';
 import { VideoDetailResponse } from './dto/video-detail-response.dto';
@@ -212,7 +217,7 @@ export class VideosController {
   ): Promise<PublicVideoDetailResponse> {
     const video = await this.videosService.findByPublicIdOrFail(publicId);
     await this.videosService.assertServable(video, user?.sub);
-    return this.videosService.toPublicDetail(video);
+    return this.videosService.toPublicDetail(video, user?.sub);
   }
 
   @Public()
@@ -246,6 +251,86 @@ export class VideosController {
     const video = await this.videosService.findByPublicIdOrFail(publicId);
     await this.videosService.assertServable(video, user?.sub);
     await this.videosService.registerView(video);
+  }
+
+  @Put(':publicId/reaction')
+  @Throttle(SOCIAL_THROTTLE.REACTIONS)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Like or dislike a video',
+    description:
+      'Records or switches the reaction of the authenticated user on the video and returns the like count after the operation. One reaction per user per video; repeating the same reaction changes nothing. There is no public dislike count. Rate limited to 60 requests per 60 s per IP.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reaction recorded',
+    schema: { $ref: getSchemaPath(ReactionStateResponse) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'type missing or not one of like/dislike',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing or invalid bearer token',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Video not found, or a draft of another channel',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'More than 60 requests per 60 s from the same IP',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async setReaction(
+    @Param('publicId') publicId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: SetReactionDto,
+  ): Promise<ReactionStateResponse> {
+    const video = await this.videosService.findByPublicIdOrFail(publicId);
+    await this.videosService.assertServable(video, user.sub);
+    return this.videosService.setReaction(video, user.sub, dto.type);
+  }
+
+  @Delete(':publicId/reaction')
+  @Throttle(SOCIAL_THROTTLE.REACTIONS)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Remove the reaction from a video',
+    description:
+      'Removes the reaction of the authenticated user and returns the like count after the operation. Idempotent: without a reaction, returns the current state. Rate limited to 60 requests per 60 s per IP.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reaction removed',
+    schema: { $ref: getSchemaPath(ReactionStateResponse) },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing or invalid bearer token',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Video not found, or a draft of another channel',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'More than 60 requests per 60 s from the same IP',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async removeReaction(
+    @Param('publicId') publicId: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<ReactionStateResponse> {
+    const video = await this.videosService.findByPublicIdOrFail(publicId);
+    await this.videosService.assertServable(video, user.sub);
+    return this.videosService.setReaction(video, user.sub, null);
   }
 
   @Public()
