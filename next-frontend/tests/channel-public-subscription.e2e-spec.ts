@@ -122,9 +122,17 @@ test.describe("channel-public-subscription", () => {
 
     await page.getByLabel("E-mail").fill("user@example.com")
     await page.getByLabel("Senha", { exact: true }).fill("secret123")
+    // Dois saltos: o POST do login e a renderização da página de volta, já
+    // com sessão. Esperar a resposta do login primeiro, como o helper
+    // `login()` das fixtures, separa os dois prazos.
+    const loginResponse = page.waitForResponse(
+      (r) =>
+        r.url().includes("/api/auth/login") && r.request().method() === "POST"
+    )
     await page.getByRole("button", { name: "Entrar" }).click()
+    expect((await loginResponse).status()).toBe(200)
 
-    await expect(page).toHaveURL(`/@${SOCIAL_CHANNEL}`)
+    await expect(page).toHaveURL(`/@${SOCIAL_CHANNEL}`, { timeout: 15_000 })
     await expect(page.getByRole("button", { name: "Sair" })).toBeVisible()
   })
 
