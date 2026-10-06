@@ -218,6 +218,15 @@ npx playwright test tests/xxxx.e2e-spec.ts
 - If the dev server is already running from a previous session, skip steps 2–3 and go straight to step 4.
 - **Step 2 must be its own command, separated from any `docker compose restart`.** Issuing the restart and the `exec -d … npm run dev` in a single shell invocation races: the server comes up but `instrumentation.ts` never compiles, so MSW never registers. Every upstream `fetch` then leaks to the real `API_URL` and every page that loads data returns 500.
 
+#### What runs before the first test — `tests/global-setup.ts`
+
+`playwright.config.ts` wires a `globalSetup` that does two things before any spec starts:
+
+1. **Preflight.** Waits up to 90 s for the dev server to accept connections (so step 3 above is optional), then requires `/videos/watch-video` to answer 200 — a route that only renders with the MSW upstream. If either check fails, the run aborts with zero tests executed and a message saying what to do. Without it, a server whose MSW did not register turned into dozens of navigation timeouts with no hint of the cause.
+2. **Warm-up.** Requests every route found by scanning `app/` (`page.tsx` and `route.ts`), sequentially, so Turbopack compiles them before any test timer runs. On an empty `.next` the first compile of a route easily exceeds a 5 s `expect`. Cost: ~50 s cold, ~5 s warm. New routes are picked up automatically. Skip it with `PW_WARMUP=0` when running a single spec against a server that is already warm — the preflight still runs.
+
+**Workers default to 2 locally** (override with `PW_WORKERS=<n>`). Playwright's own default is half the *host's* logical cores, but the bottleneck is the containerized `next dev`, which only gets the CPUs Docker/WSL grants it. Four browsers against it timed out on navigation; one is stable but slow. If a full run still shows navigation timeouts in specs unrelated to the change, rerun with `PW_WORKERS=1` before suspecting the code — a failure that disappears with one worker is contention.
+
 #### Restarting the dev server — the part that bites
 
 Three failure modes here are **silent**: none of them emits an error naming the cause. The symptom is a failing test or an empty page, which sends you debugging application code that is fine. Before suspecting the code, confirm the server you are measuring is the one you just started, that it loaded the instrumentation, and that it has seen your latest `mocks/`.
@@ -227,7 +236,7 @@ Three failure modes here are **silent**: none of them emits an error naming the 
 - **MSW handlers load exactly once, at boot.** `instrumentation.ts` imports `mocks/server.ts` in `register()`; editing anything under `mocks/` does **not** hot-reload the registered handlers. An E2E run after a `mocks/` edit silently exercises the old fixtures. Restart the dev server after every `mocks/` change.
 - **A new special file (`not-found.tsx`, `error.tsx`, `loading.tsx`) needs a restart too.** Turbopack does not pick it up into the route tree via HMR — until you restart, `notFound()` falls through to the global not-found and the new file looks like it does not work.
 
-Cheapest diagnostic: `curl` a route that depends on MSW. A 500 means MSW is not up. Confirm by grepping the dev log for `○ Compiling instrumentation Node.js ...` — if that line is absent from the current boot, the instrumentation never ran.
+Cheapest diagnostic: `curl` a route that depends on MSW (the preflight uses `/videos/watch-video`). A 500 means MSW is not intercepting; restart the container and start the dev server again in a separate command. **Do not use the dev log as the signal:** the `○ Compiling instrumentation Node.js ...` line has been seen missing from boots where MSW intercepted fine, and `.next/dev/server/instrumentation.js` exists even in boots where it did not. On 2026-10-06 four consecutive boots leaked to the upstream with `MSW_ENABLED=true` set on the `next-server` process; a host reboot cleared it, and the root cause is still unknown.
 
 ### MSW + Vitest — wired
 
