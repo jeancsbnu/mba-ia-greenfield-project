@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type UserMenuProps = {
@@ -11,17 +12,6 @@ type UserMenuProps = {
   onSignOut?: () => void
   isSigningOut?: boolean
 } & Omit<React.ComponentProps<"div">, "children">
-
-// Iniciais do canal: não há upload de avatar nesta fase (OQ-21).
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length === 0) return "?"
-  return words
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase()
-}
 
 // Avatar + "Sair" como uma unidade: é o componente dono da ação de logout,
 // mesmo critério de Form + SubmitButton da Fase 02. A chamada ao

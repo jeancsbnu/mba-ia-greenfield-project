@@ -85,3 +85,20 @@ export function formatRelativeDate(
 export function formatVideosCount(count: number): string {
   return count === 1 ? "1 vídeo" : `${formatCount(count)} vídeos`
 }
+
+/**
+ * Iniciais para o fallback do Avatar: primeira letra de até duas palavras, em
+ * maiúsculas; "?" para um nome vazio.
+ *
+ * Não há upload de avatar (OQ-21), então o fallback é o caminho principal de
+ * todo avatar do projeto — canal, comentário e menu do usuário.
+ */
+export function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return "?"
+  return words
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toLocaleUpperCase("pt-BR")
+}

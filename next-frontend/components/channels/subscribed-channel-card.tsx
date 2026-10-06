@@ -8,21 +8,12 @@ import {
 import { SubscriptionButton } from "@/components/channels/subscription-button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { SubscribedChannel } from "@/lib/api/contracts"
-import { formatVideosCount } from "@/lib/format"
+import { formatVideosCount, initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type SubscribedChannelCardProps = {
   channel: SubscribedChannel
 } & Omit<React.ComponentProps<"li">, "children">
-
-// Iniciais do canal: não há upload de avatar (OQ-21), então o fallback do
-// Avatar é o caminho principal.
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length === 0) return "?"
-  const letters = words.slice(0, 2).map((word) => word[0])
-  return letters.join("").toUpperCase()
-}
 
 // Linha da área de canais seguidos (Figma `channel-row` 75:80). O nome é o
 // atalho para a página pública do canal — o "acesso rápido aos vídeos"
