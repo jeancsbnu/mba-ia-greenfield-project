@@ -6,7 +6,7 @@ import {
 } from "@/components/channels/channel-subscription-provider"
 import { SubscribeButton } from "@/components/channels/subscribe-button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { formatVideosCount } from "@/lib/format"
+import { formatVideosCount, initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type ChannelHeaderProps = {
@@ -18,15 +18,6 @@ type ChannelHeaderProps = {
   viewerSubscribed: boolean
   isAuthenticated: boolean
 } & Omit<React.ComponentProps<"header">, "children">
-
-// Iniciais do canal: não há upload de avatar nesta fase (decisão de /plan-resolve,
-// OQ-21), então o fallback do Avatar é o caminho principal.
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length === 0) return "?"
-  const letters = words.slice(0, 2).map((word) => word[0])
-  return letters.join("").toUpperCase()
-}
 
 function ChannelHeader({
   name,

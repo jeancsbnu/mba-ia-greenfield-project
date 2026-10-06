@@ -4,6 +4,7 @@ import {
   formatCount,
   formatRelativeDate,
   formatVideosCount,
+  initialsOf,
 } from "@/lib/format";
 
 describe("formatCount", () => {
@@ -76,5 +77,31 @@ describe("formatVideosCount", () => {
 
   it("formats large counts with the thousands separator", () => {
     expect(formatVideosCount(1284)).toBe("1.284 vídeos");
+  });
+});
+
+describe("initialsOf", () => {
+  it("uses the first letter of a single word", () => {
+    expect(initialsOf("streamtube")).toBe("S");
+  });
+
+  it("uses the first letters of the first two words only", () => {
+    expect(initialsOf("ana maria souza")).toBe("AM");
+  });
+
+  it("ignores leading, trailing and repeated whitespace", () => {
+    expect(initialsOf("  ana \t  maria \n")).toBe("AM");
+  });
+
+  it("uppercases accented initials", () => {
+    expect(initialsOf("érica ávila")).toBe("ÉÁ");
+  });
+
+  it("returns a placeholder for an empty name", () => {
+    expect(initialsOf("")).toBe("?");
+  });
+
+  it("returns a placeholder for a whitespace-only name", () => {
+    expect(initialsOf("   ")).toBe("?");
   });
 });

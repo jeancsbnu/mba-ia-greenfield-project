@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import type { Comment } from "@/lib/api/contracts"
 import { buildLoginHref } from "@/lib/auth/return-to"
+import { initialsOf } from "@/lib/format"
 import type { MutationOutcome } from "@/lib/social/mutation"
 import { cn } from "@/lib/utils"
 
@@ -38,16 +39,6 @@ const ERROR_MESSAGES: Record<string, string> = {
   VIDEO_NOT_FOUND: "Este vídeo não está mais disponível.",
 }
 const FALLBACK_ERROR = "Não foi possível publicar seu comentário."
-
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length === 0) return "?"
-  return words
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toLocaleUpperCase("pt-BR")
-}
 
 type NewCommentFormProps = {
   /** Publica e devolve o resultado; o estado otimista é da CommentsSection. */

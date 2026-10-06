@@ -1,20 +1,8 @@
 import * as React from "react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { formatRelativeDate } from "@/lib/format"
+import { formatRelativeDate, initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
-
-// Iniciais de quem comentou: não há upload de avatar, então o fallback do
-// Avatar é o caminho principal, como no restante do projeto.
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length === 0) return "?"
-  return words
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toLocaleUpperCase("pt-BR")
-}
 
 type CommentItemProps = {
   /** Nome de exibição do canal de quem comentou. */
