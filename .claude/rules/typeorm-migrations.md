@@ -36,16 +36,25 @@ Correct recovery:
 
 ## Migration Tests Must Restore DB State
 
-Any test that exercises the migration runner (`runMigrations` / `undoLastMigration`) leaves the database in a non-default state. Other suites in the same Jest run will see missing tables and fail mysteriously.
+Any test that exercises the migration runner (`runMigrations` / `undoLastMigration`) leaves the **test** database in a non-default state. Other suites in the same Jest run will see missing tables and fail mysteriously. These tests run only against the dedicated test database (`DB_TEST_NAME`, default `streamtube_test`) — never against the dev database, whose `migrations` table must only change through `migration:run`.
 
-Always restore the schema in `afterAll`:
+Start from an empty schema and restore the full one in `afterAll` (helpers in `src/test/test-database.ts`):
 
 ```typescript
+beforeAll(async () => {
+  await dataSource.initialize();
+  await dropTestSchema(dataSource); // drops tables, enum types and "migrations"
+});
+
 afterAll(async () => {
-  await dataSource.runMigrations(); // re-apply everything that was undone
   await dataSource.destroy();
+  await migrateFreshTestDatabase(); // re-applies ALL migrations, not just this DataSource's subset
 });
 ```
+
+`dataSource.runMigrations()` alone is not enough when the test DataSource lists only some migrations: the later ones stay unregistered while their tables may still exist, and the next `runMigrations` fails with "relation already exists".
+
+New migrations must also be added to `ALL_MIGRATIONS` in `src/test/test-database.ts`; the Jest `globalSetup` fails if a file in `src/database/migrations/` is missing from it.
 
 ## Importing Migrations in Tests
 

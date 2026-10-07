@@ -150,9 +150,9 @@ jest.mock('./users.service');
 
 ---
 
-## 9. Parallel test execution and shared database
+## 9. Parallel test execution and the shared test database
 
-**Problem:** Jest runs test files in parallel by default. If multiple integration test files share the same database tables, they can interfere with each other (e.g., one test cleans a table while another is mid-assertion).
+**Problem:** Jest runs test files in parallel by default. All integration and e2e files share the same **test** database (`streamtube_test`, see `external-systems.md`), so they can interfere with each other (e.g., one test cleans a table while another is mid-assertion). Two Jest runs at once are worse: each run's `globalSetup` drops and recreates the test schema.
 
 **Fix options:**
 - Run integration tests with `--runInBand` to serialize execution

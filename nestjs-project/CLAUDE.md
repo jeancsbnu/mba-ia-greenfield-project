@@ -33,7 +33,9 @@ docker compose exec nestjs-api npm run start:dev
 
 Services:
 - `nestjs-api` — NestJS API, port `3000`
-- `db` — PostgreSQL 17, port `5432`, database `streamtube`, user/password `streamtube`
+- `db` — PostgreSQL 17, port `5432`, user/password `streamtube`. Two databases:
+  - `streamtube` (`DB_NAME`) — development. Its schema changes **only** through `npm run migration:run`.
+  - `streamtube_test` (`DB_TEST_NAME`) — owned by the test suites; created and rebuilt automatically on every Jest run (see "Test execution").
 
 All verification and teardown commands run on the **host machine**:
 
@@ -84,7 +86,14 @@ curl http://localhost:3000
 
 ### Test execution
 
-Integration and e2e suites share a single test database. They **must** be run with `--runInBand`:
+Integration and e2e suites run against a **dedicated test database** (`DB_TEST_NAME`, default `streamtube_test`; the name must end in `_test`), never the dev database:
+
+- `src/test/global-setup.ts` (Jest `globalSetup` in both configs) creates the test database if it does not exist, drops its `public` schema and re-applies **all** migrations before any test file runs. No manual setup is needed, and every run starts from the schema `migration:run` produces.
+- `src/test/use-test-database.ts` (Jest `setupFiles`) sets `DB_NAME` to the test database, so suites that boot `AppModule` use it too.
+- Integration suites get their DataSource from `createTestDataSource()` (`src/test/create-test-data-source.ts`), which already targets the test database.
+- A new migration must be added to `ALL_MIGRATIONS` in `src/test/test-database.ts`; `globalSetup` fails listing any file in `src/database/migrations/` that is missing there.
+
+Even with the dedicated database, the suites share it among themselves. They **must** be run with `--runInBand`, and never two Jest runs at the same time (each run's `globalSetup` rebuilds the schema):
 
 ```bash
 docker compose exec nestjs-api npm test -- --runInBand
@@ -94,6 +103,21 @@ docker compose exec nestjs-api npm run test:e2e   # already configured
 Parallel execution causes FK violations, deadlocks, and cross-suite contamination because suites truncate or seed shared tables concurrently.
 
 During active development, run only the tests related to the file being changed (`npm test -- path/to/file.spec.ts`). Before declaring a task done, run the full suite — see the global `CLAUDE.md` → "Definition of Done (Technical)".
+
+### Recovering the dev database
+
+Symptom: `npm run migration:run` fails with `relation "..." already exists` (Postgres `routine: 'heap_create_with_catalog'`), and the `migrations` table lists fewer rows than the tables that exist. Before the dedicated test database existed, the test suites ran against `streamtube`: `synchronize: true` created tables outside the migrations and the migrations suite dropped and partially re-applied the `migrations` table.
+
+Recovery rebuilds the schema from the migrations, which **erases all data in `streamtube`**. Back it up first if anything there matters (all commands from `nestjs-project/` on the host):
+
+```bash
+docker compose exec -T db pg_dump -U streamtube -d streamtube --data-only --exclude-table=migrations > streamtube-data-backup.sql
+docker compose exec -T db psql -U streamtube -d streamtube -c "DROP SCHEMA public CASCADE" -c "CREATE SCHEMA public"
+docker compose exec nestjs-api npm run migration:run
+docker compose exec db psql -U streamtube -d streamtube -c "SELECT id, name FROM migrations ORDER BY id"
+```
+
+The last command must list every file in `src/database/migrations/`. To restore the data, run `psql` with the backup only if the schema it came from matches the migrated one (data dumped from a `synchronize`-built schema may not load cleanly); otherwise repopulate with `npm run seed`.
 
 ## Long-running Processes
 
@@ -119,7 +143,8 @@ Conventions for **how to write** each kind of test (mocking patterns, AAA struct
 
 These settings are required in `package.json` (jest config) and `test/jest-e2e.json` for the project's tests to work correctly:
 
-- `setupFiles: ["dotenv/config"]` — without this, `.env` is not loaded inside the Jest process. `DB_HOST`, `JWT_SECRET`, etc. fall back to undefined or to the host's `localhost`, breaking container-to-container DNS.
+- `setupFiles: ["dotenv/config", ".../src/test/use-test-database.ts"]` — `dotenv/config` loads `.env` inside the Jest process (without it `DB_HOST`, `JWT_SECRET`, etc. fall back to undefined or to the host's `localhost`, breaking container-to-container DNS); `use-test-database.ts` must come after it and points `DB_NAME` at the test database.
+- `globalSetup: ".../src/test/global-setup.ts"` — creates and migrates the test database. Removing it leaves e2e suites without a schema.
 - `testRegex: '.*\\.(spec|integration-spec)\\.ts$'` — covers both unit (`*.spec.ts`) and integration (`*.integration-spec.ts`) suffixes.
 
 Do not add new test-file suffixes; if a new test type is needed, update the regex deliberately.

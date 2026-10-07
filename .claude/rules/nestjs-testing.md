@@ -21,7 +21,7 @@ description: 'Testing conventions for NestJS unit, integration, and e2e tests'
 ## Integration Tests (`*.integration-spec.ts`)
 
 - Use `Test.createTestingModule()` from `@nestjs/testing` to set up the test module
-- Use a real database — connect to the Docker `db` service (env vars from `.env` are available inside the container)
+- Use a real database — the dedicated test database on the Docker `db` service (`DB_TEST_NAME`, default `streamtube_test`), via `createTestDataSource()` from `src/test/create-test-data-source.ts`. Never connect a test to the dev database `streamtube`
 - **Table cleanup:** `repository.delete({})` throws `Empty criteria(s) are not allowed`. Use `dataSource.query('DELETE FROM table_name')` or `repository.clear()` to wipe tables between tests
 
 ## E2E Tests (`*.e2e-spec.ts`)
@@ -82,7 +82,7 @@ When a service performs a multi-step operation that has a compensating action on
 - Avoid hardcoding values in tests; use variables or helper functions to generate test data
 - Use realistic data that reflects actual use cases to catch edge cases and ensure test reliability
 - Clean up test data after each test to maintain isolation and prevent side effects
-- For e2e tests, consider using a separate test database to avoid conflicts with development data
+- Integration and e2e tests never touch development data: Jest's `globalSetup` rebuilds the test database from the migrations on every run, and `setupFiles` points `DB_NAME` at it
 
 ## Test Structure
 
