@@ -100,8 +100,10 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
+    "globalSetup": "<rootDir>/test/global-setup.ts",
     "setupFiles": [
-      "dotenv/config"
+      "dotenv/config",
+      "<rootDir>/test/use-test-database.ts"
     ]
   }
 }

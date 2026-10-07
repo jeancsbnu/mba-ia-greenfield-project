@@ -8,19 +8,21 @@ How each external system is handled in tests. These strategies were confirmed wi
 
 ## PostgreSQL — Real (Docker)
 
-**Strategy:** Real database via the Docker `db` service (already in `compose.yaml`).
+**Strategy:** Real database via the Docker `db` service (already in `compose.yaml`), but a **dedicated test database** — never the dev database `streamtube`.
+
+**Which database:** `DB_TEST_NAME` (default `streamtube_test`; must end in `_test`). The dev database only changes through `migration:run`.
+
+- `src/test/global-setup.ts` (Jest `globalSetup`, both configs) creates the test database if missing, drops its `public` schema and re-applies **all** migrations — every run starts from the exact schema `migration:run` produces.
+- `src/test/use-test-database.ts` (Jest `setupFiles`) sets `DB_NAME` to the test database, so e2e suites that boot `AppModule` hit it too.
+- Integration suites build their DataSource with `createTestDataSource(entities)` (`src/test/create-test-data-source.ts`), which already points at the test database. Never hand-roll connection options with `process.env.DB_NAME`/`DB_DATABASE` in a test.
 
 **Connection config for tests:**
 ```typescript
-{
-  type: 'postgres',
-  host: process.env.DB_HOST ?? 'localhost',
-  port: Number(process.env.DB_PORT ?? 5432),
-  username: process.env.DB_USERNAME ?? 'streamtube',
-  password: process.env.DB_PASSWORD ?? 'streamtube',
-  database: process.env.DB_DATABASE ?? 'streamtube',
-  synchronize: true, // auto-create tables in test setup
-}
+import { createTestDataSource } from '../test/create-test-data-source';
+
+const dataSource = createTestDataSource([User]); // synchronize: true by default
+// or, inside a testing module:
+TypeOrmModule.forRoot(createTestDataSource([User]).options);
 ```
 
 **Test isolation:**

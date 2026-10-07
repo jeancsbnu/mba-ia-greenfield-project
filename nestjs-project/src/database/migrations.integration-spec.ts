@@ -8,6 +8,10 @@ import { CreateAuthTokens1777579850478 } from './migrations/1777579850478-Create
 import { CreateVideos1783384550640 } from './migrations/1783384550640-CreateVideos';
 import { AddVideoCategoryVisibilityPublication1790081095939 } from './migrations/1790081095939-AddVideoCategoryVisibilityPublication';
 import { createTestDataSource } from '../test/create-test-data-source';
+import {
+  dropTestSchema,
+  migrateFreshTestDatabase,
+} from '../test/test-database';
 import { Video } from '../videos/entities/video.entity';
 
 const MANAGED_TABLES = [
@@ -34,29 +38,17 @@ describe('Database migrations (integration)', () => {
 
     await dataSource.initialize();
 
-    await Promise.all([
-      ...MANAGED_TABLES.map((table) =>
-        dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`),
-      ),
-      dataSource.query(`DROP TABLE IF EXISTS "migrations" CASCADE`),
-    ]);
-
-    // DROP TABLE ... CASCADE removes objects that depend on the table (FKs,
-    // views) — it does NOT drop a column's enum TYPE, since the dependency
-    // runs the other way (table depends on the type). Drop it explicitly,
-    // strictly after the table drop above has committed, so re-running
-    // CreateAuthTokens' up() (CREATE TYPE) is idempotent regardless of what
-    // state the shared dev DB was in before.
-    await dataSource.query(
-      `DROP TYPE IF EXISTS "public"."verification_tokens_type_enum"`,
-    );
+    // Banco de teste dedicado (src/test/test-database-name.ts): apagar o
+    // schema inteiro leva junto tabelas, enums e a tabela "migrations", então
+    // o runner parte do zero sem depender do que outras suítes deixaram.
+    await dropTestSchema(dataSource);
   });
 
   afterAll(async () => {
-    // The second test undoes the last migration, leaving token tables missing.
-    // Re-apply so the shared DB is fully migrated when subsequent suites run.
-    await dataSource.runMigrations();
+    // Este DataSource só conhece parte das migrations; recria o banco com
+    // todas para que as suítes seguintes encontrem o schema completo.
     await dataSource.destroy();
+    await migrateFreshTestDatabase();
   });
 
   it('should apply all migrations and create all four tables', async () => {
@@ -132,24 +124,13 @@ describe('AddVideoCategoryVisibilityPublication migration (integration)', () => 
     );
 
     await dataSource.initialize();
-
-    for (const table of [...MANAGED_TABLES, 'videos', 'migrations']) {
-      await dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`);
-    }
-    for (const type of [
-      'verification_tokens_type_enum',
-      'videos_status_enum',
-      'videos_category_enum',
-      'videos_visibility_enum',
-    ]) {
-      await dataSource.query(`DROP TYPE IF EXISTS "public"."${type}"`);
-    }
+    await dropTestSchema(dataSource);
   }, 60000);
 
   afterAll(async () => {
-    // Deixa o banco compartilhado totalmente migrado para as demais suítes.
-    await dataSource.runMigrations();
+    // Deixa o banco de teste com todas as migrations para as demais suítes.
     await dataSource.destroy();
+    await migrateFreshTestDatabase();
   });
 
   it('preserves an existing video and applies the new defaults', async () => {

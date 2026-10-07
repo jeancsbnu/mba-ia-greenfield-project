@@ -43,21 +43,14 @@ import { Test } from '@nestjs/testing';
 import { UsersModule } from './users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
+import { createTestDataSource } from '../test/create-test-data-source';
 
 describe('UsersModule', () => {
   it('should compile successfully', async () => {
     const module = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: process.env.DB_HOST ?? 'localhost',
-          port: Number(process.env.DB_PORT ?? 5432),
-          username: process.env.DB_USERNAME ?? 'streamtube',
-          password: process.env.DB_PASSWORD ?? 'streamtube',
-          database: process.env.DB_DATABASE ?? 'streamtube',
-          entities: [User],
-          synchronize: true,
-        }),
+        // Points at the dedicated test database (DB_TEST_NAME), never the dev DB.
+        TypeOrmModule.forRoot(createTestDataSource([User]).options),
         UsersModule,
       ],
     }).compile();
