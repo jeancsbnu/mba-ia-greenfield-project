@@ -54,6 +54,31 @@ docker compose logs db
 docker compose down
 ```
 
+## Video Worker
+
+The `video-worker` service runs the **compiled** worker (`npm run start:worker` → `node dist/worker.main`), with no watch mode and `restart: on-failure`. It does not compile anything itself: it reuses the `dist/` that shares the bind mount with `nestjs-api` (design from Phase 03 — two `tsc --watch` processes with `deleteOutDir` would fight over the same `dist/`). That `dist/` is only produced by `npm run start:dev` (or `npm run build`) inside `nestjs-api`.
+
+Since the dev server is **not** started by default (see "Environment Startup Verification") — and a local `compose.override.yaml` may replace the `nestjs-api` command with `tail -f /dev/null` — `dist/` is usually missing or stale. Symptoms:
+
+- `dist/` missing → the worker crash-loops with `Error: Cannot find module '/home/node/app/dist/worker.main'` (`docker compose ps` shows `Restarting`).
+- `dist/` stale → the worker runs old code; uploads stay in `processing` or fail with errors that no longer match `src/`.
+
+After any change that affects the worker (and after pulling such changes), rebuild and restart it — the build takes ~2 min in the bind-mounted container:
+
+```bash
+docker compose exec nestjs-api npm run build
+docker compose restart video-worker
+docker compose logs --tail 20 video-worker
+```
+
+The worker boots with `NestFactory.createApplicationContext`, which does **not** print "Nest application successfully started". It is healthy when the log ends with the `... dependencies initialized` lines and no error, and `docker compose ps video-worker` stays `Up` (no restarts) — the TypeORM connection retries for ~30 s before giving up, so check again after that.
+
+Pitfalls:
+
+- `dist/` existing is not a build: `npx tsc --noEmit` (incremental) leaves only `dist/tsconfig.tsbuildinfo`. Check for `dist/worker.main.js`.
+- `nest build` deletes `dist/` first (`deleteOutDir`). Restart the worker only **after** the build finishes, or it crashes on a half-written `dist/`.
+- The worker only consumes the dev queue (`REDIS_DB`); test suites use their own index (see "Test execution"), so their jobs never reach it.
+
 ## Commands
 
 **Strict rule:** every `npm`, `npx`, `node`, `tsc`, and test command runs **inside the container**, never on the host. Running on the host causes env-var divergence (`DB_HOST` resolves to `localhost` instead of the Compose service), uses a different Node version, and produces results that do not reflect what runs in CI/prod.
