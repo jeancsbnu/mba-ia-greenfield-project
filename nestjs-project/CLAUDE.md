@@ -117,7 +117,15 @@ docker compose exec nestjs-api npm run migration:run
 docker compose exec db psql -U streamtube -d streamtube -c "SELECT id, name FROM migrations ORDER BY id"
 ```
 
-The last command must list every file in `src/database/migrations/`. To restore the data, run `psql` with the backup only if the schema it came from matches the migrated one (data dumped from a `synchronize`-built schema may not load cleanly); otherwise repopulate with `npm run seed`.
+The last command must list every file in `src/database/migrations/`. To restore the data, run `psql` with the backup only if the schema it came from matches the migrated one (data dumped from a `synchronize`-built schema may not load cleanly); otherwise repopulate with `npm run seed` (see "Development seed").
+
+### Development seed
+
+`docker compose exec nestjs-api npm run seed` fills the **dev** database with sample data (`src/database/seeds/dev-seed.data.ts`): 5 confirmed accounts `ana`, `bruno`, `carla`, `diego`, `elisa` `@streamtube.dev` (password `streamtube123`), each with a channel, 10 videos across 7 categories (one unlisted, one draft), subscriptions, reactions, comments and replies.
+
+- Videos are real, playable MP4s with thumbnails: `ffmpeg-static` renders them from built-in test patterns and they are uploaded to MinIO under `seed/<publicId>.mp4`. The seed needs `db` and `minio` up and takes a few minutes in the bind-mounted container.
+- Denormalized counters (`likes_count`, `comments_count`, `subscribers_count`) are recomputed from the inserted rows, so they match what the API maintains.
+- It never deletes anything: if any seed account already exists it does nothing. To re-seed, recover the dev database first (above).
 
 ## Long-running Processes
 
