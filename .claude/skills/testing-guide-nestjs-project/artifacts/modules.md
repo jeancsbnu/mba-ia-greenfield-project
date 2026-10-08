@@ -12,7 +12,8 @@
 
 | Scenario | Layer | Why |
 |---|---|---|
-| Module with configured imports (TypeORM, JWT, Bull, Throttler, etc.) | **Unit** (compilation test) | DI wiring errors are runtime-only; TypeScript cannot catch missing imports |
+| Module whose compilation opens a real connection (`TypeOrmModule.forRoot` against the test database, a real Bull/Redis root) | **Integration** (compilation test, `*.module.integration-spec.ts`) | DI wiring errors are runtime-only; and a test that opens a DB connection is integration by definition (`nestjs-project/CLAUDE.md` → "Test Type Selection") |
+| Module with configured imports that compile without any connection (JWT, Mailer, Throttler, etc.) | **Unit** (compilation test, `*.module.spec.ts`) | DI wiring errors are runtime-only; TypeScript cannot catch missing imports |
 | Simple module with only local providers and no configured imports | **Skip** | If the module only registers plain services/controllers, DI errors will surface in other tests |
 
 **Critical:** Module compilation tests are NOT wiring tests. They verify that the DI container can resolve all dependencies — a real runtime concern that TypeScript's type system cannot check.
@@ -20,25 +21,32 @@
 ## Setup pattern
 
 ```typescript
-// users.module.spec.ts
+// mail.module.spec.ts — compiles without opening any connection: unit test
 import { Test } from '@nestjs/testing';
-import { UsersModule } from './users.module';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from '../config/app.config';
+import mailConfig from '../config/mail.config';
+import { MailModule } from './mail.module';
 
-describe('UsersModule', () => {
+describe('MailModule', () => {
   it('should compile successfully', async () => {
     const module = await Test.createTestingModule({
-      imports: [UsersModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, load: [appConfig, mailConfig] }),
+        MailModule,
+      ],
     }).compile();
 
     expect(module).toBeDefined();
+    await module.close();
   });
 });
 ```
 
-**For modules with database dependencies** (TypeORM):
+**For modules with database dependencies** (TypeORM) — `TypeOrmModule.forRoot` connects to the test database, so the file is an **integration** test:
 
 ```typescript
-// users.module.spec.ts
+// users.module.integration-spec.ts
 import { Test } from '@nestjs/testing';
 import { UsersModule } from './users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
