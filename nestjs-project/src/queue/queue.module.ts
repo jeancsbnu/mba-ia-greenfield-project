@@ -11,6 +11,7 @@ import queueConfig from '../config/queue.config';
         connection: {
           host: config.redisHost,
           port: config.redisPort,
+          db: config.redisDb,
         },
       }),
     }),

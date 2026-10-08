@@ -103,7 +103,7 @@
     "globalSetup": "<rootDir>/test/global-setup.ts",
     "setupFiles": [
       "dotenv/config",
-      "<rootDir>/test/use-test-database.ts"
+      "<rootDir>/test/use-test-environment.ts"
     ]
   }
 }

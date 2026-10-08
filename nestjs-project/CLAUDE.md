@@ -86,10 +86,18 @@ curl http://localhost:3000
 
 ### Test execution
 
-Integration and e2e suites run against a **dedicated test database** (`DB_TEST_NAME`, default `streamtube_test`; the name must end in `_test`), never the dev database:
+Integration and e2e suites run against **dedicated test resources**, never the dev ones:
+
+| Resource | Dev | Tests | Guard |
+|---|---|---|---|
+| Postgres database | `DB_NAME` = `streamtube` | `DB_TEST_NAME`, default `streamtube_test` | must end in `_test` |
+| Redis index (BullMQ queue `video-processing`) | `REDIS_DB` = `0` | `REDIS_TEST_DB`, default `1` | must differ from `REDIS_DB` |
+| MinIO bucket | `MINIO_BUCKET` = `videos` | `MINIO_TEST_BUCKET`, default `videos-test` | must end in `-test` and differ from `MINIO_BUCKET` |
+
+The tests enqueue and **drain** the queue and delete objects, so pointing them at the dev resources would drop real processing jobs and dev media; the dev `video-worker` only consumes `REDIS_DB`.
 
 - `src/test/global-setup.ts` (Jest `globalSetup` in both configs) creates the test database if it does not exist, drops its `public` schema and re-applies **all** migrations before any test file runs. No manual setup is needed, and every run starts from the schema `migration:run` produces.
-- `src/test/use-test-database.ts` (Jest `setupFiles`) sets `DB_NAME` to the test database, so suites that boot `AppModule` use it too.
+- `src/test/use-test-environment.ts` (Jest `setupFiles`) sets `DB_NAME`, `REDIS_DB` and `MINIO_BUCKET` to the test resources, so suites that boot `AppModule` or read the configs use them too. `globalSetup` validates the queue and bucket guards before any file runs; the test bucket is created on demand by `StorageService.onModuleInit`.
 - Integration suites get their DataSource from `createTestDataSource()` (`src/test/create-test-data-source.ts`), which already targets the test database.
 - A new migration must be added to `ALL_MIGRATIONS` in `src/test/test-database.ts`; `globalSetup` fails listing any file in `src/database/migrations/` that is missing there.
 
@@ -151,7 +159,7 @@ Conventions for **how to write** each kind of test (mocking patterns, AAA struct
 
 These settings are required in `package.json` (jest config) and `test/jest-e2e.json` for the project's tests to work correctly:
 
-- `setupFiles: ["dotenv/config", ".../src/test/use-test-database.ts"]` — `dotenv/config` loads `.env` inside the Jest process (without it `DB_HOST`, `JWT_SECRET`, etc. fall back to undefined or to the host's `localhost`, breaking container-to-container DNS); `use-test-database.ts` must come after it and points `DB_NAME` at the test database.
+- `setupFiles: ["dotenv/config", ".../src/test/use-test-environment.ts"]` — `dotenv/config` loads `.env` inside the Jest process (without it `DB_HOST`, `JWT_SECRET`, etc. fall back to undefined or to the host's `localhost`, breaking container-to-container DNS); `use-test-environment.ts` must come after it and points `DB_NAME`, `REDIS_DB` and `MINIO_BUCKET` at the test resources.
 - `globalSetup: ".../src/test/global-setup.ts"` — creates and migrates the test database. Removing it leaves e2e suites without a schema.
 - `testRegex: '.*\\.(spec|integration-spec)\\.ts$'` — covers both unit (`*.spec.ts`) and integration (`*.integration-spec.ts`) suffixes.
 

@@ -13,7 +13,7 @@ How each external system is handled in tests. These strategies were confirmed wi
 **Which database:** `DB_TEST_NAME` (default `streamtube_test`; must end in `_test`). The dev database only changes through `migration:run`.
 
 - `src/test/global-setup.ts` (Jest `globalSetup`, both configs) creates the test database if missing, drops its `public` schema and re-applies **all** migrations — every run starts from the exact schema `migration:run` produces.
-- `src/test/use-test-database.ts` (Jest `setupFiles`) sets `DB_NAME` to the test database, so e2e suites that boot `AppModule` hit it too.
+- `src/test/use-test-environment.ts` (Jest `setupFiles`) sets `DB_NAME` to the test database (and the queue and bucket below to theirs), so e2e suites that boot `AppModule` hit it too.
 - Integration suites build their DataSource with `createTestDataSource(entities)` (`src/test/create-test-data-source.ts`), which already points at the test database. Never hand-roll connection options with `process.env.DB_NAME`/`DB_DATABASE` in a test.
 
 **Connection config for tests:**
@@ -39,88 +39,39 @@ TypeOrmModule.forRoot(createTestDataSource([User]).options);
 
 ---
 
-## Object Storage — Local Filesystem
+## Object Storage — MinIO (Real, Docker)
 
-**Strategy:** Local filesystem storage in development and tests. S3 in production.
+**Strategy:** Real MinIO via the Docker `minio` service, accessed through `StorageService` (S3 API), but a **dedicated test bucket** — never the dev bucket `videos`.
 
-**Approach:**
-- The storage layer should use an abstraction (e.g., `StorageService` interface) that allows switching between local filesystem and S3
-- In tests, use the local filesystem adapter — no mocking needed
-- Use a temporary directory for test uploads: `os.tmpdir()` or a dedicated `test-uploads/` directory
-- Clean up test files in `afterAll`
+**Which bucket:** `MINIO_TEST_BUCKET` (default `videos-test`; must end in `-test` and differ from `MINIO_BUCKET`). `src/test/use-test-environment.ts` sets `MINIO_BUCKET` to it, so `storageConfig().minioBucket`, `StorageService` and the tus upload server all use it. `StorageService.onModuleInit` creates the bucket if missing.
 
-**Setup pattern:**
+**Rules:**
+- Read the bucket from `storageConfig().minioBucket` (or the injected config) — never hardcode `'videos'`.
+- Prefer random keys per test; a fixed key may only be deleted in a bucket owned by the test (the dev seed spec goes further and uses its own `-seed-test` bucket).
+- Clean up the objects a test creates when they could affect other tests.
+
 ```typescript
-// In test module setup
-{
-  provide: 'STORAGE_CONFIG',
-  useValue: {
-    driver: 'local',
-    basePath: path.join(os.tmpdir(), 'streamtube-test-uploads'),
-  },
-}
-```
-
-**Integration test:**
-```typescript
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-
-describe('StorageService (integration)', () => {
-  const testDir = path.join(os.tmpdir(), 'streamtube-test-uploads');
-
-  afterAll(() => {
-    fs.rmSync(testDir, { recursive: true, force: true });
-  });
-
-  it('should upload and retrieve a file', async () => {
-    const buffer = Buffer.from('test content');
-    const key = await storageService.upload(buffer, 'test.txt');
-
-    const retrieved = await storageService.get(key);
-    expect(retrieved.toString()).toBe('test content');
-  });
-});
+const config = storageConfig(); // MINIO_BUCKET already points at the test bucket
+const storageService = new StorageService(config);
+await storageService.onModuleInit(); // creates the test bucket if needed
 ```
 
 ---
 
-## Message Queue — Real (Docker)
+## Message Queue — BullMQ on Redis (Real, Docker)
 
-**Strategy:** Real message broker in Docker. The specific technology is TBD per the architecture diagram (likely BullMQ with Redis or RabbitMQ).
+**Strategy:** Real Redis via the Docker `redis` service and the real BullMQ queue `video-processing`, but on a **dedicated Redis index** — never the dev index the `video-worker` consumes.
 
-**When the queue technology is chosen, configure:**
-- A queue broker service in `compose.yaml` (e.g., Redis for BullMQ, RabbitMQ for AMQP)
-- Test isolation: use dedicated test queues or clean queues between tests
-- For publisher tests: assert the job is enqueued with correct data
-- For consumer tests: submit a job and assert the processing outcome
+**Which index:** `REDIS_TEST_DB` (default `1`; must differ from `REDIS_DB`, default `0`). `src/test/use-test-environment.ts` sets `REDIS_DB` to it, and `QueueModule` passes it as `connection.db`.
 
-**Setup pattern (BullMQ example):**
-```typescript
-// In test module
-BullModule.forRoot({
-  connection: {
-    host: process.env.REDIS_HOST ?? 'localhost',
-    port: Number(process.env.REDIS_PORT ?? 6379),
-  },
-}),
-BullModule.registerQueue({ name: 'video-processing' }),
-```
+**Rules:**
+- Producer tests: `queue.drain(true)` in `beforeEach` is fine — it only drains the test index — then assert the enqueued job's name and data.
+- Consumer tests: call the processor directly with a fake `Job` (see `video-processing.consumer.integration-spec.ts`); never `init()` a module with a `@Processor`, which would start a real worker.
+- A test that compiles a module with a queue and closes it right away must `await queue.waitUntilReady()` before `module.close()`: closing mid-connect makes BullMQ emit an unhandled "Connection is closed" that fails whichever test file runs next.
 
 ```typescript
-describe('VideoService (integration - queue)', () => {
-  it('should enqueue a processing job on upload', async () => {
-    await videoService.upload(videoData);
-
-    const queue = module.get<Queue>(getQueueToken('video-processing'));
-    const jobs = await queue.getJobs(['waiting']);
-    expect(jobs).toHaveLength(1);
-    expect(jobs[0].data).toEqual(
-      expect.objectContaining({ videoId: expect.any(String) }),
-    );
-  });
-});
+const queue = module.get<Queue>(getQueueToken('video-processing'));
+await queue.drain(true); // test index only
 ```
 
 ---
