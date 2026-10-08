@@ -1,0 +1,937 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "84:425",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=84-425",
+    "fetched_at": "2026-10-06T23:05:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "/ (viewport 375, menu de navegacao aberto)",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (2 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "session_state": "autenticado",
+    "note": "menu-overlay (84:487) e navigation-sheet (84:488) sao ABSOLUTE sobre o conteudo; o conteudo atras (navbar, category-filter, 2 cards) e contexto, nao estado proprio.",
+    "layout_note": "video-list tem 341 de largura e o card mobile tem 343 fixos: transborda 2px por causa do stroke do main-dashed-container. Na implementacao o card ocupa a largura do container (FILL)."
+  },
+  "id": "84:425",
+  "name": "menu-navegacao-mobile",
+  "type": "FRAME",
+  "size": {
+    "w": 375,
+    "h": 760
+  },
+  "layout": {
+    "mode": "VERTICAL"
+  },
+  "children": [
+    {
+      "id": "84:426",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 16
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      }
+    },
+    {
+      "id": "84:427",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 65
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "84:428",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:429",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:430",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "children": [
+                    {
+                      "id": "84:431",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "84:432",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "84:433",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador"
+            }
+          ]
+        },
+        {
+          "id": "84:434",
+          "name": "navbar-actions",
+          "type": "FRAME",
+          "size": {
+            "w": 84,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:435",
+              "name": "search-toggle-button",
+              "type": "FRAME",
+              "size": {
+                "w": 40,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:436",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:436;83:83",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 13
+                      }
+                    },
+                    {
+                      "id": "I84:436;83:84",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 4,
+                        "h": 4
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "84:439",
+              "name": "menu-button",
+              "type": "FRAME",
+              "size": {
+                "w": 40,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:440",
+                  "name": "menu-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "menu-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:440;83:87",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 0
+                      }
+                    },
+                    {
+                      "id": "I84:440;83:88",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 0
+                      }
+                    },
+                    {
+                      "id": "I84:440;83:89",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 0
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "84:444",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 626
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "84:445",
+          "name": "category-filter",
+          "type": "FRAME",
+          "size": {
+            "w": 341,
+            "h": 32
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:446",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 69,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=selected"
+              },
+              "children": [
+                {
+                  "id": "I84:446;83:125",
+                  "name": "chip-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 39,
+                    "h": 16
+                  },
+                  "characters": "Todos"
+                }
+              ]
+            },
+            {
+              "id": "84:448",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 76,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children": [
+                {
+                  "id": "I84:448;83:123",
+                  "name": "chip-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 46,
+                    "h": 16
+                  },
+                  "characters": "Música"
+                }
+              ]
+            },
+            {
+              "id": "84:450",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 69,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Jogos"
+              }
+            },
+            {
+              "id": "84:452",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 92,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Educação"
+              }
+            },
+            {
+              "id": "84:454",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 128,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Entretenimento"
+              }
+            },
+            {
+              "id": "84:456",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 82,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Notícias"
+              }
+            },
+            {
+              "id": "84:458",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 87,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Esportes"
+              }
+            },
+            {
+              "id": "84:460",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 99,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Tecnologia"
+              }
+            },
+            {
+              "id": "84:462",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 73,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:448 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Outros"
+              }
+            }
+          ]
+        },
+        {
+          "id": "84:464",
+          "name": "video-list",
+          "type": "FRAME",
+          "size": {
+            "w": 341,
+            "h": 536
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "84:465",
+              "name": "video-card-feed",
+              "type": "INSTANCE",
+              "size": {
+                "w": 343,
+                "h": 258
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "video-card-feed/size=mobile"
+              },
+              "children": [
+                {
+                  "id": "I84:465;83:111",
+                  "name": "thumbnail",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 343,
+                    "h": 193
+                  },
+                  "children": [
+                    {
+                      "id": "I84:465;83:112",
+                      "name": "duration-badge",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 35,
+                        "h": 17
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:465;83:113",
+                          "name": "duration-text",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 23,
+                            "h": 13
+                          },
+                          "characters": "8:12"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "I84:465;83:114",
+                  "name": "details",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 343,
+                    "h": 55
+                  },
+                  "layout": {
+                    "mode": "HORIZONTAL"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:465;83:115",
+                      "name": "channel-avatar",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 32,
+                        "h": 32
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:465;83:116",
+                          "name": "channel-initials",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 15,
+                            "h": 13
+                          },
+                          "characters": "JC"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I84:465;83:117",
+                      "name": "video-info",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 301,
+                        "h": 55
+                      },
+                      "layout": {
+                        "mode": "VERTICAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:465;83:118",
+                          "name": "title",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 18
+                          },
+                          "characters": "Tour pelo estúdio — setup 2026"
+                        },
+                        {
+                          "id": "I84:465;83:119",
+                          "name": "channel-name",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 16
+                          },
+                          "characters": "Joana Cria"
+                        },
+                        {
+                          "id": "I84:465;83:120",
+                          "name": "meta",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 15
+                          },
+                          "characters": "1,2 mil visualizações · há 2 dias"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "84:476",
+              "name": "video-card-feed",
+              "type": "INSTANCE",
+              "size": {
+                "w": 343,
+                "h": 258
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "video-card-feed/size=mobile"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:465 (projecao compacta)",
+              "text_overrides": {
+                "title": "Speedrun comentado: a fase secreta"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "84:487",
+      "name": "menu-overlay",
+      "type": "RECTANGLE",
+      "size": {
+        "w": 375,
+        "h": 760
+      },
+      "absolute": true
+    },
+    {
+      "id": "84:488",
+      "name": "navigation-sheet",
+      "type": "FRAME",
+      "size": {
+        "w": 288,
+        "h": 760
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "absolute": true,
+      "children": [
+        {
+          "id": "84:489",
+          "name": "sheet-header",
+          "type": "FRAME",
+          "size": {
+            "w": 256,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:490",
+              "name": "sheet-title",
+              "type": "TEXT",
+              "size": {
+                "w": 45,
+                "h": 19
+              },
+              "characters": "Menu"
+            },
+            {
+              "id": "84:491",
+              "name": "close-button",
+              "type": "FRAME",
+              "size": {
+                "w": 40,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:492",
+                  "name": "x-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "x-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:492;83:92",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 10,
+                        "h": 10
+                      }
+                    },
+                    {
+                      "id": "I84:492;83:93",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 10,
+                        "h": 10
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "84:495",
+          "name": "sheet-user",
+          "type": "FRAME",
+          "size": {
+            "w": 256,
+            "h": 56
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:496",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 40,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:497",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 18,
+                    "h": 16
+                  },
+                  "characters": "JC"
+                }
+              ]
+            },
+            {
+              "id": "84:498",
+              "name": "sheet-user-info",
+              "type": "FRAME",
+              "size": {
+                "w": 73,
+                "h": 34
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "children": [
+                {
+                  "id": "84:499",
+                  "name": "user-name",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 73,
+                    "h": 17
+                  },
+                  "characters": "Joana Cria"
+                },
+                {
+                  "id": "84:500",
+                  "name": "user-handle",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 66,
+                    "h": 15
+                  },
+                  "characters": "@joana.cria"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "84:501",
+          "name": "divider",
+          "type": "RECTANGLE",
+          "size": {
+            "w": 256,
+            "h": 1
+          }
+        },
+        {
+          "id": "84:502",
+          "name": "sheet-nav",
+          "type": "FRAME",
+          "size": {
+            "w": 256,
+            "h": 119
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "84:503",
+              "name": "sheet-link-inicio",
+              "type": "FRAME",
+              "size": {
+                "w": 256,
+                "h": 37
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:504",
+                  "name": "sheet-link-inicio-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 38,
+                    "h": 17
+                  },
+                  "characters": "Início"
+                }
+              ]
+            },
+            {
+              "id": "84:505",
+              "name": "sheet-link-canais-seguidos",
+              "type": "FRAME",
+              "size": {
+                "w": 256,
+                "h": 37
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:506",
+                  "name": "sheet-link-canais-seguidos-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 112,
+                    "h": 17
+                  },
+                  "characters": "Canais seguidos"
+                }
+              ]
+            },
+            {
+              "id": "84:507",
+              "name": "sheet-link-meus-videos",
+              "type": "FRAME",
+              "size": {
+                "w": 256,
+                "h": 37
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:508",
+                  "name": "sheet-link-meus-videos-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 86,
+                    "h": 17
+                  },
+                  "characters": "Meus vídeos"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "84:509",
+          "name": "divider",
+          "type": "RECTANGLE",
+          "size": {
+            "w": 256,
+            "h": 1
+          }
+        },
+        {
+          "id": "84:510",
+          "name": "sair-button",
+          "type": "FRAME",
+          "size": {
+            "w": 61,
+            "h": 35
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:511",
+              "name": "sair-label",
+              "type": "TEXT",
+              "size": {
+                "w": 27,
+                "h": 17
+              },
+              "characters": "Sair"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

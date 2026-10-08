@@ -1,0 +1,290 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "83:121",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=83-121",
+    "fetched_at": "2026-10-06T23:02:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "componente (COMPONENT_SET size=desktop|mobile)",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (1 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "note": "Arvore colhida na chamada 1, ANTES da correcao da chamada 2. Correcao aplicada depois: channel-name (83:108, 83:119) e meta (83:109, 83:120) passaram a FILL com textTruncation ENDING e maxLines 1; title (83:107, 83:118) ganhou maxLines 2. Os tamanhos abaixo foram ajustados para refletir o FILL (191 no desktop, 301 no mobile), conforme observado nas instancias colhidas na chamada 2. O PNG e da chamada 2 (pos-correcao)."
+  },
+  "id": "83:121",
+  "name": "video-card-feed",
+  "type": "COMPONENT_SET",
+  "size": {
+    "w": 664,
+    "h": 306
+  },
+  "children": [
+    {
+      "id": "83:99",
+      "name": "size=desktop",
+      "type": "COMPONENT",
+      "size": {
+        "w": 233,
+        "h": 196
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "83:100",
+          "name": "thumbnail",
+          "type": "FRAME",
+          "size": {
+            "w": 233,
+            "h": 131
+          },
+          "children": [
+            {
+              "id": "83:101",
+              "name": "duration-badge",
+              "type": "FRAME",
+              "size": {
+                "w": 43,
+                "h": 17
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:102",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 31,
+                    "h": 13
+                  },
+                  "characters": "12:34"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:103",
+          "name": "details",
+          "type": "FRAME",
+          "size": {
+            "w": 233,
+            "h": 55
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:104",
+              "name": "channel-avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 32,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:105",
+                  "name": "channel-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 15,
+                    "h": 13
+                  },
+                  "characters": "JC"
+                }
+              ]
+            },
+            {
+              "id": "83:106",
+              "name": "video-info",
+              "type": "FRAME",
+              "size": {
+                "w": 191,
+                "h": 55
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "children": [
+                {
+                  "id": "83:107",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 191,
+                    "h": 18
+                  },
+                  "characters": "Título do vídeo"
+                },
+                {
+                  "id": "83:108",
+                  "name": "channel-name",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 191,
+                    "h": 16
+                  },
+                  "characters": "Nome do canal"
+                },
+                {
+                  "id": "83:109",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 191,
+                    "h": 15
+                  },
+                  "characters": "1,2 mil visualizações · há 2 dias"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "83:110",
+      "name": "size=mobile",
+      "type": "COMPONENT",
+      "size": {
+        "w": 343,
+        "h": 258
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "83:111",
+          "name": "thumbnail",
+          "type": "FRAME",
+          "size": {
+            "w": 343,
+            "h": 193
+          },
+          "children": [
+            {
+              "id": "83:112",
+              "name": "duration-badge",
+              "type": "FRAME",
+              "size": {
+                "w": 43,
+                "h": 17
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:113",
+                  "name": "duration-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 31,
+                    "h": 13
+                  },
+                  "characters": "12:34"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:114",
+          "name": "details",
+          "type": "FRAME",
+          "size": {
+            "w": 343,
+            "h": 55
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:115",
+              "name": "channel-avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 32,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:116",
+                  "name": "channel-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 15,
+                    "h": 13
+                  },
+                  "characters": "JC"
+                }
+              ]
+            },
+            {
+              "id": "83:117",
+              "name": "video-info",
+              "type": "FRAME",
+              "size": {
+                "w": 301,
+                "h": 55
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "children": [
+                {
+                  "id": "83:118",
+                  "name": "title",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 18
+                  },
+                  "characters": "Título do vídeo"
+                },
+                {
+                  "id": "83:119",
+                  "name": "channel-name",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 16
+                  },
+                  "characters": "Nome do canal"
+                },
+                {
+                  "id": "83:120",
+                  "name": "meta",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 301,
+                    "h": 15
+                  },
+                  "characters": "1,2 mil visualizações · há 2 dias"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

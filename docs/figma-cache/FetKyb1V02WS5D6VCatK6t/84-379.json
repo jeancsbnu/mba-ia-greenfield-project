@@ -1,0 +1,465 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "84:379",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=84-379",
+    "fetched_at": "2026-10-06T23:05:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "/results?q= (viewport 375, busca expandida)",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (2 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "session_state": "autenticado",
+    "layout_note": "video-list tem 341 de largura e o card mobile tem 343 fixos: transborda 2px por causa do stroke do main-dashed-container. Na implementacao o card ocupa a largura do container (FILL)."
+  },
+  "id": "84:379",
+  "name": "resultados-busca-mobile",
+  "type": "FRAME",
+  "size": {
+    "w": 375,
+    "h": 769
+  },
+  "layout": {
+    "mode": "VERTICAL"
+  },
+  "children": [
+    {
+      "id": "84:380",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 16
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      }
+    },
+    {
+      "id": "84:381",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 65
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "84:382",
+          "name": "search-back-button",
+          "type": "FRAME",
+          "size": {
+            "w": 40,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:383",
+              "name": "arrow-left-icon",
+              "type": "INSTANCE",
+              "size": {
+                "w": 20,
+                "h": 20
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "arrow-left-icon"
+              },
+              "children": [
+                {
+                  "id": "I84:383;83:96",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "size": {
+                    "w": 6,
+                    "h": 12
+                  }
+                },
+                {
+                  "id": "I84:383;83:97",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "size": {
+                    "w": 12,
+                    "h": 0
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "84:386",
+          "name": "search-form",
+          "type": "FRAME",
+          "size": {
+            "w": 303,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:387",
+              "name": "search-input",
+              "type": "FRAME",
+              "size": {
+                "w": 255,
+                "h": 39
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:388",
+                  "name": "search-input-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 46,
+                    "h": 17
+                  },
+                  "characters": "docker"
+                }
+              ]
+            },
+            {
+              "id": "84:389",
+              "name": "search-submit-button",
+              "type": "FRAME",
+              "size": {
+                "w": 40,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:390",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:390;83:83",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 13
+                      }
+                    },
+                    {
+                      "id": "I84:390;83:84",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 4,
+                        "h": 4
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "84:393",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 375,
+        "h": 688
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "84:394",
+          "name": "results-heading",
+          "type": "FRAME",
+          "size": {
+            "w": 341,
+            "h": 44
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "84:395",
+              "name": "heading-title",
+              "type": "TEXT",
+              "size": {
+                "w": 251,
+                "h": 24
+              },
+              "characters": "Resultados para “docker”"
+            },
+            {
+              "id": "84:396",
+              "name": "heading-count",
+              "type": "TEXT",
+              "size": {
+                "w": 53,
+                "h": 16
+              },
+              "characters": "8 vídeos"
+            }
+          ]
+        },
+        {
+          "id": "84:397",
+          "name": "video-list",
+          "type": "FRAME",
+          "size": {
+            "w": 341,
+            "h": 536
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "84:398",
+              "name": "video-card-feed",
+              "type": "INSTANCE",
+              "size": {
+                "w": 343,
+                "h": 258
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "video-card-feed/size=mobile"
+              },
+              "children": [
+                {
+                  "id": "I84:398;83:111",
+                  "name": "thumbnail",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 343,
+                    "h": 193
+                  },
+                  "children": [
+                    {
+                      "id": "I84:398;83:112",
+                      "name": "duration-badge",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 43,
+                        "h": 17
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:398;83:113",
+                          "name": "duration-text",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 31,
+                            "h": 13
+                          },
+                          "characters": "19:05"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "I84:398;83:114",
+                  "name": "details",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 343,
+                    "h": 55
+                  },
+                  "layout": {
+                    "mode": "HORIZONTAL"
+                  },
+                  "children": [
+                    {
+                      "id": "I84:398;83:115",
+                      "name": "channel-avatar",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 32,
+                        "h": 32
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:398;83:116",
+                          "name": "channel-initials",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 16,
+                            "h": 13
+                          },
+                          "characters": "DB"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I84:398;83:117",
+                      "name": "video-info",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 301,
+                        "h": 55
+                      },
+                      "layout": {
+                        "mode": "VERTICAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I84:398;83:118",
+                          "name": "title",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 18
+                          },
+                          "characters": "Configurando o Docker do zero"
+                        },
+                        {
+                          "id": "I84:398;83:119",
+                          "name": "channel-name",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 16
+                          },
+                          "characters": "Docker Brasil"
+                        },
+                        {
+                          "id": "I84:398;83:120",
+                          "name": "meta",
+                          "type": "TEXT",
+                          "size": {
+                            "w": 301,
+                            "h": 15
+                          },
+                          "characters": "2,4 mil visualizações · há 4 dias"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "84:409",
+              "name": "video-card-feed",
+              "type": "INSTANCE",
+              "size": {
+                "w": 343,
+                "h": 258
+              },
+              "layout": {
+                "mode": "VERTICAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "video-card-feed/size=mobile"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 84:398 (projecao compacta)",
+              "text_overrides": {
+                "title": "Docker Compose na prática"
+              }
+            }
+          ]
+        },
+        {
+          "id": "84:420",
+          "name": "footer-pagination",
+          "type": "FRAME",
+          "size": {
+            "w": 341,
+            "h": 34
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "84:421",
+              "name": "pagination",
+              "type": "FRAME",
+              "size": {
+                "w": 176,
+                "h": 34
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "84:422",
+                  "name": "pagination-previous",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 52,
+                    "h": 16
+                  },
+                  "characters": "Anterior"
+                },
+                {
+                  "id": "84:423",
+                  "name": "pagination-page-1",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 7,
+                    "h": 16
+                  },
+                  "characters": "1"
+                },
+                {
+                  "id": "84:424",
+                  "name": "pagination-next",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 51,
+                    "h": 16
+                  },
+                  "characters": "Próxima"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

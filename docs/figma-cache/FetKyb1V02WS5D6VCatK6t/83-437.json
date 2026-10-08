@@ -1,0 +1,417 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "83:437",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=83-437",
+    "fetched_at": "2026-10-06T23:02:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "/results?q= — estado sem resultados",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (1 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "session_state": "autenticado (avatar + Sair)",
+    "screenshot_note": "PNG capturado ANTES da correcao da chamada 2 no componente video-card-feed: nele a linha meta ainda transborda a coluna do card. O componente hoje trunca channel-name e meta em 1 linha e title em 2 linhas."
+  },
+  "id": "83:437",
+  "name": "resultados-busca-vazio",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 472
+  },
+  "layout": {
+    "mode": "VERTICAL"
+  },
+  "children": [
+    {
+      "id": "83:438",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      }
+    },
+    {
+      "id": "83:439",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 81
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "83:440",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:441",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:442",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "children": [
+                    {
+                      "id": "83:443",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "83:444",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "83:445",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador"
+            }
+          ]
+        },
+        {
+          "id": "83:446",
+          "name": "nav-links",
+          "type": "FRAME",
+          "size": {
+            "w": 258,
+            "h": 16
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:447",
+              "name": "nav-link-inicio",
+              "type": "TEXT",
+              "size": {
+                "w": 34,
+                "h": 16
+              },
+              "characters": "Início"
+            },
+            {
+              "id": "83:448",
+              "name": "nav-link-canais-seguidos",
+              "type": "TEXT",
+              "size": {
+                "w": 104,
+                "h": 16
+              },
+              "characters": "Canais seguidos"
+            },
+            {
+              "id": "83:449",
+              "name": "nav-link-meus-videos",
+              "type": "TEXT",
+              "size": {
+                "w": 80,
+                "h": 16
+              },
+              "characters": "Meus vídeos"
+            }
+          ]
+        },
+        {
+          "id": "83:450",
+          "name": "search-form",
+          "type": "FRAME",
+          "size": {
+            "w": 386,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:451",
+              "name": "search-input",
+              "type": "FRAME",
+              "size": {
+                "w": 298,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:452",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I83:452;83:83",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 13
+                      }
+                    },
+                    {
+                      "id": "I83:452;83:84",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 4,
+                        "h": 4
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "83:455",
+                  "name": "search-input-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 48,
+                    "h": 17
+                  },
+                  "characters": "xyzabc"
+                }
+              ]
+            },
+            {
+              "id": "83:456",
+              "name": "search-submit-button",
+              "type": "FRAME",
+              "size": {
+                "w": 80,
+                "h": 35
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:457",
+                  "name": "search-submit-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 48,
+                    "h": 17
+                  },
+                  "characters": "Buscar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:458",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": {
+            "w": 105,
+            "h": 35
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:459",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 32,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:460",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 15,
+                    "h": 13
+                  },
+                  "characters": "JC"
+                }
+              ]
+            },
+            {
+              "id": "83:461",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": {
+                "w": 61,
+                "h": 35
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:462",
+                  "name": "sair-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 27,
+                    "h": 17
+                  },
+                  "characters": "Sair"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "83:463",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 359
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "83:464",
+          "name": "empty-state",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 261
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "83:465",
+              "name": "empty-icon-badge",
+              "type": "FRAME",
+              "size": {
+                "w": 56,
+                "h": 56
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:466",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 28,
+                    "h": 28
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:452 (projecao compacta)"
+                }
+              ]
+            },
+            {
+              "id": "83:469",
+              "name": "empty-title",
+              "type": "TEXT",
+              "size": {
+                "w": 360,
+                "h": 22
+              },
+              "characters": "Nenhum vídeo encontrado para “xyzabc”"
+            },
+            {
+              "id": "83:470",
+              "name": "empty-hint",
+              "type": "TEXT",
+              "size": {
+                "w": 479,
+                "h": 17
+              },
+              "characters": "Confira a ortografia ou tente termos mais gerais, como o nome do canal."
+            },
+            {
+              "id": "83:471",
+              "name": "back-home-link",
+              "type": "TEXT",
+              "size": {
+                "w": 119,
+                "h": 16
+              },
+              "characters": "Voltar para o início"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

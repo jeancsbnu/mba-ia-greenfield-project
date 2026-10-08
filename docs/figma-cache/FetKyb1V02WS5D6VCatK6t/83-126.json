@@ -1,0 +1,75 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "83:126",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=83-126",
+    "fetched_at": "2026-10-06T23:02:00Z",
+    "blocks": [
+      "tree"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "componente (COMPONENT_SET state=default|selected)",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (1 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "note": "Arvore colhida na chamada 1. Correcao da chamada 2: state=selected (83:124) ganhou stroke #3f72af de 1px para ter a mesma altura (32) do state=default; na arvore abaixo ele ainda aparece com 30."
+  },
+  "id": "83:126",
+  "name": "category-chip",
+  "type": "COMPONENT_SET",
+  "size": {
+    "w": 215,
+    "h": 80
+  },
+  "children": [
+    {
+      "id": "83:122",
+      "name": "state=default",
+      "type": "COMPONENT",
+      "size": {
+        "w": 76,
+        "h": 32
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "83:123",
+          "name": "chip-label",
+          "type": "TEXT",
+          "size": {
+            "w": 46,
+            "h": 16
+          },
+          "characters": "Música"
+        }
+      ]
+    },
+    {
+      "id": "83:124",
+      "name": "state=selected",
+      "type": "COMPONENT",
+      "size": {
+        "w": 67,
+        "h": 30
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "83:125",
+          "name": "chip-label",
+          "type": "TEXT",
+          "size": {
+            "w": 39,
+            "h": 16
+          },
+          "characters": "Todos"
+        }
+      ]
+    }
+  ]
+}
