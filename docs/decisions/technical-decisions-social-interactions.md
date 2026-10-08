@@ -323,6 +323,11 @@ Valores sugeridos para o preenchimento: **60/60 s** para reações e inscrição
 
 **Decision:** B (dois orçamentos por perfil de abuso, via `@Throttle({ default: ... })` por rota, rastreador por IP) — **60/60 s** para reagir a vídeo, reagir a comentário e inscrever-se/desinscrever-se; **5/60 s** para criar comentário e resposta. A Option C (throttler nomeado com `getTracker` por usuário) fica declarada como caminho para quando houver evidência de colisão por NAT ou de abuso que troque de IP — é Revision barata, sem trocar a letra. Storage em memória é herança de `video-watch-page/TD-05` e não se reabre aqui. (resolve OQ-20 do /plan-validate)
 
+**Revisions:**
+- 2026-10-08 — O rastreador destas rotas passa a ser `user:<sub>` para o usuário autenticado (todas as rotas deste TD exigem login), decidido em `rate-limit-visitor-identity/TD-03` (Option B). Mesma Option B: os
+  orçamentos de 60/60 s e 5/60 s não mudam. Rationale: é o caminho que este TD declarou como "Option C… Revision barata… sem trocar a letra" para quando houvesse evidência de colisão por IP, e a
+  evidência apareceu — confirmado em runtime em 2026-10-07 (Revision de 2026-10-08 em `phase-02-auth/TD-08`) que todo request chega ao Nest com o mesmo IP, do servidor Next.
+
 ---
 
 ## Decisions Summary
