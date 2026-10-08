@@ -1,0 +1,754 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "83:311",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=83-311",
+    "fetched_at": "2026-10-06T23:02:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "/results?q=",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (1 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "session_state": "autenticado (avatar + Sair)",
+    "screenshot_note": "PNG capturado ANTES da correcao da chamada 2 no componente video-card-feed: nele a linha meta ainda transborda a coluna do card. O componente hoje trunca channel-name e meta em 1 linha e title em 2 linhas."
+  },
+  "id": "83:311",
+  "name": "resultados-busca",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 796
+  },
+  "layout": {
+    "mode": "VERTICAL"
+  },
+  "children": [
+    {
+      "id": "83:312",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      }
+    },
+    {
+      "id": "83:313",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 81
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "83:314",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:315",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:316",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "children": [
+                    {
+                      "id": "83:317",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "83:318",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "83:319",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador"
+            }
+          ]
+        },
+        {
+          "id": "83:320",
+          "name": "nav-links",
+          "type": "FRAME",
+          "size": {
+            "w": 258,
+            "h": 16
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:321",
+              "name": "nav-link-inicio",
+              "type": "TEXT",
+              "size": {
+                "w": 34,
+                "h": 16
+              },
+              "characters": "Início"
+            },
+            {
+              "id": "83:322",
+              "name": "nav-link-canais-seguidos",
+              "type": "TEXT",
+              "size": {
+                "w": 104,
+                "h": 16
+              },
+              "characters": "Canais seguidos"
+            },
+            {
+              "id": "83:323",
+              "name": "nav-link-meus-videos",
+              "type": "TEXT",
+              "size": {
+                "w": 80,
+                "h": 16
+              },
+              "characters": "Meus vídeos"
+            }
+          ]
+        },
+        {
+          "id": "83:324",
+          "name": "search-form",
+          "type": "FRAME",
+          "size": {
+            "w": 386,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:325",
+              "name": "search-input",
+              "type": "FRAME",
+              "size": {
+                "w": 298,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:326",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I83:326;83:83",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 13
+                      }
+                    },
+                    {
+                      "id": "I83:326;83:84",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 4,
+                        "h": 4
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "83:329",
+                  "name": "search-input-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 46,
+                    "h": 17
+                  },
+                  "characters": "docker"
+                }
+              ]
+            },
+            {
+              "id": "83:330",
+              "name": "search-submit-button",
+              "type": "FRAME",
+              "size": {
+                "w": 80,
+                "h": 35
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:331",
+                  "name": "search-submit-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 48,
+                    "h": 17
+                  },
+                  "characters": "Buscar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:332",
+          "name": "user-menu",
+          "type": "FRAME",
+          "size": {
+            "w": 105,
+            "h": 35
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:333",
+              "name": "avatar",
+              "type": "FRAME",
+              "size": {
+                "w": 32,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:334",
+                  "name": "avatar-initials",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 15,
+                    "h": 13
+                  },
+                  "characters": "JC"
+                }
+              ]
+            },
+            {
+              "id": "83:335",
+              "name": "sair-button",
+              "type": "FRAME",
+              "size": {
+                "w": 61,
+                "h": 35
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:336",
+                  "name": "sair-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 27,
+                    "h": 17
+                  },
+                  "characters": "Sair"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "83:337",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 683
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "83:338",
+          "name": "results-heading",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 51
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "83:339",
+              "name": "heading-title",
+              "type": "TEXT",
+              "size": {
+                "w": 302,
+                "h": 29
+              },
+              "characters": "Resultados para “docker”"
+            },
+            {
+              "id": "83:340",
+              "name": "heading-count",
+              "type": "TEXT",
+              "size": {
+                "w": 53,
+                "h": 16
+              },
+              "characters": "8 vídeos"
+            }
+          ]
+        },
+        {
+          "id": "83:341",
+          "name": "video-grid",
+          "type": "FRAME",
+          "size": {
+            "w": 1004,
+            "h": 452
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "83:342",
+              "name": "video-grid-row",
+              "type": "FRAME",
+              "size": {
+                "w": 1004,
+                "h": 214
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:343",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children": [
+                    {
+                      "id": "I83:343;83:100",
+                      "name": "thumbnail",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 233,
+                        "h": 131
+                      },
+                      "children": [
+                        {
+                          "id": "I83:343;83:101",
+                          "name": "duration-badge",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 43,
+                            "h": 17
+                          },
+                          "layout": {
+                            "mode": "HORIZONTAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:343;83:102",
+                              "name": "duration-text",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 31,
+                                "h": 13
+                              },
+                              "characters": "19:05"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I83:343;83:103",
+                      "name": "details",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 233,
+                        "h": 73
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I83:343;83:104",
+                          "name": "channel-avatar",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 32,
+                            "h": 32
+                          },
+                          "layout": {
+                            "mode": "HORIZONTAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:343;83:105",
+                              "name": "channel-initials",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 16,
+                                "h": 13
+                              },
+                              "characters": "DB"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "I83:343;83:106",
+                          "name": "video-info",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 191,
+                            "h": 73
+                          },
+                          "layout": {
+                            "mode": "VERTICAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:343;83:107",
+                              "name": "title",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 191,
+                                "h": 36
+                              },
+                              "characters": "Configurando o Docker do zero"
+                            },
+                            {
+                              "id": "I83:343;83:108",
+                              "name": "channel-name",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 83,
+                                "h": 16
+                              },
+                              "characters": "Docker Brasil"
+                            },
+                            {
+                              "id": "I83:343;83:109",
+                              "name": "meta",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 179,
+                                "h": 15
+                              },
+                              "characters": "2,4 mil visualizações · há 4 dias"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "83:354",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Docker Compose na prática"
+                  }
+                },
+                {
+                  "id": "83:365",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Redes no Docker: bridge, host e overlay"
+                  }
+                },
+                {
+                  "id": "83:376",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Volumes do Docker sem mistério"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "83:387",
+              "name": "video-grid-row",
+              "type": "FRAME",
+              "size": {
+                "w": 1004,
+                "h": 214
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:388",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Kubernetes ou Compose? Quando migrar"
+                  }
+                },
+                {
+                  "id": "83:399",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Imagens menores com multi-stage build"
+                  }
+                },
+                {
+                  "id": "83:410",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Docker no Windows com WSL 2"
+                  }
+                },
+                {
+                  "id": "83:421",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:343 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Live: perguntas sobre containers"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:432",
+          "name": "footer-pagination",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 34
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:433",
+              "name": "pagination",
+              "type": "FRAME",
+              "size": {
+                "w": 176,
+                "h": 34
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:434",
+                  "name": "pagination-previous",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 52,
+                    "h": 16
+                  },
+                  "characters": "Anterior"
+                },
+                {
+                  "id": "83:435",
+                  "name": "pagination-page-1",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 7,
+                    "h": 16
+                  },
+                  "characters": "1"
+                },
+                {
+                  "id": "83:436",
+                  "name": "pagination-next",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 51,
+                    "h": 16
+                  },
+                  "characters": "Próxima"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

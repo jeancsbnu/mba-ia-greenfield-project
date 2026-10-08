@@ -5,9 +5,9 @@
     "id": "0:1",
     "name": "Seus vídeos"
   },
-  "harvested_at": "2026-10-04T23:05:27Z",
+  "harvested_at": "2026-10-06T23:05:00Z",
   "harvested_by": "figma-batch",
-  "mcp_calls_spent": 8,
+  "mcp_calls_spent": 10,
   "blocks": [
     "tree",
     "screenshots"
@@ -20,7 +20,15 @@
     "75:62": 10,
     "77:137": 10,
     "77:176": 10,
-    "77:149": 6
+    "77:149": 6,
+    "83:127": 14,
+    "83:311": 14,
+    "83:437": 14,
+    "84:299": 14,
+    "84:379": 14,
+    "84:425": 14,
+    "83:121": 14,
+    "83:126": 14
   },
   "nodes": {
     "59:2": {
@@ -89,6 +97,68 @@
       "screenshot": "77-64.png (o pai; estes nos nao tem PNG proprio)",
       "parent": "77:64",
       "note": "respostas pre-carregadas da primeira thread; colhido 2026-10-04 a maxDepth 10 porque o harvest de 77:64 a maxDepth 6 devolveu este no sem filhos (OQ-18). ARQUIVO PARCIAL — a leitura do payload foi cortada em 20kb dentro deste no; ver _envelope.notes do 77-149.json"
+    },
+    "83:127": {
+      "name": "home",
+      "phase": 7,
+      "route": "/",
+      "file": "83-127.json",
+      "screenshot": "83-127.png",
+      "session_state": "anonimo"
+    },
+    "83:311": {
+      "name": "resultados-busca",
+      "phase": 7,
+      "route": "/results?q=",
+      "file": "83-311.json",
+      "screenshot": "83-311.png",
+      "session_state": "autenticado"
+    },
+    "83:437": {
+      "name": "resultados-busca-vazio",
+      "phase": 7,
+      "route": "/results?q= — estado sem resultados",
+      "file": "83-437.json",
+      "screenshot": "83-437.png",
+      "session_state": "autenticado"
+    },
+    "84:299": {
+      "name": "home-mobile",
+      "phase": 7,
+      "route": "/ (375px)",
+      "file": "84-299.json",
+      "screenshot": "84-299.png",
+      "session_state": "anonimo"
+    },
+    "84:379": {
+      "name": "resultados-busca-mobile",
+      "phase": 7,
+      "route": "/results?q= (375px, busca expandida)",
+      "file": "84-379.json",
+      "screenshot": "84-379.png",
+      "session_state": "autenticado"
+    },
+    "84:425": {
+      "name": "menu-navegacao-mobile",
+      "phase": 7,
+      "route": "/ (375px, menu aberto)",
+      "file": "84-425.json",
+      "screenshot": "84-425.png",
+      "session_state": "autenticado"
+    },
+    "83:121": {
+      "name": "video-card-feed",
+      "phase": 7,
+      "route": "componente (size=desktop 83:99 | size=mobile 83:110)",
+      "file": "83-121.json",
+      "screenshot": "83-121.png"
+    },
+    "83:126": {
+      "name": "category-chip",
+      "phase": 7,
+      "route": "componente (state=default 83:122 | state=selected 83:124)",
+      "file": "83-126.json",
+      "screenshot": null
     }
   },
   "write_in_same_call": {
@@ -145,6 +215,39 @@
         "79:82"
       ],
       "reason": "Reposiciona o subscribe-button: entrou como filho de fluxo e caiu sobre o avatar. Ver a nota sobre layoutMode x layoutPositioning abaixo."
+    },
+    "call_5": {
+      "date": "2026-10-06",
+      "createdNodeIds": [
+        "83:85",
+        "83:90",
+        "83:94",
+        "83:98",
+        "83:121",
+        "83:126",
+        "83:127",
+        "83:311",
+        "83:437"
+      ],
+      "reason": "Fase 07 (fatia home-busca), chamada 1 de 2: componentes de icone search-icon (83:85), menu-icon (83:90), x-icon (83:94) e arrow-left-icon (83:98), todos componentes avulsos 20x20 vindos de SVG (lucide); video-card-feed (83:121) e category-chip (83:126); telas desktop home, resultados-busca e resultados-busca-vazio. Colheita compacta na mesma chamada."
+    },
+    "call_6": {
+      "date": "2026-10-06",
+      "createdNodeIds": [
+        "84:299",
+        "84:379",
+        "84:425"
+      ],
+      "mutatedNodeIds": [
+        "83:107",
+        "83:108",
+        "83:109",
+        "83:118",
+        "83:119",
+        "83:120",
+        "83:124"
+      ],
+      "reason": "Fase 07, chamada 2 de 2: telas mobile; truncamento de title/channel-name/meta no video-card-feed e stroke no chip selecionado para igualar a altura."
     }
   },
   "notes": [
@@ -157,7 +260,8 @@
     "77:64 e 59:2 sao harvests de verdade (arvore colhida depois da escrita). 75:62 nao e: ver _envelope.provenance naquele arquivo.",
     "A rota de 75:62 (/channel/subscriptions) foi decidida pelo usuario em 2026-10-03, seguindo a convencao do grupo autenticado (/channel/videos, /channel/settings). Nao estava no TD-07, que decidiu o conteudo da area sem nomear o endereco.",
     "2026-10-04 — colheita de 1 chamada fechando a OQ-17 e a maior parte da OQ-18 da Fase 06: 75:62 ganhou arvore real, e os tres nos de comentario de 77:64 que estavam no limite de profundidade foram colhidos isolados a maxDepth 10. errors: [] na chamada. Pendencia: a lista de children de 77:149 pode estar incompleta (corte de leitura, nao de harvest).",
-    "Colheita 8 (2026-10-04T23:05Z, 1 chamada, errors: []): 77:149 reply-list colhido ISOLADO com projecao lean para fechar a OQ-21. childCount: 3 observado — 77:150, 77:162 e 77:174 replies-load-more (TEXT, \"Ver mais 4 respostas\"). O 77:174 e o node id que faltava ao RepliesLoadMore. Pai 77:136 confirmado com childCount: 2. 77-149.json e MERGE: a sub-arvore de 77:150 conserva fills/fonts da colheita 7."
+    "Colheita 8 (2026-10-04T23:05Z, 1 chamada, errors: []): 77:149 reply-list colhido ISOLADO com projecao lean para fechar a OQ-21. childCount: 3 observado — 77:150, 77:162 e 77:174 replies-load-more (TEXT, \"Ver mais 4 respostas\"). O 77:174 e o node id que faltava ao RepliesLoadMore. Pai 77:136 confirmado com childCount: 2. 77-149.json e MERGE: a sub-arvore de 77:150 conserva fills/fonts da colheita 7.",
+    "2026-10-06 — Fase 07 (home-busca) desenhada em 2 chamadas use_figma, errors: [] nas duas. As telas seguem as RECOMENDACOES ainda pendentes de home-busca/TD-01 (rota /results), TD-02 (paginacao numerada), TD-05 (so videos), TD-06 (envio explicito com botao Buscar), TD-07 (so barra superior + sheet no mobile) e TD-08 (frames mobile so do que e novo). Se o resolve escolher outra letra, as telas precisam ser revistas. As arvores usam PROJECAO COMPACTA (sem fills/fontes) — ver _envelope.projection de cada arquivo. Os 4 componentes de icone (83:85, 83:90, 83:94, 83:98) nao tem arquivo proprio: suas instancias aparecem com filhos VECTOR nas arvores das telas."
   ],
   "errors": []
 }

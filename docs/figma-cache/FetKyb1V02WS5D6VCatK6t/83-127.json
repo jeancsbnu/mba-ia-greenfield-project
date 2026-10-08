@@ -1,0 +1,986 @@
+{
+  "_envelope": {
+    "fileKey": "FetKyb1V02WS5D6VCatK6t",
+    "nodeId": "83:127",
+    "url": "https://www.figma.com/design/FetKyb1V02WS5D6VCatK6t/Videos?node-id=83-127",
+    "fetched_at": "2026-10-06T23:02:00Z",
+    "blocks": [
+      "tree",
+      "screenshot"
+    ],
+    "harvested_by": "figma-batch",
+    "maxDepth": 14,
+    "phase": "07 (fatia home-busca)",
+    "route": "/",
+    "provenance": "Desenhado e colhido na MESMA chamada use_figma (1 de 2, 2026-10-06): a arvore foi lida do no depois da escrita, nao inferida do script.",
+    "projection": "COMPACTA: id, name, type, size, characters, layout.mode, absolute, mainComponent.name. NAO carrega fills, fontes, padding, gap nem radius — para estilo, ler o Figma vivo pela URL ou o script de autoria (paleta identica a 59:2/75:62: bg #f8fafc, primaria #3f72af, texto #1e293b, muted #7a6e65, linha #e2e8f0, Inter). A projecao foi escolhida para caber no corte de ~20kb da leitura.",
+    "session_state": "anonimo (navbar com Entrar)",
+    "screenshot_note": "PNG capturado ANTES da correcao da chamada 2 no componente video-card-feed: nele a linha meta ainda transborda a coluna do card. O componente hoje trunca channel-name e meta em 1 linha e title em 2 linhas."
+  },
+  "id": "83:127",
+  "name": "home",
+  "type": "FRAME",
+  "size": {
+    "w": 1100,
+    "h": 1015
+  },
+  "layout": {
+    "mode": "VERTICAL"
+  },
+  "children": [
+    {
+      "id": "83:128",
+      "name": "top-decorative-strip",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 32
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      }
+    },
+    {
+      "id": "83:129",
+      "name": "navbar",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 81
+      },
+      "layout": {
+        "mode": "HORIZONTAL"
+      },
+      "children": [
+        {
+          "id": "83:130",
+          "name": "brand-logo",
+          "type": "FRAME",
+          "size": {
+            "w": 183,
+            "h": 36
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:131",
+              "name": "logo-box",
+              "type": "FRAME",
+              "size": {
+                "w": 36,
+                "h": 36
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:132",
+                  "name": "play-icon",
+                  "type": "FRAME",
+                  "size": {
+                    "w": 16,
+                    "h": 16
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "children": [
+                    {
+                      "id": "83:133",
+                      "name": "play",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 16,
+                        "h": 16
+                      },
+                      "children": [
+                        {
+                          "id": "83:134",
+                          "name": "Vector",
+                          "type": "VECTOR",
+                          "size": {
+                            "w": 11,
+                            "h": 12
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "83:135",
+              "name": "EstúdioCriador",
+              "type": "TEXT",
+              "size": {
+                "w": 135,
+                "h": 22
+              },
+              "characters": "EstúdioCriador"
+            }
+          ]
+        },
+        {
+          "id": "83:136",
+          "name": "nav-links",
+          "type": "FRAME",
+          "size": {
+            "w": 35,
+            "h": 16
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:137",
+              "name": "nav-link-inicio",
+              "type": "TEXT",
+              "size": {
+                "w": 35,
+                "h": 16
+              },
+              "characters": "Início"
+            }
+          ]
+        },
+        {
+          "id": "83:138",
+          "name": "search-form",
+          "type": "FRAME",
+          "size": {
+            "w": 638,
+            "h": 40
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:139",
+              "name": "search-input",
+              "type": "FRAME",
+              "size": {
+                "w": 550,
+                "h": 40
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:140",
+                  "name": "search-icon",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 20,
+                    "h": 20
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "search-icon"
+                  },
+                  "children": [
+                    {
+                      "id": "I83:140;83:83",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 13,
+                        "h": 13
+                      }
+                    },
+                    {
+                      "id": "I83:140;83:84",
+                      "name": "Vector",
+                      "type": "VECTOR",
+                      "size": {
+                        "w": 4,
+                        "h": 4
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "83:143",
+                  "name": "search-input-text",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 160,
+                    "h": 17
+                  },
+                  "characters": "Buscar vídeos ou canais"
+                }
+              ]
+            },
+            {
+              "id": "83:144",
+              "name": "search-submit-button",
+              "type": "FRAME",
+              "size": {
+                "w": 80,
+                "h": 35
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:145",
+                  "name": "search-submit-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 48,
+                    "h": 17
+                  },
+                  "characters": "Buscar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:146",
+          "name": "entrar-button",
+          "type": "FRAME",
+          "size": {
+            "w": 76,
+            "h": 35
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:147",
+              "name": "entrar-label",
+              "type": "TEXT",
+              "size": {
+                "w": 42,
+                "h": 17
+              },
+              "characters": "Entrar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "83:148",
+      "name": "main-dashed-container",
+      "type": "FRAME",
+      "size": {
+        "w": 1100,
+        "h": 902
+      },
+      "layout": {
+        "mode": "VERTICAL"
+      },
+      "children": [
+        {
+          "id": "83:149",
+          "name": "category-filter",
+          "type": "FRAME",
+          "size": {
+            "w": 837,
+            "h": 32
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:150",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 67,
+                "h": 30
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=selected"
+              },
+              "children": [
+                {
+                  "id": "I83:150;83:125",
+                  "name": "chip-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 39,
+                    "h": 16
+                  },
+                  "characters": "Todos"
+                }
+              ]
+            },
+            {
+              "id": "83:152",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 76,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children": [
+                {
+                  "id": "I83:152;83:123",
+                  "name": "chip-label",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 46,
+                    "h": 16
+                  },
+                  "characters": "Música"
+                }
+              ]
+            },
+            {
+              "id": "83:154",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 69,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Jogos"
+              }
+            },
+            {
+              "id": "83:156",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 92,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Educação"
+              }
+            },
+            {
+              "id": "83:158",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 128,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Entretenimento"
+              }
+            },
+            {
+              "id": "83:160",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 82,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Notícias"
+              }
+            },
+            {
+              "id": "83:162",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 87,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Esportes"
+              }
+            },
+            {
+              "id": "83:164",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 99,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Tecnologia"
+              }
+            },
+            {
+              "id": "83:166",
+              "name": "category-chip",
+              "type": "INSTANCE",
+              "size": {
+                "w": 73,
+                "h": 32
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "instance": true,
+              "mainComponent": {
+                "name": "category-chip/state=default"
+              },
+              "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:152 (projecao compacta)",
+              "text_overrides": {
+                "chip-label": "Outros"
+              }
+            }
+          ]
+        },
+        {
+          "id": "83:168",
+          "name": "video-grid",
+          "type": "FRAME",
+          "size": {
+            "w": 1004,
+            "h": 690
+          },
+          "layout": {
+            "mode": "VERTICAL"
+          },
+          "children": [
+            {
+              "id": "83:169",
+              "name": "video-grid-row",
+              "type": "FRAME",
+              "size": {
+                "w": 1004,
+                "h": 214
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:170",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children": [
+                    {
+                      "id": "I83:170;83:100",
+                      "name": "thumbnail",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 233,
+                        "h": 131
+                      },
+                      "children": [
+                        {
+                          "id": "I83:170;83:101",
+                          "name": "duration-badge",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 35,
+                            "h": 17
+                          },
+                          "layout": {
+                            "mode": "HORIZONTAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:170;83:102",
+                              "name": "duration-text",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 23,
+                                "h": 13
+                              },
+                              "characters": "8:12"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I83:170;83:103",
+                      "name": "details",
+                      "type": "FRAME",
+                      "size": {
+                        "w": 233,
+                        "h": 73
+                      },
+                      "layout": {
+                        "mode": "HORIZONTAL"
+                      },
+                      "children": [
+                        {
+                          "id": "I83:170;83:104",
+                          "name": "channel-avatar",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 32,
+                            "h": 32
+                          },
+                          "layout": {
+                            "mode": "HORIZONTAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:170;83:105",
+                              "name": "channel-initials",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 15,
+                                "h": 13
+                              },
+                              "characters": "JC"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "I83:170;83:106",
+                          "name": "video-info",
+                          "type": "FRAME",
+                          "size": {
+                            "w": 191,
+                            "h": 73
+                          },
+                          "layout": {
+                            "mode": "VERTICAL"
+                          },
+                          "children": [
+                            {
+                              "id": "I83:170;83:107",
+                              "name": "title",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 191,
+                                "h": 36
+                              },
+                              "characters": "Tour pelo estúdio — setup 2026"
+                            },
+                            {
+                              "id": "I83:170;83:108",
+                              "name": "channel-name",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 67,
+                                "h": 16
+                              },
+                              "characters": "Joana Cria"
+                            },
+                            {
+                              "id": "I83:170;83:109",
+                              "name": "meta",
+                              "type": "TEXT",
+                              "size": {
+                                "w": 176,
+                                "h": 15
+                              },
+                              "characters": "1,2 mil visualizações · há 2 dias"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "83:181",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Speedrun comentado: a fase secreta"
+                  }
+                },
+                {
+                  "id": "83:192",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Frações sem medo — aula 3"
+                  }
+                },
+                {
+                  "id": "83:203",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Resumo da semana em 10 minutos"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "83:214",
+              "name": "video-grid-row",
+              "type": "FRAME",
+              "size": {
+                "w": 1004,
+                "h": 214
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:215",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Configurando o Docker do zero"
+                  }
+                },
+                {
+                  "id": "83:226",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Lo-fi para estudar — 1 hora"
+                  }
+                },
+                {
+                  "id": "83:237",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Os melhores lances da rodada"
+                  }
+                },
+                {
+                  "id": "83:248",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Teclado mecânico barato vale a pena?"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "83:259",
+              "name": "video-grid-row",
+              "type": "FRAME",
+              "size": {
+                "w": 1004,
+                "h": 214
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:260",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Bastidores de um curta independente"
+                  }
+                },
+                {
+                  "id": "83:271",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Pão de fermentação natural, passo a passo"
+                  }
+                },
+                {
+                  "id": "83:282",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Teoria musical em 5 minutos"
+                  }
+                },
+                {
+                  "id": "83:293",
+                  "name": "video-card-feed",
+                  "type": "INSTANCE",
+                  "size": {
+                    "w": 233,
+                    "h": 214
+                  },
+                  "layout": {
+                    "mode": "VERTICAL"
+                  },
+                  "instance": true,
+                  "mainComponent": {
+                    "name": "video-card-feed/size=desktop"
+                  },
+                  "children_omitted": "instancia repetida do mesmo componente — filhos identicos aos de 83:170 (projecao compacta)",
+                  "text_overrides": {
+                    "title": "Mapa mental: Revolução Industrial"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "83:304",
+          "name": "footer-pagination",
+          "type": "FRAME",
+          "size": {
+            "w": 1002,
+            "h": 34
+          },
+          "layout": {
+            "mode": "HORIZONTAL"
+          },
+          "children": [
+            {
+              "id": "83:305",
+              "name": "pagination",
+              "type": "FRAME",
+              "size": {
+                "w": 225,
+                "h": 34
+              },
+              "layout": {
+                "mode": "HORIZONTAL"
+              },
+              "children": [
+                {
+                  "id": "83:306",
+                  "name": "pagination-previous",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 52,
+                    "h": 16
+                  },
+                  "characters": "Anterior"
+                },
+                {
+                  "id": "83:307",
+                  "name": "pagination-page-1",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 7,
+                    "h": 16
+                  },
+                  "characters": "1"
+                },
+                {
+                  "id": "83:308",
+                  "name": "pagination-page-2",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 8,
+                    "h": 16
+                  },
+                  "characters": "2"
+                },
+                {
+                  "id": "83:309",
+                  "name": "pagination-page-3",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 9,
+                    "h": 16
+                  },
+                  "characters": "3"
+                },
+                {
+                  "id": "83:310",
+                  "name": "pagination-next",
+                  "type": "TEXT",
+                  "size": {
+                    "w": 51,
+                    "h": 16
+                  },
+                  "characters": "Próxima"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
