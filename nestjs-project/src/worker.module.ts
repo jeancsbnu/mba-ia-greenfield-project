@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommentsModule } from './comments/comments.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import { envValidationSchema } from './config/env.validation';
@@ -38,6 +39,10 @@ import { VideosModule } from './videos/videos.module';
     StorageModule,
     QueueModule,
     UsersModule,
+    // O worker não usa comentários, mas autoLoadEntities só conhece as
+    // entidades dos módulos importados: CommentReaction (via VideosModule →
+    // ReactionsModule) tem relação com Comment, que só o CommentsModule registra.
+    CommentsModule,
   ],
   providers: [VideoProcessingConsumer],
 })
