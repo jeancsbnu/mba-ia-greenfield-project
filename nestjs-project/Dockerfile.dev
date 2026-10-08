@@ -4,6 +4,12 @@ RUN apt update && apt install -y procps curl
 
 WORKDIR /home/node/app
 
+# O node_modules é montado como volume nomeado (ver compose.yaml). Criar o
+# diretório aqui, já com o dono certo, é o que faz o Docker inicializar o volume
+# com essa mesma posse: sem isso ele nasce root:root e o `npm ci` rodando como
+# `node` falha com EACCES.
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+
 USER node
 
 CMD [ "tail", "-f", "/dev/null" ] 
