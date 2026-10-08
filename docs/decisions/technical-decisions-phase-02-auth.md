@@ -248,6 +248,10 @@ _Subprojects in scope:_
   (2) o Next 16 só preenche `x-forwarded-for` quando ele está ausente (`??=` em `base-server.js`), então um XFF enviado pelo visitante passa intacto, e o Route Handler não tem `request.ip` —
   repassar o header como está deixa o visitante escolher o IP; (3) a chave do throttler é handler + tracker, então o teto é por rota e compartilhado. O mecanismo de identificação do visitante e o
   orçamento das leituras públicas ainda NÃO estão decididos nesta revisão.
+- 2026-10-08 — O default global deixa de ser o orçamento de autenticação: passa a ser o de leitura, **120 req/60 s por visitante**, e os 6 handlers sensíveis do `AuthController` (`register`, `confirm-email`,
+  `resend-confirmation`, `login`, `forgot-password`, `reset-password`) recebem `@Throttle(AUTH_THROTTLE)` explícito com **10/60 s**; o rastreador passa a ser o visitante real (`rate-limit-visitor-identity/TD-02`
+  e `/TD-03`). Mesma Option A — a biblioteca não muda. Rationale: decidido em `rate-limit-visitor-identity/TD-04` (Option B); substitui como estado vigente o "aplicação inteira, a 10 req/60 s por IP"
+  registrado na Revision de 2026-09-26.
 
 ---
 

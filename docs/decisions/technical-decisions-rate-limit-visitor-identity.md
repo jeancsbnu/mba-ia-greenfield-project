@@ -1,7 +1,7 @@
 ---
 scope_type: ad-hoc
 related_phases: []
-status: pending
+status: decided
 date: 2026-10-08
 scope_description: "Identificação do visitante real atrás do BFF para o rate limit (de onde vem o IP, como ele chega ao Nest e qual é a chave do rastreador) e orçamento das rotas públicas de leitura"
 ---
@@ -63,7 +63,13 @@ _Subprojects in scope:_
 
 **Recommendation:** Option A, fixando nesta decisão só o contrato: **o IP do visitante é escrito pela borda e o app nunca confia em `X-Forwarded-For` vindo do cliente**. O produto (nginx ou Caddy) e a parte de TLS ficam para a pesquisa de produção da Fase 07, que vai precisar dessa peça de qualquer forma. A Option B só se pagaria se não houvesse proxy em produção, e o próprio Next recomenda que haja; ela ainda bloqueia o `standalone`. A Option C mantém o defeito de hoje, trocando o balde único por um limite que o abusador escolhe contornar.
 
-**Decision:** _[pending]_
+**Decision:** A (proxy de borda que sobrescreve o header de IP) — **nesta task entra só o lado do app**: o BFF lê o `x-forwarded-for` como o Next o entrega, confiável quando uma borda o sobrescreve e forjável enquanto ela não existir; o produto do proxy e o TLS ficam para a pesquisa de produção da Fase 07, e o código do app não muda quando a borda chegar. (resolve OQ-1 e AMB-1 do /plan-validate)
+
+**Revisions:**
+- 2026-10-08 — Recorte de entrega desta task: **só o lado do app** — repasse de `X-Client-IP` com `INTERNAL_API_SECRET` (TD-02) e `getTracker` (TD-03). O BFF lê o `x-forwarded-for` como o Next 16 o
+  entrega: confiável quando uma borda o sobrescreve, **forjável enquanto ela não existir** (o Next só o preenche quando ausente). **Nenhum SI de proxy nem de compose nesta task**; produto do proxy e TLS
+  ficam para a fatia de deploy da Fase 07, e o código do app não muda quando a borda chegar. Mesma Option A. Rationale: recorte de entrega fixado no /plan-resolve (AMB-1), registrado aqui porque
+  o `**Decision:**` não chega ao `context.md` e o `/plan-build` lê esta prosa (resolve IC-2 do /plan-validate).
 
 ---
 
@@ -94,7 +100,7 @@ _Subprojects in scope:_
 
 **Recommendation:** Option A. É a única que funciona sem reorganizar a rede dos dois stacks e que mantém os orçamentos já decididos (`video-watch-page/TD-05`, `social-interactions/TD-09`) onde estão, nos decorators do Nest, mudando só **quem** é a chave. O custo é uma chave de env cross-component, que é o mesmo tipo de contrato que `next-frontend-config-base/TD-03` já gere. A Option B é o caminho mais limpo **se** a Fase 07 de produção unificar as redes de qualquer forma; nesse caso ela pode suceder a A sem tocar nos decorators.
 
-**Decision:** _[pending]_
+**Decision:** A (`X-Client-IP` + segredo compartilhado `INTERNAL_API_SECRET`; sem segredo válido, o Nest usa `req.ip`). (resolve OQ-2 do /plan-validate)
 
 ---
 
@@ -125,7 +131,7 @@ _Subprojects in scope:_
 
 **Recommendation:** Option B. É a Revision que `social-interactions/TD-09` já tinha deixado pronta, e a evidência que ela esperava agora existe. A conta é a identidade certa onde existe conta, e o IP fica para o anônimo. A Option C só se justifica se aparecer abuso por várias contas no mesmo IP, e a migração de B para C é aditiva.
 
-**Decision:** _[pending]_
+**Decision:** B (`user:<sub>` quando há `req.user`, `ip:<ip>` para anônimo) — registrado como Revision em `social-interactions/TD-09`, que já previa esse rastreador sem trocar a própria letra. (resolve OQ-3 do /plan-validate)
 
 ---
 
@@ -156,7 +162,14 @@ _Subprojects in scope:_
 
 **Recommendation:** Option B, com **120/60 s por visitante como premissa a confirmar**. A conta é esta: uma página de vídeo custa cerca de 4 chamadas ao upstream, então 120/min equivale a uns 30 vídeos abertos por minuto, muito acima de navegação humana. Inverter o default troca "toda leitura nova nasce com limite de login" por "toda rota de auth precisa do decorator", que é um conjunto **fechado e pequeno** (7 rotas num controller só) e testável. A Option A tiraria o freio da busca, que é a consulta mais cara da plataforma. Com B, o `home-busca/TD-09` fica resolvido sem caso especial: home e busca caem no default de leitura, e o resolve daquela fatia deve alinhar a letra a esta decisão.
 
-**Decision:** _[pending]_
+**Decision:** B (o default global vira o orçamento de leitura: **120 req/60 s por visitante**; `@Throttle(AUTH_THROTTLE)` com **10/60 s** nos 6 handlers sensíveis do `AuthController` — `register`, `confirm-email`, `resend-confirmation`, `login`, `forgot-password` e `reset-password`; `refresh`, `logout` e `me` ficam no default) — escritas autenticadas de dono sem decorator próprio (`PATCH /videos/:publicId`, `PATCH` do canal) **aceitam o default**, contadas por usuário pelo TD-03. Registrado como Revision em `phase-02-auth/TD-08`. (resolve OQ-4 e AMB-2 do /plan-validate)
+
+**Revisions:**
+- 2026-10-08 — Valores firmes: **120 req/60 s por visitante confirmado** (deixa de ser premissa) como default global. `@Throttle(AUTH_THROTTLE)` com **10/60 s** em **6** handlers do `AuthController`, não 7:
+  `register`, `confirm-email`, `resend-confirmation`, `login`, `forgot-password` e `reset-password`; `refresh` (chamado pelo BFF no 401), `logout` e `me` ficam no default. Escritas autenticadas
+  de dono sem decorator próprio (`PATCH /videos/:publicId`, `PATCH` do canal) **aceitam o default**, contadas por usuário (TD-03). Este default substitui como vigente o "aplicação inteira, a 10 req/60 s
+  por IP" de `phase-02-auth/TD-08` (Revision de 2026-10-08 naquele TD). Mesma Option B. Rationale: premissa substituída por valor firme no /plan-resolve (AMB-2/OQ-4), registrada aqui porque o
+  `**Decision:**` não chega ao `context.md` e o `/plan-build` lê esta prosa (resolve IC-1 do /plan-validate).
 
 ---
 
@@ -164,7 +177,7 @@ _Subprojects in scope:_
 
 | ID | Scope | Decision | Recommendation | Choice |
 |----|-------|----------|---------------|--------|
-| TD-01 | Repo-wide | Onde o IP real do visitante é estabelecido | A (proxy de borda sobrescreve o header; produto e TLS ficam para a pesquisa de produção da Fase 07) | _[pending]_ |
-| TD-02 | Cross-layer | Contrato do header de identidade BFF → Nest | A (`X-Client-IP` + segredo compartilhado `INTERNAL_API_SECRET`; sem segredo, `req.ip`) | _[pending]_ |
-| TD-03 | Backend | Chave do rastreador | B (usuário quando autenticado, IP quando anônimo) | _[pending]_ |
-| TD-04 | Backend | Orçamento das leituras públicas | B (default global vira leitura, 120/60 s premissa; auth com `@Throttle(AUTH_THROTTLE)` 10/60 s explícito) | _[pending]_ |
+| TD-01 | Repo-wide | Onde o IP real do visitante é estabelecido | A (proxy de borda sobrescreve o header; produto e TLS ficam para a pesquisa de produção da Fase 07) | A — só o lado do app nesta task; borda na pesquisa de produção da Fase 07 |
+| TD-02 | Cross-layer | Contrato do header de identidade BFF → Nest | A (`X-Client-IP` + segredo compartilhado `INTERNAL_API_SECRET`; sem segredo, `req.ip`) | A |
+| TD-03 | Backend | Chave do rastreador | B (usuário quando autenticado, IP quando anônimo) | B |
+| TD-04 | Backend | Orçamento das leituras públicas | B (default global vira leitura, 120/60 s premissa; auth com `@Throttle(AUTH_THROTTLE)` 10/60 s explícito) | B — 120/60 s; AUTH_THROTTLE 10/60 s em 6 handlers |
