@@ -24,12 +24,22 @@ This project runs inside Docker. Always use the container for development:
 # Start containers
 docker compose up -d
 
-# Install dependencies (first time only)
-docker compose exec nestjs-api npm install
+# Install dependencies into the node_modules volume (see "node_modules volume" below)
+docker compose exec nestjs-api npm ci
+docker compose restart video-worker
 
 # Run the dev server (watch mode)
 docker compose exec nestjs-api npm run start:dev
 ```
+
+### node_modules volume
+
+`node_modules` is **not** read from the bind mount: `compose.yaml` mounts the named volume `nestjs_node_modules` over `/home/node/app/node_modules` in both `nestjs-api` and `video-worker` (one install serves both). It lives on the WSL2 ext4 disk; through the Windows→Linux bind mount every Jest file, `tsc` and `ts-node` run re-read thousands of files and the processes sat in I/O wait.
+
+- The volume starts **empty** — on a new machine, after `docker compose down -v`, or after recreating it. Run `npm ci` inside the container (~1 min), then restart `video-worker`, which crash-loops with `Cannot find module '@nestjs/core'` until the install exists.
+- Installing on the host has no effect on the containers; the host `node_modules` only serves the editor.
+- After changing dependencies (`package.json` / `package-lock.json`, including after a pull), run `npm ci` in the container again.
+- `Dockerfile.dev` creates `node_modules` owned by `node`, so Docker initializes the volume with that owner; without it the volume is `root:root` and `npm ci` fails with `EACCES`. After changing `Dockerfile.dev`, rebuild with `docker compose build nestjs-api video-worker`.
 
 Services:
 - `nestjs-api` — NestJS API, port `3000`
@@ -63,7 +73,7 @@ Since the dev server is **not** started by default (see "Environment Startup Ver
 - `dist/` missing → the worker crash-loops with `Error: Cannot find module '/home/node/app/dist/worker.main'` (`docker compose ps` shows `Restarting`).
 - `dist/` stale → the worker runs old code; uploads stay in `processing` or fail with errors that no longer match `src/`.
 
-After any change that affects the worker (and after pulling such changes), rebuild and restart it — the build takes ~2 min in the bind-mounted container:
+After any change that affects the worker (and after pulling such changes), rebuild and restart it (the build takes ~15 s):
 
 ```bash
 docker compose exec nestjs-api npm run build
@@ -156,7 +166,7 @@ The last command must list every file in `src/database/migrations/`. To restore 
 
 `docker compose exec nestjs-api npm run seed` fills the **dev** database with sample data (`src/database/seeds/dev-seed.data.ts`): 5 confirmed accounts `ana`, `bruno`, `carla`, `diego`, `elisa` `@streamtube.dev` (password `streamtube123`), each with a channel, 10 videos across 7 categories (one unlisted, one draft), subscriptions, reactions, comments and replies.
 
-- Videos are real, playable MP4s with thumbnails: `ffmpeg-static` renders them from built-in test patterns and they are uploaded to MinIO under `seed/<publicId>.mp4`. The seed needs `db` and `minio` up and takes a few minutes in the bind-mounted container.
+- Videos are real, playable MP4s with thumbnails: `ffmpeg-static` renders them from built-in test patterns and they are uploaded to MinIO under `seed/<publicId>.mp4`. The seed needs `db` and `minio` up and takes about a minute, mostly ffmpeg rendering.
 - Denormalized counters (`likes_count`, `comments_count`, `subscribers_count`) are recomputed from the inserted rows, so they match what the API maintains.
 - It never deletes anything: if any seed account already exists it does nothing. To re-seed, recover the dev database first (above).
 

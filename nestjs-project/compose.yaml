@@ -8,6 +8,19 @@ services:
       - 3000:3000
     volumes:
       - .:/home/node/app
+      # node_modules fica FORA do bind-mount, num volume nomeado no ext4 do WSL2.
+      # Este mount é mais específico que o `.:/home/node/app` acima, então tem
+      # precedência e o node_modules do host deixa de ser visto pelo container.
+      #
+      # Motivo: cada arquivo de teste do Jest e cada compilação do ts-node/tsc
+      # relê milhares de arquivos de node_modules; atravessando o bind-mount
+      # Windows→Linux isso domina o tempo (processos presos em I/O, estado D).
+      #
+      # Consequência prática: o volume nasce vazio, então depois do primeiro
+      # `compose up -d` (ou de `compose down -v`) é preciso rodar `npm ci`
+      # DENTRO do container. O node_modules do host passa a servir só ao editor.
+      # O video-worker monta o mesmo volume: um `npm ci` serve aos dois.
+      - nestjs_node_modules:/home/node/app/node_modules
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -42,6 +55,7 @@ services:
     restart: on-failure
     volumes:
       - .:/home/node/app
+      - nestjs_node_modules:/home/node/app/node_modules
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -114,3 +128,4 @@ services:
 
 volumes:
   minio-data:
+  nestjs_node_modules:
