@@ -240,6 +240,14 @@ _Subprojects in scope:_
 
 **Revisions:**
 - 2026-09-26 — Correção do racional, sem mudança de decisão. O texto da Recommendation afirma que o guard permite "scoping rate limiting to `AuthModule` only via module-level `APP_GUARD`". **Isso está errado:** `APP_GUARD` é global independentemente do módulo que o declara — está na doc oficial de Guards do NestJS e no README do `@nestjs/throttler` ("you could do so by adding this provider to **any** module"). O próprio repositório evidencia: `src/app.controller.ts` carrega `@SkipThrottle()`, inócuo se o guard não o alcançasse, já que `AppController` não pertence ao `AuthModule`. O escopo efetivo sempre foi a aplicação inteira, a 10 req/60 s por IP. Mesma Option A — a escolha de biblioteca permanece. Rationale: resolve ICC-1 (/plan-validate da Fase 05) — a frase induziu a MD-1 daquela fase a concluir que o endpoint público de contagem estava desprotegido, quando já nascia coberto.
+- 2026-10-08 — A premissa "por IP" não vale atrás do BFF: todo request chega ao Nest com o mesmo `req.ip`, então o limite vira um balde único para o site. Mesma Option A. Rationale: confirmado em runtime em
+  2026-10-07. Todo request entrou com `req.ip = ::ffff:172.19.0.1`, o gateway da rede do compose, porque o BFF chama `API_URL=http://host.docker.internal:3000`. Visitante A (6 req) e visitante B
+  (4 req, outro IP) somados tomaram 429 na 11ª requisição, e uma chamada direta do host caiu no mesmo balde. Herdam a falha o default global de 10/60 s e os orçamentos `@Throttle` por IP de
+  `video-watch-page/TD-05` (30/60 s) e de `social-interactions/TD-09` (60/60 s e 5/60 s), além do default de `GET /videos/:id/public`, stream, download, canais, comentários e `POST /auth/login`/`refresh`.
+  Fatos que restringem a correção: (1) `trust proxy` restrito à rede do compose não distingue o BFF de qualquer chamador do host — todos chegam como `172.19.0.1` e poderiam forjar `X-Forwarded-For`;
+  (2) o Next 16 só preenche `x-forwarded-for` quando ele está ausente (`??=` em `base-server.js`), então um XFF enviado pelo visitante passa intacto, e o Route Handler não tem `request.ip` —
+  repassar o header como está deixa o visitante escolher o IP; (3) a chave do throttler é handler + tracker, então o teto é por rota e compartilhado. O mecanismo de identificação do visitante e o
+  orçamento das leituras públicas ainda NÃO estão decididos nesta revisão.
 
 ---
 
