@@ -56,11 +56,15 @@ describe('seedDevData (integration)', () => {
     await dataSource.initialize();
     await cleanAllTables(dataSource);
 
+    // Bucket só do teste: o seed grava em chaves fixas (seed/<publicId>.mp4) e
+    // o afterAll as apaga — no bucket do dev isso destruiria a mídia que o
+    // `npm run seed` gravou lá. onModuleInit cria o bucket se faltar.
     const config = storageConfig();
-    storage = new StorageService(config);
+    const testBucket = `${config.minioBucket}-seed-test`;
+    storage = new StorageService({ ...config, minioBucket: testBucket });
     await storage.onModuleInit();
     options = {
-      bucket: config.minioBucket,
+      bucket: testBucket,
       // Resolução mínima: o teste prova o contrato com ffmpeg e MinIO reais,
       // não a qualidade da mídia.
       renderMedia: createFfmpegRenderer({ size: '64x36', rate: 5 }),
