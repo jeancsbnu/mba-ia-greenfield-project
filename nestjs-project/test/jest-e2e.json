@@ -7,5 +7,5 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "globalSetup": "<rootDir>/../src/test/global-setup.ts",
-  "setupFiles": ["dotenv/config", "<rootDir>/../src/test/use-test-database.ts"]
+  "setupFiles": ["dotenv/config", "<rootDir>/../src/test/use-test-environment.ts"]
 }
