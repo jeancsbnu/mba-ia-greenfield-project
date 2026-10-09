@@ -16,6 +16,7 @@ services:
       DB_NAME: streamtube
       JWT_SECRET: dev-jwt-secret-change-in-production
       JWT_REFRESH_SECRET: dev-jwt-refresh-secret-change-in-production
+      INTERNAL_API_SECRET: dev-internal-api-secret-change-in-production
       SWAGGER_ENABLED: "true"
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
@@ -50,6 +51,7 @@ services:
       DB_NAME: streamtube
       JWT_SECRET: dev-jwt-secret-change-in-production
       JWT_REFRESH_SECRET: dev-jwt-refresh-secret-change-in-production
+      INTERNAL_API_SECRET: dev-internal-api-secret-change-in-production
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: streamtube

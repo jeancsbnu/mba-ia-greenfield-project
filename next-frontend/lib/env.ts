@@ -10,6 +10,9 @@ export const env = createEnv({
   server: {
     API_URL: z.url(),
     SESSION_PASSWORD: z.string().min(32, "SESSION_PASSWORD must be at least 32 characters"),
+    // Segredo compartilhado com o Nest: autentica o X-Client-IP que o BFF
+    // anexa a toda chamada ao upstream (rate-limit-visitor-identity/TD-02).
+    INTERNAL_API_SECRET: z.string().min(1),
   },
 
   client: {},

@@ -19,3 +19,5 @@ if (typeof globalThis.ResizeObserver === "undefined") {
 process.env.API_URL = process.env.API_URL ?? "http://nestjs-api:3000";
 process.env.SESSION_PASSWORD =
   process.env.SESSION_PASSWORD ?? "test-session-secret-that-is-at-least-32ch";
+process.env.INTERNAL_API_SECRET =
+  process.env.INTERNAL_API_SECRET ?? "test-internal-api-secret";

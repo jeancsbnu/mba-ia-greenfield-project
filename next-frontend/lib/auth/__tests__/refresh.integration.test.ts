@@ -5,8 +5,11 @@ import { server } from "@/mocks/server";
 
 // Shared cookie store for the session mock — same pattern as session.test.ts.
 const cookieMap = new Map<string, string>();
+// Headers da requisição do visitante, lidos pelo helper de identidade.
+const requestHeaders = vi.fn<() => Promise<Headers>>();
 
 vi.mock("next/headers", () => ({
+  headers: () => requestHeaders(),
   cookies: vi.fn().mockResolvedValue({
     get: (name: string) =>
       cookieMap.has(name) ? { name, value: cookieMap.get(name)! } : undefined,
@@ -31,6 +34,8 @@ const SEED_SESSION = {
 
 beforeEach(async () => {
   cookieMap.clear();
+  requestHeaders.mockReset();
+  requestHeaders.mockResolvedValue(new Headers());
   await setSession(SEED_SESSION);
 });
 
@@ -89,6 +94,26 @@ describe("withRefresh", () => {
     ]);
 
     expect(refreshCalls).toBe(1);
+  });
+
+  it("sends the visitor identity on the refresh call", async () => {
+    requestHeaders.mockResolvedValue(
+      new Headers({ "x-forwarded-for": "203.0.113.7, 10.0.0.1" })
+    );
+    let seen: Headers | null = null;
+    server.use(
+      http.get(UPSTREAM_URL, () => new HttpResponse(null, { status: 401 })),
+      http.post(`${env.API_URL}/auth/refresh`, ({ request }) => {
+        seen = request.headers;
+        return HttpResponse.json({ access_token: "new-at", refresh_token: "new-rt" });
+      })
+    );
+
+    await withRefresh(() => fetch(UPSTREAM_URL));
+
+    expect(seen!.get("x-client-ip")).toBe("203.0.113.7");
+    expect(seen!.get("x-internal-token")).toBe(env.INTERNAL_API_SECRET);
+    expect(seen!.get("content-type")).toBe("application/json");
   });
 
   it("destroys the session and returns 401 when refresh itself fails", async () => {

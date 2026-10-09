@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import appConfig from '../config/app.config';
 import authConfig from '../config/auth.config';
+import internalApiConfig from '../config/internal-api.config';
 import mailConfig from '../config/mail.config';
 import { Channel } from '../channels/entities/channel.entity';
 import { User } from '../users/entities/user.entity';
@@ -20,7 +21,7 @@ describe('AuthModule', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [appConfig, authConfig, mailConfig],
+          load: [appConfig, authConfig, internalApiConfig, mailConfig],
         }),
         TypeOrmModule.forRoot(createTestDataSource(ALL_ENTITIES).options),
         AuthModule,

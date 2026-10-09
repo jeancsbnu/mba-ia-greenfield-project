@@ -9,8 +9,10 @@ const ONE_MINUTE_MS = 60_000;
 /**
  * Orçamentos de rate limit das rotas sociais de escrita
  * (social-interactions/TD-09, Option B — dois orçamentos por perfil de abuso,
- * `@Throttle` por rota, rastreador por IP, storage em memória). Sobrepõem o
- * default global de 10/60 s registrado em `auth.module.ts`.
+ * `@Throttle` por rota, storage em memória). Sobrepõem o default global de
+ * 120/60 s registrado em `auth.module.ts`; o rastreador é o do
+ * `VisitorThrottlerGuard` (usuário autenticado ou IP do visitante —
+ * rate-limit-visitor-identity/TD-03).
  */
 export const SOCIAL_THROTTLE: {
   /** Reagir a vídeo, reagir a comentário, inscrever-se e cancelar. */
