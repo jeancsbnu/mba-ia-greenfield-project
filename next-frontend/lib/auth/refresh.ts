@@ -1,3 +1,4 @@
+import { visitorIdentityHeaders } from "@/lib/api/visitor-identity";
 import { env } from "@/lib/env";
 
 import { destroySession, getSession, setSession } from "./session";
@@ -9,7 +10,12 @@ async function tryRefresh(): Promise<boolean> {
 
   const res = await fetch(`${env.API_URL}/auth/refresh`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    // Identidade do visitante para o rate limit do Nest
+    // (rate-limit-visitor-identity/TD-02), como no client `upstream`.
+    headers: {
+      "Content-Type": "application/json",
+      ...(await visitorIdentityHeaders()),
+    },
     body: JSON.stringify({ refresh_token: session.refreshToken }),
   });
 

@@ -223,9 +223,9 @@ export class VideosController {
   @Public()
   @Post(':publicId/view')
   @HttpCode(HttpStatus.NO_CONTENT)
-  // Orçamento próprio de 30/60 s por IP (TD-05, Revisions de 2026-09-29),
-  // sobrepondo o default global de 10/60 s: é escrita pública e navegação
-  // legítima não pode colidir com o orçamento de login.
+  // Orçamento próprio de 30/60 s por visitante (TD-05, Revisions de
+  // 2026-09-29), mais apertado que o default global de 120/60 s
+  // (rate-limit-visitor-identity/TD-04): é escrita pública e cada view conta.
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiBearerAuth('access-token')
   @ApiOperation({

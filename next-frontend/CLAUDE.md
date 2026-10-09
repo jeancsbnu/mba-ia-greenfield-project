@@ -142,9 +142,10 @@ CI guard: `.github/workflows/openapi-freshness.yml` blocks merging stale spec/ty
 
 Source of decisions: `docs/decisions/technical-decisions-next-frontend-openapi-typing.md` (TD-01…TD-05).
 
-**Env var convention — single key, server-only:**
+**Env var convention — server-only keys:**
 
 - `API_URL` — the upstream NestJS base URL. **Server-only**: validated and exposed via `lib/env.ts` (`@t3-oss/env-nextjs` + Zod 4). Accessing `env.API_URL` from a Client Component throws at runtime. There is **no** client-exposed (`NEXT_PUBLIC_*`) variant for the backend URL, and there must not be one — introducing a public backend URL would defeat the BFF model.
+- `INTERNAL_API_SECRET` — the secret shared with the NestJS API. **Server-only**, same rules as `API_URL`. `lib/api/visitor-identity.ts` sends it as `X-Internal-Token` next to `X-Client-IP` on every server-side upstream call (the `upstream` client and `lib/auth/refresh.ts`); the API only trusts `X-Client-IP` for rate limiting when the token matches its own `INTERNAL_API_SECRET` (rate-limit-visitor-identity/TD-02). The value must be the same in both stacks.
 - `lib/env.ts` is the **source of truth** for environment variable reads in `next-frontend/`.
 - See `.env.example` for the canonical key set and `lib/env.ts` for the `createEnv({ server, client, shared, ... })` schema.
 

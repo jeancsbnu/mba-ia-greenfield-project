@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
+import internalApiConfig from './config/internal-api.config';
 import mailConfig from './config/mail.config';
 import queueConfig from './config/queue.config';
 import storageConfig from './config/storage.config';
@@ -24,6 +25,7 @@ import { VideosModule } from './videos/videos.module';
         appConfig,
         authConfig,
         databaseConfig,
+        internalApiConfig,
         mailConfig,
         swaggerConfig,
         storageConfig,

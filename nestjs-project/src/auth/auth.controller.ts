@@ -14,6 +14,8 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { AUTH_THROTTLE } from '../common/auth-throttle.constants';
 import { ApiErrorEnvelope } from '../common/openapi/api-error-envelope.dto';
 import { AuthService } from './auth.service';
 import type { JwtPayload } from './auth.types';
@@ -33,6 +35,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('register')
   @ApiOperation({
     summary: 'Register a new user',
@@ -66,6 +69,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Get('confirm-email')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
@@ -89,6 +93,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('resend-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
@@ -111,6 +116,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -184,6 +190,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('forgot-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
@@ -205,6 +212,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('reset-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({

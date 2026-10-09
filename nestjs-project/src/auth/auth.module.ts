@@ -4,13 +4,14 @@ import type { StringValue } from 'ms';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import authConfig from '../config/auth.config';
 import { MailModule } from '../mail/mail.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { VisitorThrottlerGuard } from './guards/visitor-throttler.guard';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { VerificationToken } from './entities/verification-token.entity';
 
@@ -26,13 +27,17 @@ import { VerificationToken } from './entities/verification-token.entity';
       }),
     }),
     TypeOrmModule.forFeature([RefreshToken, VerificationToken]),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
+    // Default de leitura (rate-limit-visitor-identity/TD-04); as rotas de
+    // autenticação sensíveis apertam para AUTH_THROTTLE no próprio handler.
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
+    // A ordem importa: o JwtAuthGuard anexa `req.user` antes de o
+    // VisitorThrottlerGuard escolher a chave do rate limit.
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: VisitorThrottlerGuard },
   ],
   exports: [AuthService, JwtModule],
 })
