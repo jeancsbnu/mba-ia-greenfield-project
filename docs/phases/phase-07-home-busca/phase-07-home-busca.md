@@ -194,7 +194,7 @@ Os três ícones não têm teste, conforme o testing guide: "Icon (`components/i
 ### SI-07.3 — Endpoint GET /videos
 
 **Route:** GET /videos
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `nestjs-project/specs/videos-feed.plan.md`
 **Authorization:** Anonymous (`@Public()`), com Bearer opcional e ignorado — §Authorization Matrix
 
 **Description:** Expor a listagem global no `VideosController`, com query validada e documentada no OpenAPI (§API Contracts → GET /videos).
@@ -236,7 +236,11 @@ Os três ícones não têm teste, conforme o testing guide: "Icon (`components/i
 1. Regenerar `nestjs-project/openapi.json` com `docker compose exec nestjs-api npm run openapi:export`. O script roda `nest build`, necessário para o plugin do Swagger preencher o DTO de query *(per openapi-docs-nestjs/TD-01 e TD-02)*.
 2. Rodar `scripts/sync-openapi.sh` no host e depois `docker compose exec next-frontend npm run openapi:types`, que regenera `lib/api/types.gen.ts` *(per next-frontend-openapi-typing/TD-02 e TD-03)*.
 3. Acrescentar a `next-frontend/lib/api/contracts.ts`, numa seção "listagem global", os aliases `VideoFeedPage`, `VideoFeedItem` e `VideoFeedQuery`, derivados de `paths["/videos"]["get"]`. O `contracts.ts` continua o único importador de `paths` *(per next-frontend-openapi-typing/TD-04)*.
-4. Acrescentar a `next-frontend/mocks/handlers/videos.ts` o handler `http.get(\`${env.API_URL}/videos\`)`, tipado por `paths`. Ele aplica `q` (título, nome ou nickname, sem acento e sem caixa), `category`, `offset` e `limit` sobre os vídeos publicados e públicos do seed (`mocks/handlers/_seed.ts`), na ordem por `publishedAt` desc. Assim o Playwright vê grade, filtro, paginação e busca vazia ("xyzabc") reais *(per next-frontend-msw-foundation/TD-01, TD-03, TD-04 e next-frontend-openapi-typing/TD-05)*.
+4. Criar em `next-frontend/mocks/factories/videos.ts` o catálogo determinístico `buildFeedCatalog()` e acrescentar a `mocks/handlers/videos.ts` o handler `http.get(\`${env.API_URL}/videos\`)`, tipado por `paths`, que aplica `q`, `category`, `offset` e `limit` sobre esse catálogo na ordem por `publishedAt` desc *(per next-frontend-msw-foundation/TD-01, TD-03, TD-04 e next-frontend-openapi-typing/TD-05)*.
+   - **Catálogo:** `FEED_TOTAL = 30` vídeos `feed-1` … `feed-30`, com `publishedAt` decrescente nessa ordem. A categoria do vídeo `i` (base 0) é a `i % 7` do enum, então `Outros` fica vazia e `Música` tem 5 vídeos. O canal é o `i % 3` de `Joana Cria` (`joana_cria`), `Docker Brasil` (`docker_brasil`) e `Tech com Nina` (`tech_com_nina`).
+   - **Títulos:** `Vídeo {n}`, exceto `feed-1` = "Música ao vivo" e `feed-3`, `feed-6` e `feed-9` = "Docker na prática", "Docker Compose do zero" e "Docker em produção", todos do canal `tech_com_nina`. Com isso, `q=docker` casa 10 vídeos pelo canal e 3 pelo título (13 no total, 2 páginas), e `q=musica` casa 1.
+   - **Casamento:** título, nome ou nickname do canal, sem acento e sem caixa, como no backend.
+   - **Trigger de erro:** `q=erro-upstream` responde `500` `INTERNAL_ERROR`, para exercitar o `error.tsx` da listagem.
 
 **Tests:** _(empty — Infra)_
 
@@ -248,7 +252,7 @@ Os três ícones não têm teste, conforme o testing guide: "Icon (`components/i
 - Repetir o sync e o `openapi:types` não produz diff em `openapi.json` nem em `types.gen.ts`, e a checagem de frescor do CI passa.
 - `docker compose exec next-frontend npx tsc --noEmit` sai com código 0.
 - Nenhum arquivo de aplicação fora de `lib/api/contracts.ts` importa `paths` de `types.gen.ts`. Os handlers de `mocks/` são a exceção prevista por `next-frontend-openapi-typing/TD-05`.
-- Com `MSW_ENABLED=true`, `GET ${API_URL}/videos?q=xyzabc` responde `{ items: [], total: 0 }`.
+- Com `MSW_ENABLED=true`, `GET ${API_URL}/videos` responde `total: 30`; `?q=docker` responde `total: 13`; `?category=Outros` e `?q=xyzabc` respondem `{ items: [], total: 0 }`.
 
 ---
 
@@ -476,7 +480,7 @@ As três specs já existem. Os seletores que dependiam do chrome antigo são aju
 
 ### SI-07.10b — Tela de Página inicial (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/pagina-inicial.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Página inicial`
 
 **Technical actions:**
@@ -572,7 +576,7 @@ A página é async RSC, coberta só por E2E, que vem do spec do `/plan-test-spec
 
 ### SI-07.11b — Tela de Resultados da busca (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/resultados-da-busca.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Resultados da busca`
 
 **Technical actions:**
@@ -671,7 +675,7 @@ A página é async RSC, coberta só por E2E, que vem do spec do `/plan-test-spec
 
 ### SI-07.12b — Tela de Resultados da busca — sem resultados (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/resultados-da-busca-sem-resultados.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Resultados da busca — sem resultados`
 
 **Technical actions:**
@@ -754,7 +758,7 @@ A página é async RSC, coberta só por E2E, que vem do spec do `/plan-test-spec
 
 ### SI-07.13b — Tela de Página inicial — mobile (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/pagina-inicial-mobile.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Página inicial — mobile`
 
 **Technical actions:**
@@ -846,7 +850,7 @@ A página é async RSC, coberta só por E2E, que vem do spec do `/plan-test-spec
 
 ### SI-07.14b — Tela de Resultados da busca — mobile (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/resultados-da-busca-mobile.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Resultados da busca — mobile`
 
 **Technical actions:**
@@ -934,7 +938,7 @@ A página é async RSC, coberta só por E2E, que vem do spec do `/plan-test-spec
 
 ### SI-07.15b — Tela de Menu de navegação — mobile (lógica & wiring)
 
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `next-frontend/specs/menu-de-navegacao-mobile.plan.md`
 **UI Contract:** see `## Technical Specifications` → `### UI Contracts` → `#### Screen: Menu de navegação — mobile`
 
 **Technical actions:**
