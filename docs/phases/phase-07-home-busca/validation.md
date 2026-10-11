@@ -1,14 +1,14 @@
 ---
 kind: phase
 name: phase-07-home-busca
-status: dirty
+status: clean
 issue_count: 0
 sources_mtime:
-  docs/phases/phase-07-home-busca/context.md: "2026-10-08T22:33:11-03:00"
-  docs/decisions/technical-decisions-home-busca.md: "2026-10-08T14:26:59-03:00"
+  docs/phases/phase-07-home-busca/context.md: "2026-10-11T17:47:13-03:00"
+  docs/decisions/technical-decisions-home-busca.md: "2026-10-11T17:47:13-03:00"
 sources_hash:
-  docs/phases/phase-07-home-busca/context.md: "fb1b9ab95f95"
-  docs/decisions/technical-decisions-home-busca.md: "5d62495359b9"
+  docs/phases/phase-07-home-busca/context.md: "592b616d64eb"
+  docs/decisions/technical-decisions-home-busca.md: "feda55ba3eed"
 issues:
   - id: IC-1
     status: resolved
