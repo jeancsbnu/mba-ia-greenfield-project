@@ -3,7 +3,7 @@ kind: phase
 name: phase-07-home-busca
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-home-busca.md: "2026-10-08T14:26:59-03:00"
+  docs/decisions/technical-decisions-home-busca.md: "2026-10-11T17:34:50-03:00"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "2026-10-08T19:04:24-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "2026-10-03T21:48:21-03:00"
@@ -19,7 +19,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-home-busca.md: "5d62495359b9"
+  docs/decisions/technical-decisions-home-busca.md: "feda55ba3eed"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "0d1493a08793"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
   docs/decisions/technical-decisions-next-frontend-openapi-typing.md: "371ec55c2f2a"
@@ -76,15 +76,20 @@ sources_hash:
 
 | Ref | Source | Scope | Topic | Status | Decision | Libraries | Renders in |
 |-----|--------|-------|-------|--------|----------|-----------|------------|
-| home-busca/TD-01 | phase | Cross-layer | Superfície de rotas e contrato da listagem global (home, categoria e busca) | pending | — | — | — |
-| home-busca/TD-02 | phase | Cross-layer | Paginação da home e da busca (contrato e padrão de interface) | pending | — | — | — |
-| home-busca/TD-03 | phase | Cross-layer | Ordenação da home | pending | — | — | — |
-| home-busca/TD-04 | phase | Backend | Mecanismo de busca textual (título e canal) | pending | — | — | — |
-| home-busca/TD-05 | phase | Cross-layer | Forma do resultado quando o termo casa com um canal | pending | — | — | — |
-| home-busca/TD-06 | phase | Frontend | Modelo de interação da barra de busca | pending | — | — | — |
-| home-busca/TD-07 | phase | Frontend | Estrutura da navegação global e comportamento do chrome no mobile | pending | — | — | — |
-| home-busca/TD-08 | phase | Frontend | Estratégia de responsividade (origem do layout mobile e alcance do retrofit) | pending | — | — | — |
-| home-busca/TD-09 | phase | Cross-layer | Rate limit das listagens públicas de alto tráfego (home e busca) | pending | — | — | — |
+| home-busca/TD-01 | phase | Cross-layer | Superfície de rotas e contrato da listagem global (home, categoria e busca) | decided | B (um endpoint `GET /videos?q=&category=` com filtros opcionais e combináveis; home em `/` e resultados em `/results`). | — | — |
+|     └─ Last revision: 2026-10-11 — estados sem desenho derivados das Fases 04–06; destinos do `VideoCard` (OQ-14, OQ-17) | | | | | | | |
+| home-busca/TD-02 | phase | Cross-layer | Paginação da home e da busca (contrato e padrão de interface) | decided | A (offset/limit com paginação numerada em `?page=N`, **12 vídeos por página**). | — | — |
+|     └─ Last revision: 2026-10-11 — 12 vídeos por página; paginação do DS sem alteração no mobile (OQ-13) | | | | | | | |
+| home-busca/TD-03 | phase | Cross-layer | Ordenação da home | decided | A (mais recentes primeiro — `published_at` desc, desempate por `id`). | — | — |
+| home-busca/TD-04 | phase | Backend | Mecanismo de busca textual (título e canal) | decided | A (`ILIKE` com `pg_trgm` e `unaccent`; termo mínimo de **3 caracteres**; resultados por recência). | — | — |
+|     └─ Last revision: 2026-10-11 — termo mínimo de 3 caracteres | | | | | | | |
+| home-busca/TD-05 | phase | Cross-layer | Forma do resultado quando o termo casa com um canal | decided | A (só vídeos — o termo casa com o título ou com o nome/nickname do canal). | — | — |
+| home-busca/TD-06 | phase | Frontend | Modelo de interação da barra de busca | decided | A (envio explícito via `next/form` para `/results?q=`). | — | — |
+| home-busca/TD-07 | phase | Frontend | Estrutura da navegação global e comportamento do chrome no mobile | decided | A (só barra superior, com sheet de navegação no mobile; uma navbar única, montada em layout, em todas as telas). | — | — |
+|     └─ Last revision: 2026-10-11 — navbar única em todas as telas; destinos, sheet anônimo, `sheet.tsx`, logout compartilhado (AMB-1, OQ-11/12/15/16) | | | | | | | |
+| home-busca/TD-08 | phase | Frontend | Estratégia de responsividade (origem do layout mobile e alcance do retrofit) | decided | B (regras responsivas escritas para todas as telas; frames mobile só de navbar, home e resultados). | — | — |
+| home-busca/TD-09 | phase | Cross-layer | Rate limit das listagens públicas de alto tráfego (home e busca) | decided | C (orçamento por visitante, já entregue pela task `rate-limit-visitor-identity`: home e busca ficam no default global de 120 req/60 s, sem `@Throttle` nem `@SkipThrottle` próprio). | — | — |
+|     └─ Last revision: 2026-10-11 — C no default 120/60 s por visitante; precedência de `rate-limit-visitor-identity` (IC-1) | | | | | | | |
 
 _Source files:_
 
@@ -105,7 +110,83 @@ _Source files:_
 
 ## Decisions Detail
 
-_No decided TDs yet._ _(os nove TDs de home-busca estão `pending`; o `/plan-resolve` preenche os `**Decision:**`)_
+### home-busca/TD-01
+
+**Recommendation:** Option B. Consolida a regra "listável" num ponto só, que é o que o princípio de Single Responsibility do projeto pede (a regra já está duplicada antes desta fase), e mantém a busca como página própria, o destino natural de uma barra presente em todas as telas. A categoria vai na URL **com o valor do enum como está** (`?category=Música`, percent-encoded pelo navegador). Criar um mapa de slugs só para a URL seria a primeira tabela de categorias fora do `openapi.json` e contrariaria o `video-channel-management/TD-01`, cuja vantagem era justamente não ter mapa. O item da listagem reutiliza o shape de `SuggestedVideoListItem`, que já carrega o canal.
+**Libraries:** —
+
+**Revisions:**
+
+- 2026-10-11 — Estados sem desenho e destinos do `VideoCard` fixados no resolve (mesma Option B):
+  - carregamento, erro e vazio seguem os padrões das Fases 04–06: `loading.tsx` com skeleton da grade, `error.tsx` e estado vazio com mensagem para home sem vídeos, categoria sem vídeos e busca sem resultados. No mobile, a busca vazia reaproveita o estado desktop em coluna única. Esses critérios de aceite ficam argumentados, não observados;
+  - o `VideoCard` leva a `/videos/{publicId}` pela thumbnail e pelo título, e a `/@{nickname}` pelo avatar e pelo nome do canal, como links irmãos (sem link aninhado). O `sizes` da thumbnail acompanha a variante `size=desktop|mobile`, com largura cheia no mobile.
+  Rationale: resolve OQ-14 e OQ-17 (/plan-validate), registrado aqui porque o `**Decision:**` não chega ao `context.md` e o `/plan-build` lê esta prosa.
+
+### home-busca/TD-02
+
+**Recommendation:** Option A. É o único par que serve igualmente à home e à busca, sem um segundo mecanismo, e não acrescenta nenhum padrão novo ao frontend. A perda é a sensação de feed. A instabilidade sob concorrência, que motivou a sugestão de cursor no `video-channel-management/TD-06`, só aparece na fronteira de página, num catálogo que ainda não tem volume para que isso seja frequente. O tamanho de página deve ser múltiplo comum das colunas da grade do TD-08 (12 divide 1, 2, 3 e 4 colunas); o valor exato fica para o resolve. Se a decisão for a Option C, ela obriga a busca a ordenar por recência (TD-04).
+**Libraries:** —
+
+**Revisions:**
+
+- 2026-10-11 — Tamanho de página fixado em **12 vídeos** para a home e a busca (12 divide 1, 2, 3 e 4 colunas). A paginação usa `components/ui/pagination.tsx` sem alteração, inclusive abaixo de `sm`, onde mostra só os chevrons; a divergência dos frames de 375 px, que mostram o texto, fica aceita. Anterior e Próxima ficam desabilitados nas pontas (`aria-disabled`) e, com uma página só, a paginação não é renderizada, como já faz `app/channels/[nickname]/page.tsx`. Mesma Option A. Rationale: resolve OQ-2 e OQ-13 (/plan-validate) — o tamanho era premissa da Recommendation, e o comportamento da paginação no mobile não estava desenhado.
+
+### home-busca/TD-03
+
+**Recommendation:** Option A. Reproduz a escolha do `video-watch-page/TD-04` pelo mesmo motivo: determinismo vale mais que variedade enquanto `views_count` não tiver histórico. Uma ordem por "em alta" só fica honesta com contagem por janela de tempo, que não existe no modelo. A Option C pode entrar depois como Revision barata, acrescentando `sort` sem quebrar o contrato.
+**Libraries:** —
+
+### home-busca/TD-04
+
+**Recommendation:** Option A. "Título e canal" são campos curtos e nomes próprios, onde casar trecho importa mais que stemming, e o nickname `[a-z0-9_]` é literalmente uma string a casar. Os resultados são ordenados por **recência**, como a home (TD-03), e não por relevância. Isso mantém a busca compatível com qualquer escolha do TD-02, ao custo de não promover o melhor casamento ao topo. Cabe fixar no resolve um comprimento mínimo do termo, 2 ou 3 caracteres, para não cair em varredura. A Option B é o passo natural se a busca um dia incluir a descrição, que é texto corrido e se beneficia de stemming.
+**Libraries:** —
+
+**Revisions:**
+
+- 2026-10-11 — Comprimento mínimo do termo fixado em **3 caracteres**, o menor que gera trigrama, para a busca nunca cair em varredura do índice. O query DTO do Nest rejeita `q` mais curto, e `/results` com termo abaixo do mínimo não chama o upstream e mostra um aviso no lugar dos resultados. Mesma Option A. Rationale: resolve OQ-4 (/plan-validate) — a Recommendation deixava o valor (2 ou 3) para o resolve.
+
+### home-busca/TD-05
+
+**Recommendation:** Option A. Atende a bullet literalmente com a menor superfície e mantém a busca como um modo da mesma listagem do TD-01. **É a recomendação com maior chance de estar errada por leitura de escopo:** se "pesquisar por canal" significa "encontrar o canal", a Option B é defensável e barata, porque o componente de lista de canais já existe.
+**Libraries:** —
+
+### home-busca/TD-06
+
+**Recommendation:** Option A. Uma barra presente em toda tela pede o modelo que não depende de estar numa página específica, e o `next/form` entrega navegação no cliente com prefetch sem estado próprio. Com a Option A, a navbar continua quase toda servidor: só o form e o link ativo são cliente. As Options B e C são incrementos possíveis sobre a A, sem trocar a rota nem o contrato.
+**Libraries:** —
+
+### home-busca/TD-07
+
+**Recommendation:** Option A. Com quatro destinos, a sidebar da Option B custa um retrofit de largura em todas as telas sem ter o que preencher, e a Option C duplica a navegação e colide com o player. A Option A é a única que muda **só** o chrome. Consequência assumida: a navbar passa a ser montada uma vez em layout, e não mais por página, para que busca e navegação não precisem ser repetidas nas telas.
+**Libraries:** —
+
+**Revisions:**
+
+- 2026-10-11 — Chrome e navegação fixados no resolve (mesma Option A):
+  - **Navbar única.** A navbar desenhada (`PublicSiteNavbar` estendida com busca e navegação) passa a ser o chrome de todas as telas, inclusive as do studio (`/channel/videos`, `/videos/{publicId}/edit`, `/channel/settings`), montada uma vez em layout. A `SiteNavbar` do route group autenticado é substituída por ela (Revision correspondente em `video-channel-management/TD-09`).
+  - **Destinos.** Início / Canais seguidos / Meus vídeos, como no desenho, no lugar da lista do Context. O menu do usuário (avatar no desktop, bloco do usuário no sheet) ganha "Seu canal" → `/@{nickname}`, que hoje não tem link no chrome. "Enviar vídeo" continua pelo botão de `/channel/videos`.
+  - **Mobile anônimo.** O sheet anônimo mostra um botão "Entrar" no lugar de `sheet-user` e "Sair", e só os links públicos (Início); as rotas do studio ficam ocultas. A barra mobile fechada não mostra avatar nem para o usuário logado: tudo fica no sheet, seguindo a barra do frame `84:299`.
+  - **Primitivo.** A `NavigationSheet` compõe um `components/ui/sheet.tsx` novo (o Sheet do shadcn sobre o Dialog do Radix já instalado).
+  - **Logout.** A chamada a `POST /api/auth/logout` sai de `components/layout/channel-user-menu.tsx` para um módulo compartilhado em `lib/auth` (ex.: um hook `useLogout`), consumido pelo menu do usuário e pelo "Sair" do sheet; cada ponto mantém o próprio visual.
+  Rationale: resolve AMB-1, OQ-11, OQ-12, OQ-15 e OQ-16 (/plan-validate), registrado aqui porque o `**Decision:**` não chega ao `context.md` e o `/plan-build` lê esta prosa.
+
+### home-busca/TD-08
+
+**Recommendation:** Option B. É a única que entrega "layout responsivo" para a plataforma toda sem trocar a cota do Figma por frames de telas que, no mobile, só empilham o que já existe. O ponto em que a Option B é mais fraca, mobile argumentado e não observado, já foi aceito antes no projeto: na Fase 05, estados sem desenho foram implementados por padrão. A recomendação vem com um alerta de processo: home e resultados **também** não têm frame desktop. O `screen-inventory` desta fatia depende de desenhá-los de qualquer forma, então os frames mobile delas entram no mesmo lote.
+**Libraries:** —
+
+### home-busca/TD-09
+
+**Recommendation:** Option A nesta fatia, com a propagação do IP real (Option C) registrada como task separada. A Option B parece prudente, mas na topologia atual troca abuso por indisponibilidade geral. A Option C é a correção certa, mas o alcance é o throttler inteiro, e misturá-la aqui viola a regra de um escopo por vez. Quando ela existir, acrescentar `@Throttle` à home e à busca é uma Revision barata deste TD.
+**Libraries:** —
+
+**Revisions:**
+
+- 2026-10-11 — Decisão C, diferente da Recommendation A, que foi escrita antes da task `rate-limit-visitor-identity` (PRs #71 a #73). Essa task entregou a Option C por outro mecanismo:
+  - o BFF repassa `X-Client-IP` autenticado por `INTERNAL_API_SECRET` (`rate-limit-visitor-identity/TD-02`), em vez de `X-Forwarded-For` com `trust proxy`;
+  - o rastreador é `user:<sub>` para quem está logado e `ip:<ip>` para anônimo (`TD-03`);
+  - o default global virou o orçamento de leitura de 120 req/60 s por visitante (`TD-04`).
+  Home e busca ficam nesse default, sem decorator próprio, e esta fatia não tem SI de throttler. O Context deste TD, que descreve o teto de 10 req/min por IP, ficou superado. **Precedência (IC-1):** para rate limit valem `rate-limit-visitor-identity/TD-03` e `TD-04` sobre a prosa herdada de `phase-02-auth/TD-08` (default de 10/60 s por IP, `@SkipThrottle()` para exceções), `video-watch-page/TD-05` (o número de 30/60 s da view continua; o rastreador passa a ser por visitante) e `social-interactions/TD-09` (o rastreador por usuário já está aplicado). Rationale: resolve OQ-9 e IC-1 (/plan-validate).
 
 ## Inherited Decisions Detail
 

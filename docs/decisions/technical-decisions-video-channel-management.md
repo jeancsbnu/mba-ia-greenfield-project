@@ -324,6 +324,7 @@ _Subprojects in scope:_
 **Revisions:**
 
 - 2026-09-20 — As três rotas do canal autenticado (`/channel/videos`, `/videos/{publicId}/edit`, `/channel/settings`) compartilham um layout de route group autenticado com `SiteNavbar` e `UserMenu`; a rota dedicada da edição de vídeo continua a mesma (mesma Option A). O "Cancelar" da edição do canal navega para `/channel/videos`. Rationale: resolve OQ-17 e OQ-18 (/plan-validate) — o Figma só mostra o chrome no painel; o layout compartilhado evita duplicar a navbar e dá acesso ao logout nas telas de edição.
+- 2026-10-11 — A partir da Fase 07, as três rotas do canal autenticado deixam de ter uma `SiteNavbar` própria e passam a usar a navbar única da plataforma, montada em layout, com busca e navegação (`home-busca/TD-07`). A rota dedicada da edição de vídeo e o "Cancelar" da edição do canal não mudam (mesma Option A). Rationale: resolve AMB-1 do /plan-validate de `home-busca`.
 
 ---
 
