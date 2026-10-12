@@ -3,7 +3,7 @@ kind: phase
 name: phase-07-testes-producao
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-11T22:41:37-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:16:13-03:00"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "2026-10-08T19:04:24-03:00"
@@ -20,7 +20,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-testes-producao.md: "b1dc18c72cf0"
+  docs/decisions/technical-decisions-testes-producao.md: "349b5b293339"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "8d27d591df0e"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "0d1493a08793"
