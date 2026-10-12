@@ -1,16 +1,16 @@
 ---
 kind: phase
 name: phase-07-testes-producao
-status: dirty
+status: clean
 issue_count: 0
 sources_mtime:
-  docs/phases/phase-07-testes-producao/context.md: "2026-10-12T20:17:20-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:17:20-03:00"
+  docs/phases/phase-07-testes-producao/context.md: "2026-10-12T20:37:30-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:37:30-03:00"
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-home-busca.md: "2026-10-11T17:47:13-03:00"
 sources_hash:
-  docs/phases/phase-07-testes-producao/context.md: "5fe28e4011be"
-  docs/decisions/technical-decisions-testes-producao.md: "5ffc012066d0"
+  docs/phases/phase-07-testes-producao/context.md: "481c505d2d1c"
+  docs/decisions/technical-decisions-testes-producao.md: "951d54352361"
   docs/project-plan.md: "18d6466649bb"
   docs/decisions/technical-decisions-home-busca.md: "feda55ba3eed"
 issues:
