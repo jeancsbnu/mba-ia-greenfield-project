@@ -2,7 +2,7 @@
 kind: phase
 name: phase-07-testes-producao
 status: dirty
-issue_count: 2
+issue_count: 0
 sources_mtime:
   docs/phases/phase-07-testes-producao/context.md: "2026-10-12T20:17:20-03:00"
   docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:17:20-03:00"
@@ -95,11 +95,13 @@ issues:
     summary: "confirm-email direto do Caddy cai no balde ip:<caddy> de 10/60 s para todos"
     resolved_by: testes-producao/TD-07
   - id: IC-4
-    status: open
+    status: resolved
     summary: "TLS da CA interna + storage em origem separada: navegador bloqueia mídia"
+    resolved_by: testes-producao/TD-07
   - id: ICC-2
-    status: open
+    status: resolved
     summary: "Rota GET do BFF como destino do link contraria phase-02-auth-frontend/TD-07 (RSC)"
+    resolved_by: testes-producao/TD-07
 advisories: []
 ---
 
@@ -109,14 +111,7 @@ advisories: []
 
 ### Inconsistencies
 
-- **IC-4** — A combinação de TLS pela CA interna com o storage numa origem separada bloqueia a mídia no navegador. Os pontos em conflito:
-  - a 1ª Revision do TD-07 diz que, "sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy";
-  - a 2ª Revision do TD-07 e a do TD-05 dizem que o Caddy serve o storage "num endereço próprio (host ou porta separados)", e é esse endereço que vai nas URLs assinadas.
-
-  O navegador só oferece aceitar um certificado não confiável na navegação da página principal. `<img>` e `<video>` de outra origem com certificado da CA interna falham sem aviso. O Caddy em container também não instala a própria CA raiz no host. Na prática, vídeos e thumbnails não carregam até que alguém confie manualmente na CA. Explicit choice:
-  - (a) a stack local serve **só HTTP em `localhost`** (sem TLS, já que não há domínio). O cookie de sessão `secure` em produção (`next-frontend/lib/auth/session.ts`) continua aceito, porque os navegadores tratam `localhost` como contexto seguro. É uma Revision no TD-07;
-  - (b) mantém a CA interna e documenta, como passo de setup, exportar a CA raiz do Caddy (do volume de dados dele) e instalá-la no host. A suíte usa `ignoreHTTPSErrors`. É uma Revision no TD-07;
-  - (c) volta o storage para um path da mesma origem, com um prefixo que não colida com `/videos/{publicId}`. Isso reverte o IC-1 e é uma Revision no TD-05 e no TD-07.
+_None._
 
 ### Ambiguities
 
@@ -132,14 +127,7 @@ _None._
 
 ### Inherited Constraint Conflicts
 
-- **ICC-2** — A rota de confirmação no BFF contraria a decisão herdada sobre o destino do link de confirmação:
-  - a 2ª Revision do TD-07 (resolve ICC-1) faz o link apontar para uma **rota `GET` do BFF** em `/auth/confirm-email`, que repassa a confirmação à API e redireciona para `/login`;
-  - `phase-02-auth-frontend/TD-07` decidiu que "confirmation is RSC-only" e rejeitou essa forma: "Option B's Route-Handler-as-link-target adds redirects for no clean gain".
-
-  A tela RSC de confirmação está adiada (`## Inherited Deferred Capabilities`, `phase-02-auth-frontend`), e por isso esta fatia não tem UI para implementá-la. Explicit choice:
-  - (a) manter a rota do BFF como **ponte até a tela adiada existir**. Uma Revision no TD-07 desta fatia registra a divergência e diz que a página RSC substitui a rota quando a tela de confirmação for entregue, sem mudar o link;
-  - (b) implementar a página RSC de confirmação agora, conforme a decisão herdada. É uma superfície de UI sem desenho e exige `/screen-inventory` e escopo de UI, fora desta fatia;
-  - (c) registrar uma Revision em `phase-02-auth-frontend/TD-07` trocando a decisão para a Route Handler.
+_None._
 
 ### Unresolved Open Questions
 
@@ -179,3 +167,5 @@ _None._ _(a união das duas fatias cobre as 8 bullets da Fase 07: 6 em `home-bus
 - **IC-2** _(resolved_by testes-producao/TD-08)_ — Mailpit da stack de produção sem caminho de acesso (UI e API da suíte). Opção (a): a UI e a API HTTP do Mailpit ficam publicadas no host, fora do Caddy, como no dev; o SMTP fica só na rede interna (Revisions do TD-08 e do TD-07).
 - **IC-3** _(resolved_by testes-producao/TD-02)_ — Suíte com ambiente zerado sobe sobre o compose de produção e apaga seus dados. Opção (a): a suíte sobe o mesmo compose de produção com outro nome de projeto (`-p`), com volumes e portas próprios, e o derruba ao fim; a stack de produção nunca é tocada (Revision do TD-02).
 - **ICC-1** _(resolved_by testes-producao/TD-07)_ — confirm-email direto do Caddy cai no balde ip:<caddy> de 10/60 s para todos. Opção (a): o link de confirmação aponta para uma rota `GET` do BFF no mesmo path `/auth/confirm-email`, que repassa à API com `X-Client-IP` e o token e redireciona para `/login`; o Caddy não expõe nenhuma rota da API (Revision do TD-07).
+- **IC-4** _(resolved_by testes-producao/TD-07)_ — TLS da CA interna + storage em origem separada: navegador bloqueia mídia. Opção (a): a stack local é servida só em HTTP em `localhost`, com o storage numa porta própria do Caddy, sem a CA interna. O cookie `secure` segue aceito em localhost; o limite assumido é usar a stack só da própria máquina (Revision do TD-07).
+- **ICC-2** _(resolved_by testes-producao/TD-07)_ — Rota GET do BFF como destino do link contraria phase-02-auth-frontend/TD-07 (RSC). Opção (a): a rota GET do BFF fica como ponte até a tela de confirmação adiada; a página RSC ocupará o mesmo path `/auth/confirm-email` sem mudar o link, e o `/plan-build` confirma que a confirmação no backend é idempotente (Revision do TD-07).

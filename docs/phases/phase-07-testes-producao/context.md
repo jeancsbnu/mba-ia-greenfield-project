@@ -3,7 +3,7 @@ kind: phase
 name: phase-07-testes-producao
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:09:12-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:30:56-03:00"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "2026-10-08T19:04:24-03:00"
@@ -20,7 +20,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-testes-producao.md: "5ffc012066d0"
+  docs/decisions/technical-decisions-testes-producao.md: "951d54352361"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "8d27d591df0e"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "0d1493a08793"
@@ -84,14 +84,14 @@ sources_hash:
 | testes-producao/TD-02 | phase | Repo-wide | Dados e estado da suíte full-stack | decided | A | — | — |
 |     └─ Last revision: 2026-10-12 — Isolamento da suíte fixado no resolve (mesma Option A; resolve IC-3, opção a):… | | | | | | | |
 | testes-producao/TD-03 | phase | Repo-wide | Pipeline de CI | decided | B | — | — |
-|     └─ Last revision: 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a fras… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a… | | | | | | | |
 | testes-producao/TD-04 | phase | Repo-wide | Plataforma de hospedagem | decided | A | — | — |
-|     └─ Last revision: 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do r… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do… | | | | | | | |
 | testes-producao/TD-05 | phase | Cross-layer | Armazenamento de objetos em produção | decided | A | — | — |
 |     └─ Last revision: 2026-10-12 — Endpoint público de assinatura (mesma Option A; resolve IC-1, opção a). Hoje o… | | | | | | | |
 | testes-producao/TD-06 | phase | Backend | Execução das migrations em produção | decided | A | — | — |
 | testes-producao/TD-07 | phase | Repo-wide | Proxy reverso, TLS e superfície pública | decided | A | — | — |
-|     └─ Last revision: 2026-10-12 — Superfície pública revista no resolve (mesma Option A; resolve IC-1, IC-2 e ICC… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Rota de confirmação como ponte (mesma Option A; resolve ICC-2, opção a). A rota… | | | | | | | |
 | testes-producao/TD-08 | phase | Backend | Envio de e-mail transacional em produção | decided | C | — | — |
 |     └─ Last revision: 2026-10-12 — Acesso ao Mailpit fixado no resolve (mesma Option C; resolve IC-2, opção a): a… | | | | | | | |
 | testes-producao/TD-09 | phase | Repo-wide | Build das imagens, entrega e segredos | decided | B | — | — |
@@ -187,6 +187,8 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
   - **nenhuma rota da API é exposta.** O link de confirmação aponta para uma rota `GET` do **BFF** no mesmo path `/auth/confirm-email` (assim o `mail.service.ts` e o `APP_URL` na origem do Caddy não mudam). Ela repassa a confirmação à API com `X-Client-IP` e `X-Internal-Token`, como as demais rotas do BFF (`rate-limit-visitor-identity/TD-02`), e redireciona para `/login` em vez de devolver o 204 em branco. O rate limit de 10/60 s volta a contar por visitante, e não mais pelo IP do container do Caddy (ICC-1);
   - **o Caddy também serve o storage** num endereço próprio (host ou porta separados), fazendo proxy para o MinIO e preservando o `Host`. Não é um path da mesma origem: com URLs path-style, o bucket `videos` colidiria com a rota `/videos/{publicId}` do front. É esse endereço que a API usa para assinar (TD-05, IC-1);
   - **o Mailpit publica a própria porta** de UI e API no host, fora do Caddy, como no dev (TD-08, IC-2). O Caddy deixa de ser o único serviço publicado: são ele e o Mailpit.
+- 2026-10-12 — Sem TLS na stack local (mesma Option A; resolve IC-4, opção a), substituindo o item de TLS da 1ª Revision: o Caddy serve a stack em **HTTP em `localhost`** (endereço `http://`, sem a CA interna) e o storage numa porta própria do mesmo host, também em HTTP. Com isso, a mídia de outra origem não esbarra em certificado não confiável. O cookie de sessão `secure` em produção (`next-frontend/lib/auth/session.ts`) continua aceito, porque os navegadores tratam `localhost` como contexto seguro. O `APP_URL` passa a ser a origem `http://localhost` do Caddy. A frase da Recommendation sobre "TLS automático" deixa de valer. **Limite assumido:** a stack só é usável a partir da própria máquina; por IP da rede local, o cookie `secure` seria recusado.
+- 2026-10-12 — Rota de confirmação como ponte (mesma Option A; resolve ICC-2, opção a). A rota `GET /auth/confirm-email` do BFF da Revision anterior diverge de `phase-02-auth-frontend/TD-07`, que decidiu uma página RSC e rejeitou rota como destino do link. A divergência é consciente: a tela de confirmação está adiada (`phase-02-auth-frontend`) e esta fatia não tem escopo de UI. A rota é uma **ponte**: quando a tela for entregue, a página RSC ocupa o mesmo path `/auth/confirm-email` e a rota sai, sem mudar o link do e-mail. Como uma visita ao link já confirma a conta, vale o que a decisão herdada pressupõe e deixa para o `/plan-build` confirmar: a confirmação no backend precisa ser idempotente, por causa de leitores de e-mail que pré-carregam links.
 
 ### testes-producao/TD-08
 
