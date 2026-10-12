@@ -11,7 +11,7 @@ export default function ChannelVideosError({
   reset: () => void
 }) {
   return (
-    <div className="flex flex-col items-center gap-4 px-12 py-24 text-center">
+    <div className="flex flex-col items-center gap-4 px-4 py-24 lg:px-12 text-center">
       <h1 className="text-h2 text-foreground">
         Não foi possível carregar seus vídeos
       </h1>

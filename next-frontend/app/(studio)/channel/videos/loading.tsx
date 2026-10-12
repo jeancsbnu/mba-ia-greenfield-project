@@ -2,7 +2,7 @@
 // layout quando os dados chegam.
 export default function ChannelVideosLoading() {
   return (
-    <div className="flex flex-col gap-6 px-12 py-12">
+    <div className="flex flex-col gap-6 px-4 py-12 lg:px-12">
       <div className="flex items-center justify-between">
         <div className="h-8 w-56 animate-pulse rounded-[var(--radius-2)] bg-muted" />
         <div className="h-10 w-44 animate-pulse rounded-[var(--radius-3)] bg-muted" />

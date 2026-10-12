@@ -15,7 +15,7 @@ export default async function LoginPage({
   const returnTo = Array.isArray(raw) ? raw[0] : raw
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-background px-6 py-10">
+    <main className="flex flex-1 items-center justify-center bg-background px-4 py-10 lg:px-12">
       <Card className="w-full max-w-[448px] items-center gap-6 px-6 py-10">
         <BrandLogo size="lg" />
 

@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { VideoCard } from "@/components/videos/video-card"
@@ -68,15 +67,14 @@ function SidebarLoadMore({
         <ul className="flex flex-col gap-3.5">
           {extraItems.map((item) => (
             <li key={item.publicId}>
-              <Link href={`/videos/${item.publicId}`}>
-                <VideoCard
-                  title={item.title}
-                  thumbnailUrl={item.thumbnailUrl}
-                  durationSeconds={item.durationSeconds}
-                  viewsCount={item.viewsCount}
-                  publishedAt={formatRelativeDate(item.publishedAt).label}
-                />
-              </Link>
+              <VideoCard
+                publicId={item.publicId}
+                title={item.title}
+                thumbnailUrl={item.thumbnailUrl}
+                durationSeconds={item.durationSeconds}
+                viewsCount={item.viewsCount}
+                publishedAt={formatRelativeDate(item.publishedAt).label}
+              />
             </li>
           ))}
         </ul>

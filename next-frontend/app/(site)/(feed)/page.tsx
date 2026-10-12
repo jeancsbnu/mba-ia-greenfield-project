@@ -1,65 +1,96 @@
-import Image from "next/image";
+import Link from "next/link"
 
-export default function Home() {
+import { CategoryFilter } from "@/components/videos/category-filter"
+import { FeedPagination } from "@/components/videos/feed-pagination"
+import { VideoGrid } from "@/components/videos/video-grid"
+import type {
+  VideoCategory,
+  VideoFeedPage,
+  VideoFeedQuery,
+} from "@/lib/api/contracts"
+import { upstream } from "@/lib/api/upstream"
+import {
+  FEED_PAGE_SIZE,
+  parsePage,
+  toOffset,
+  totalPages,
+} from "@/lib/pagination"
+import { VIDEO_CATEGORIES } from "@/lib/videos/edit-schema"
+
+// A categoria vem da URL, editável à mão. Fora do enum é ignorada e a home
+// lista sem filtro: um 400 aqui seria hostil sem ganho, o mesmo critério do
+// parsePage (home-busca/TD-01, Revision de 2026-10-11).
+function parseCategory(raw: string | string[] | undefined): VideoCategory | null {
+  const value = Array.isArray(raw) ? raw[0] : raw
+  return VIDEO_CATEGORIES.find((category) => category === value) ?? null
+}
+
+function homeHref(category: VideoCategory | null, page: number): string {
+  const params = new URLSearchParams()
+  if (category) params.set("category", category)
+  if (page > 1) params.set("page", String(page))
+  const query = params.toString()
+  return query ? `/?${query}` : "/"
+}
+
+// Página inicial: Server Component que lê `GET /videos` direto do upstream,
+// sem rota BFF (home-busca/TD-01), por recência e 12 por página
+// (home-busca/TD-02 e TD-03). Uma falha do upstream lança para o error.tsx da
+// listagem.
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const category = parseCategory(params.category)
+  const page = parsePage(params.page)
+
+  const query: VideoFeedQuery = {
+    offset: toOffset(page, FEED_PAGE_SIZE),
+    limit: FEED_PAGE_SIZE,
+    ...(category ? { category } : {}),
+  }
+  const { data, error } = await upstream.GET("/videos", {
+    params: { query },
+  })
+  if (error || !data) {
+    throw new Error("Falha ao carregar a listagem de vídeos")
+  }
+  const feed: VideoFeedPage = data
+  const lastPage = totalPages(feed.total, FEED_PAGE_SIZE)
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-1 flex-col gap-6 py-8">
+      <CategoryFilter current={category} />
+
+      {feed.total === 0 ? (
+        category ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <p className="text-body-lg text-muted-foreground">
+              {`Nenhum vídeo em ${category}.`}
+            </p>
+            <Link href="/" className="text-label-md text-link hover:underline">
+              Ver todos os vídeos
+            </Link>
+          </div>
+        ) : (
+          <p className="py-16 text-center text-body-lg text-muted-foreground">
+            Nenhum vídeo publicado ainda.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        )
+      ) : (
+        <>
+          <VideoGrid items={feed.items} />
+          {lastPage > 1 ? (
+            <FeedPagination
+              page={page}
+              lastPage={lastPage}
+              hrefFor={(target) => homeHref(category, target)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          ) : null}
+        </>
+      )}
     </div>
-  );
+  )
 }

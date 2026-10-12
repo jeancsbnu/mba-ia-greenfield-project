@@ -151,3 +151,16 @@ export type SubscribedChannelsPage =
   paths["/me/subscriptions"]["get"]["responses"][200]["content"]["application/json"];
 
 export type SubscribedChannel = SubscribedChannelsPage["items"][number];
+
+// ─── Listagem global (Fase 07) ──────────────────────────────────────────────
+
+// Home, filtro por categoria e busca no mesmo endpoint (home-busca/TD-01). O
+// item tem a forma da sugestão: já credita o canal.
+export type VideoFeedPage =
+  paths["/videos"]["get"]["responses"][200]["content"]["application/json"];
+
+export type VideoFeedItem = VideoFeedPage["items"][number];
+
+export type VideoFeedQuery = NonNullable<
+  paths["/videos"]["get"]["parameters"]["query"]
+>;

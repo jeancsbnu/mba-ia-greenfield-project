@@ -1,6 +1,6 @@
 export default function ChannelSettingsLoading() {
   return (
-    <div className="flex justify-center px-8 py-12">
+    <div className="flex justify-center px-4 py-12 lg:px-8">
       <div
         role="status"
         aria-busy="true"

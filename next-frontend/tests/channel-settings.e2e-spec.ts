@@ -1,4 +1,4 @@
-import { expect, login, test } from "./fixtures"
+import { expect, login, test, waitForHydration } from "./fixtures"
 
 // Spec: next-frontend/specs/channel-settings.plan.md (SI-04.13b)
 // O login user@example.com dá acesso ao canal joana_cria; o valor de nickname
@@ -7,6 +7,7 @@ test.describe("channel-settings", () => {
   test.beforeEach(async ({ page }) => {
     await login(page, "user@example.com")
     await page.goto("/channel/settings")
+    await waitForHydration(page, "input[name='nickname']")
   })
 
   // 1. Editar as configurações públicas do canal

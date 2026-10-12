@@ -1,8 +1,6 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ChannelHeader } from "@/components/channels/channel-header"
-import { PublicSiteNavbar } from "@/components/layout/public-site-navbar"
 import {
   Pagination,
   PaginationContent,
@@ -73,81 +71,76 @@ export default async function PublicChannelPage({
   const basePath = `/@${nickname}`
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <PublicSiteNavbar loginVariant="outline" />
+    <div className="flex flex-1 flex-col gap-6 py-12">
+      <ChannelHeader
+        name={channel.name}
+        nickname={channel.nickname}
+        description={channel.description}
+        videosCount={channel.videosCount}
+        subscribersCount={channel.subscribersCount}
+        viewerSubscribed={channel.viewerSubscribed}
+        isAuthenticated={isAuthenticated}
+      />
 
-      <main className="flex flex-1 flex-col gap-6 px-12 py-12">
-        <ChannelHeader
-          name={channel.name}
-          nickname={channel.nickname}
-          description={channel.description}
-          videosCount={channel.videosCount}
-          subscribersCount={channel.subscribersCount}
-          viewerSubscribed={channel.viewerSubscribed}
-          isAuthenticated={isAuthenticated}
-        />
+      <hr className="border-border" />
 
-        <hr className="border-border" />
+      {videos.items.length === 0 ? (
+        <p className="py-16 text-center text-body-lg text-muted-foreground">
+          Este canal ainda não tem vídeos publicados
+        </p>
+      ) : (
+        <>
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {videos.items.map((video) => (
+              <li key={video.publicId}>
+                <VideoCard
+                  publicId={video.publicId}
+                  title={video.title}
+                  thumbnailUrl={video.thumbnailUrl}
+                  durationSeconds={video.durationSeconds}
+                  viewsCount={video.viewsCount}
+                  publishedAt={formatRelativeDate(video.publishedAt).label}
+                />
+              </li>
+            ))}
+          </ul>
 
-        {videos.items.length === 0 ? (
-          <p className="py-16 text-center text-body-lg text-muted-foreground">
-            Este canal ainda não tem vídeos publicados
-          </p>
-        ) : (
-          <>
-            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {videos.items.map((video) => (
-                <li key={video.publicId}>
-                  <Link href={`/videos/${video.publicId}`}>
-                    <VideoCard
-                      title={video.title}
-                      thumbnailUrl={video.thumbnailUrl}
-                      durationSeconds={video.durationSeconds}
-                      viewsCount={video.viewsCount}
-                      publishedAt={formatRelativeDate(video.publishedAt).label}
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            {lastPage > 1 ? (
-              <Pagination className="justify-end">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href={`${basePath}?page=${String(page - 1)}`}
-                      aria-disabled={page <= 1}
-                      className={
-                        page > 1 ? undefined : "pointer-events-none opacity-50"
-                      }
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink
-                      href={`${basePath}?page=${String(page)}`}
-                      isActive
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      href={`${basePath}?page=${String(page + 1)}`}
-                      aria-disabled={page >= lastPage}
-                      className={
-                        page < lastPage
-                          ? undefined
-                          : "pointer-events-none opacity-50"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            ) : null}
-          </>
-        )}
-      </main>
+          {lastPage > 1 ? (
+            <Pagination className="justify-end">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={`${basePath}?page=${String(page - 1)}`}
+                    aria-disabled={page <= 1}
+                    className={
+                      page > 1 ? undefined : "pointer-events-none opacity-50"
+                    }
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink
+                    href={`${basePath}?page=${String(page)}`}
+                    isActive
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href={`${basePath}?page=${String(page + 1)}`}
+                    aria-disabled={page >= lastPage}
+                    className={
+                      page < lastPage
+                        ? undefined
+                        : "pointer-events-none opacity-50"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          ) : null}
+        </>
+      )}
     </div>
   )
 }

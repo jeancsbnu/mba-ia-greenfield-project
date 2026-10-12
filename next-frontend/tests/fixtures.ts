@@ -37,3 +37,23 @@ export async function login(page: Page, email: string): Promise<void> {
 
   expect((await response).status()).toBe(200);
 }
+
+/**
+ * Espera o React hidratar o elemento, olhando as props que o React anexa ao
+ * nó do DOM. Um `fill` antes disso pode ser apagado: o `register` do
+ * react-hook-form reescreve o valor padrão quando monta, e o que foi digitado
+ * se perde sem erro nenhum. A navbar é Client Component em toda tela, então a
+ * hidratação demora o bastante para essa corrida aparecer com 2 workers.
+ */
+export async function waitForHydration(
+  page: Page,
+  selector: string
+): Promise<void> {
+  await page.waitForFunction((css) => {
+    const element = document.querySelector(css);
+    return (
+      element !== null &&
+      Object.keys(element).some((key) => key.startsWith("__reactProps"))
+    );
+  }, selector);
+}

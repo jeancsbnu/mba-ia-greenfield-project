@@ -132,3 +132,67 @@ export const buildSuggestedVideoListItem = (
   ...baseSuggestedVideoListItem,
   ...overrides,
 });
+
+// ─── Listagem global (Fase 07) ──────────────────────────────────────────────
+
+export type VideoFeedItem =
+  paths["/videos"]["get"]["responses"][200]["content"]["application/json"]["items"][number];
+
+type VideoCategory = NonNullable<
+  NonNullable<paths["/videos"]["get"]["parameters"]["query"]>["category"]
+>;
+
+// Mesma ordem do enum do backend. O catálogo usa `i % 7`, então "Outros" fica
+// vazia de propósito: é a categoria que exercita a home sem resultados.
+const FEED_CATEGORIES: VideoCategory[] = [
+  "Música",
+  "Jogos",
+  "Educação",
+  "Entretenimento",
+  "Notícias",
+  "Esportes",
+  "Tecnologia",
+  "Outros",
+];
+
+const FEED_CHANNELS = [
+  { nickname: "joana_cria", name: "Joana Cria" },
+  { nickname: "docker_brasil", name: "Docker Brasil" },
+  { nickname: "tech_com_nina", name: "Tech com Nina" },
+] as const;
+
+const FEED_TITLES: Record<number, string> = {
+  1: "Música ao vivo",
+  3: "Docker na prática",
+  6: "Docker Compose do zero",
+  9: "Docker em produção",
+};
+
+export const FEED_TOTAL = 30;
+const FEED_NEWEST = Date.UTC(2026, 9, 10, 12, 0, 0);
+const HOUR = 3_600_000;
+
+/**
+ * Catálogo determinístico da listagem global (SI-07.4), do mais novo ao mais
+ * antigo: `feed-1` … `feed-30`. `q=docker` casa 10 vídeos pelo canal
+ * `docker_brasil` e 3 pelo título (13, duas páginas de 12); `q=musica` casa só
+ * "Música ao vivo"; "Música" tem 5 vídeos e "Outros", nenhum.
+ */
+export function buildFeedCatalog(): VideoFeedItem[] {
+  return Array.from({ length: FEED_TOTAL }, (_unused, i) => {
+    const n = i + 1;
+    return buildSuggestedVideoListItem({
+      publicId: `feed-${n}`,
+      title: FEED_TITLES[n] ?? `Vídeo ${n}`,
+      viewsCount: 1000 + n * 37,
+      durationSeconds: 60 + n * 11,
+      publishedAt: new Date(FEED_NEWEST - i * HOUR).toISOString(),
+      channel: { ...FEED_CHANNELS[i % 3] },
+    });
+  });
+}
+
+export const feedCategoryOf = (publicId: string): VideoCategory => {
+  const i = Number(publicId.replace("feed-", "")) - 1;
+  return FEED_CATEGORIES[i % 7];
+};

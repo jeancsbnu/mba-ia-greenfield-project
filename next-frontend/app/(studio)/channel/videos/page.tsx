@@ -73,7 +73,7 @@ export default async function ChannelVideosPage({
   const hasNext = page < lastPage
 
   return (
-    <div className="flex flex-col gap-6 px-12 py-12">
+    <div className="flex flex-col gap-6 px-4 py-12 lg:px-12">
       <div className="flex items-center justify-between">
         <h1 className="text-h1 uppercase text-foreground">Seus vídeos</h1>
 

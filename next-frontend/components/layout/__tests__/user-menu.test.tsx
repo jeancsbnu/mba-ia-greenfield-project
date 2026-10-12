@@ -5,31 +5,33 @@ import { vi, describe, it, expect } from "vitest";
 
 import { UserMenu } from "../user-menu";
 
-// Avatar + "Sair" como unidade dona do logout. A chamada ao endpoint é injetada
-// por quem renderiza (SI-04.10).
+const PROPS = { channelName: "Joana Cria", nickname: "joana_cria" };
+
+// Avatar como "Seu canal" + "Sair" (home-busca/TD-07, Revision de 2026-10-11).
+// O logout é injetado por quem renderiza.
 describe("UserMenu", () => {
   it("shows the channel initials in the avatar", () => {
-    render(<UserMenu channelName="Joana Cria" />);
+    render(<UserMenu {...PROPS} />);
     expect(screen.getByText("JC")).toBeInTheDocument();
   });
 
-  it("labels the avatar with the channel name", () => {
-    render(<UserMenu channelName="Joana Cria" />);
-    expect(document.querySelector("[data-slot='avatar']")).toHaveAttribute(
-      "aria-label",
-      "Joana Cria"
-    );
+  it("uses a single initial for a one-word channel name", () => {
+    render(<UserMenu {...PROPS} channelName="Joana" />);
+    expect(screen.getByText("J")).toBeInTheDocument();
   });
 
-  it("uses a single initial for a one-word channel name", () => {
-    render(<UserMenu channelName="Joana" />);
-    expect(screen.getByText("J")).toBeInTheDocument();
+  it("links the avatar to the viewer's own channel as Seu canal", () => {
+    render(<UserMenu {...PROPS} />);
+
+    const link = screen.getByRole("link", { name: "Seu canal" });
+    expect(link).toHaveAttribute("href", "/@joana_cria");
+    expect(link).toContainElement(screen.getByText("JC"));
   });
 
   it("calls onSignOut when the user clicks Sair", async () => {
     const user = userEvent.setup();
     const onSignOut = vi.fn();
-    render(<UserMenu channelName="Joana Cria" onSignOut={onSignOut} />);
+    render(<UserMenu {...PROPS} onSignOut={onSignOut} />);
 
     await user.click(screen.getByRole("button", { name: "Sair" }));
 
@@ -39,9 +41,7 @@ describe("UserMenu", () => {
   it("disables Sair while signing out", async () => {
     const user = userEvent.setup();
     const onSignOut = vi.fn();
-    render(
-      <UserMenu channelName="Joana Cria" isSigningOut onSignOut={onSignOut} />
-    );
+    render(<UserMenu {...PROPS} isSigningOut onSignOut={onSignOut} />);
 
     const button = screen.getByRole("button", { name: "Sair" });
     expect(button).toBeDisabled();

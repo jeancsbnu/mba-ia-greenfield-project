@@ -4,6 +4,9 @@ export const OWNER_PAGE_SIZE = 10
 /** Itens por página da vitrine pública — grid, não tabela (TD-06). */
 export const PUBLIC_PAGE_SIZE = 8
 
+/** Itens por página da home e dos resultados da busca (home-busca/TD-02). */
+export const FEED_PAGE_SIZE = 12
+
 /**
  * Normaliza o `page` da query string para um inteiro ≥ 1.
  *
