@@ -151,6 +151,10 @@ A decisão é onde essa prova mora.
 
 **Decision:** A (ambiente zerado por execução; cada jornada cria os próprios dados — cadastro confirmado pelo link lido na API do Mailpit e upload de um vídeo-fixture curto versionado no repositório). (resolve OQ-2 do /plan-validate)
 
+**Revisions:**
+
+- 2026-10-12 — Isolamento da suíte fixado no resolve (mesma Option A; resolve IC-3, opção a): a suíte sobe o **mesmo** compose de produção da raiz com outro nome de projeto (`docker compose -p …`), com volumes próprios e portas publicadas próprias (Caddy e Mailpit, por env), e o derruba com os volumes ao terminar. Assim o "ambiente zerado por execução" vale só para o projeto da suíte, e a stack de produção local nunca é tocada; as duas podem rodar ao mesmo tempo.
+
 ---
 
 ## TD-03: Pipeline de CI
@@ -257,6 +261,7 @@ A decisão é onde essa prova mora.
 **Revisions:**
 
 - 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b: sem servidor externo, não há conta de storage em nuvem. O MinIO roda no compose de produção da raiz, com volume próprio, bucket e credenciais por env. O endpoint público usado nas URLs pré-assinadas e nas thumbnails continua parametrizado por env, como no dev. O código S3-compatível de `upload-processing/TD-01` não muda.
+- 2026-10-12 — Endpoint público de assinatura (mesma Option A; resolve IC-1, opção a). Hoje o `StorageService` assina com o mesmo client que usa internamente (`MINIO_ENDPOINT`/`MINIO_PORT` → `http://minio:9000`), e o navegador não resolve esse host. A API passa a ter um endpoint público **só para assinar** URLs, separado do endpoint interno usado para ler e gravar. Esse endpoint aponta para o endereço com que o Caddy serve o storage (TD-07), que repassa o `Host` original, o mesmo que foi assinado. Sem o endpoint público configurado, o comportamento de dev continua igual.
 
 ---
 
@@ -329,6 +334,10 @@ A decisão é onde essa prova mora.
   - sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy.
 
   A recuperação de senha fica como **lacuna conhecida e documentada**: o link de reset (`/auth/reset-password`, que só aceita `POST`) continua sem destino, e a tela de nova senha segue adiada (`phase-02-auth-frontend`).
+- 2026-10-12 — Superfície pública revista no resolve (mesma Option A; resolve IC-1, IC-2 e ICC-1), substituindo os dois primeiros itens da Revision anterior:
+  - **nenhuma rota da API é exposta.** O link de confirmação aponta para uma rota `GET` do **BFF** no mesmo path `/auth/confirm-email` (assim o `mail.service.ts` e o `APP_URL` na origem do Caddy não mudam). Ela repassa a confirmação à API com `X-Client-IP` e `X-Internal-Token`, como as demais rotas do BFF (`rate-limit-visitor-identity/TD-02`), e redireciona para `/login` em vez de devolver o 204 em branco. O rate limit de 10/60 s volta a contar por visitante, e não mais pelo IP do container do Caddy (ICC-1);
+  - **o Caddy também serve o storage** num endereço próprio (host ou porta separados), fazendo proxy para o MinIO e preservando o `Host`. Não é um path da mesma origem: com URLs path-style, o bucket `videos` colidiria com a rota `/videos/{publicId}` do front. É esse endereço que a API usa para assinar (TD-05, IC-1);
+  - **o Mailpit publica a própria porta** de UI e API no host, fora do Caddy, como no dev (TD-08, IC-2). O Caddy deixa de ser o único serviço publicado: são ele e o Mailpit.
 
 ---
 
@@ -364,6 +373,7 @@ A decisão é onde essa prova mora.
 **Revisions:**
 
 - 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das três do research. Ela foi registrada como C (servidor SMTP próprio no host, sem terceiros) por ser a mais próxima, com uma diferença: o Mailpit **captura e não entrega**, e os e-mails são lidos na UI dele. Sem servidor externo (AMB-2 b), nenhum e-mail sai de verdade. O transporte de `phase-02-auth/TD-05` (host, porta, `secure`, `auth`) fica todo em env, então trocar por um relay real seria só configuração. A Recommendation A (relay de provedor) não se aplica.
+- 2026-10-12 — Acesso ao Mailpit fixado no resolve (mesma Option C; resolve IC-2, opção a): a UI e a API HTTP do Mailpit ficam publicadas no host, fora do Caddy, como no dev. O SMTP fica só na rede interna do compose. É por essa API que a suíte do TD-01, rodando no host, lê o link de confirmação; o projeto Compose da suíte usa uma porta própria (TD-02).
 
 ---
 

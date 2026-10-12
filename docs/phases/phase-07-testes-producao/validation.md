@@ -2,7 +2,7 @@
 kind: phase
 name: phase-07-testes-producao
 status: dirty
-issue_count: 4
+issue_count: 0
 sources_mtime:
   docs/phases/phase-07-testes-producao/context.md: "2026-10-12T19:50:53-03:00"
   docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:50:53-03:00"
@@ -79,17 +79,21 @@ issues:
     summary: "TD-11 pending — backup e recuperação dos dados"
     resolved_by: testes-producao/TD-11
   - id: IC-1
-    status: open
+    status: resolved
     summary: "Storage inalcançável pelo navegador: Caddy único publicado e URL assinada com minio:9000"
+    resolved_by: testes-producao/TD-05
   - id: IC-2
-    status: open
+    status: resolved
     summary: "Mailpit da stack de produção sem caminho de acesso (UI e API da suíte)"
+    resolved_by: testes-producao/TD-08
   - id: IC-3
-    status: open
+    status: resolved
     summary: "Suíte com ambiente zerado sobe sobre o compose de produção e apaga seus dados"
+    resolved_by: testes-producao/TD-02
   - id: ICC-1
-    status: open
+    status: resolved
     summary: "confirm-email direto do Caddy cai no balde ip:<caddy> de 10/60 s para todos"
+    resolved_by: testes-producao/TD-07
 advisories: []
 ---
 
@@ -99,23 +103,7 @@ advisories: []
 
 ### Inconsistencies
 
-- **IC-1** — A superfície pública do TD-07 deixa o storage inalcançável para o navegador, e o TD-05 supõe um endpoint público que o código não tem. Os pontos em conflito:
-  - a Revision do TD-07 diz "Caddy como único serviço publicado" e "todo o tráfego vai para o BFF, exceto `GET /auth/confirm-email`";
-  - pelo `upload-processing/TD-08`, o navegador busca vídeo e thumbnail **direto no storage** por URL pré-assinada;
-  - a Revision do TD-05 diz que "o endpoint público usado nas URLs pré-assinadas e nas thumbnails continua parametrizado por env, como no dev".
-
-  O código não confirma essa premissa. `nestjs-project/src/config/storage.config.ts` tem um só `MINIO_ENDPOINT`/`MINIO_PORT`, e `src/storage/storage.service.ts` assina com o mesmo client que a API usa internamente (`endpoint: http://${minioEndpoint}:${minioPort}`, `forcePathStyle`). Em produção isso gera URLs `http://minio:9000/…`, que o navegador não resolve, e nenhum serviço além do Caddy publica porta. Explicit choice:
-  - (a) o Caddy também serve o storage (um site ou path próprio na mesma origem), e a API ganha um endpoint público **só para assinar**, separado do endpoint interno. É uma mudança pequena no `StorageService`, registrada como Revision no TD-05 e no TD-07;
-  - (b) o MinIO publica a própria porta no host, ao lado do Caddy, e a API assina com esse endereço público (`localhost:9000`). Também exige o endpoint de assinatura separado, porque o container da API não alcança `localhost` do host. O "único serviço publicado" do TD-07 deixa de valer;
-  - (c) a mídia passa a ser servida pelo BFF, o que contraria `upload-processing/TD-08` e exige `/research` para um TD novo.
-- **IC-2** — O Mailpit da stack de produção não tem caminho de acesso. A Revision do TD-08 diz que os e-mails "são lidos na UI dele", e o TD-02 diz que a suíte confirma o cadastro "pelo link lido na API do Mailpit". Mas o TD-07 publica só o Caddy, e a superfície dele não inclui o Mailpit. Explicit choice:
-  - (a) o Mailpit publica a própria porta (UI e API) no host, fora do Caddy, como no dev;
-  - (b) o Caddy roteia a UI e a API do Mailpit num site ou path próprio;
-  - (c) a suíte roda num container dentro da rede do compose e lê o Mailpit pelo nome do serviço, e a UI fica acessível só por `docker compose port`/exec, sem publicação.
-- **IC-3** — Rodar a suíte zera a stack de produção. O TD-02 decide "ambiente zerado por execução", e a Revision do TD-04 diz que "a suíte full-stack do TD-01 sobe sobre esse mesmo compose". Executar a suíte apaga os dados da stack de produção local: banco, vídeos no MinIO e e-mails. O TD-11 C aceita a perda acidental dos volumes, mas não uma limpeza a cada execução da suíte. Explicit choice:
-  - (a) a suíte usa o mesmo arquivo de compose num **projeto Compose separado** (`-p`, com volumes e portas próprios), e a stack de produção fica intacta. É uma Revision no TD-02;
-  - (b) aceitar que a suíte recria a stack de produção do zero, já que ela é só local e não guarda dados que importam. É uma Revision no TD-11;
-  - (c) a suíte sobe a mesma topologia num compose de teste à parte, derivado do de produção. É uma Revision no TD-04.
+_None._
 
 ### Ambiguities
 
@@ -131,15 +119,7 @@ _None._
 
 ### Inherited Constraint Conflicts
 
-- **ICC-1** — A rota `GET /auth/confirm-email`, que vai direto do Caddy para a API (Revision do TD-07, DG-1 a), faz todos os visitantes dividirem um único balde de rate limit:
-  - `rate-limit-visitor-identity/TD-02` diz que o IP real do visitante só chega ao Nest pelo BFF, no `X-Client-IP` com `INTERNAL_API_SECRET`;
-  - sem esse par, `VisitorThrottlerGuard.resolveIp` usa `req.ip`, e `main.ts` não liga `trust proxy`. Toda requisição vinda do Caddy é contada como `ip:<IP do container do Caddy>`;
-  - `confirm-email` está sob `@Throttle(AUTH_THROTTLE)`, de **10/60 s** (`rate-limit-visitor-identity/TD-04`, Revision de 2026-10-08).
-
-  Resultado: a plataforma inteira confirma no máximo 10 contas por minuto, e o `X-Forwarded-For` que o Caddy sobrescreve é ignorado. Explicit choice:
-  - (a) o link do e-mail aponta para uma rota do **BFF** que repassa a confirmação à API com `X-Client-IP` e o token, e o Caddy deixa de expor qualquer rota da API. A rota pode redirecionar para `/login` em vez de devolver o 204 em branco. É uma Revision no TD-07;
-  - (b) o Caddy injeta `X-Client-IP` e `X-Internal-Token` nessa rota, o que põe o segredo também na configuração do proxy. É uma Revision no TD-07 e no TD-09;
-  - (c) aceitar o balde compartilhado, já que a stack é só local, com volume de cadastro irrelevante. É uma Revision no TD-07 registrando o limite.
+_None._
 
 ### Unresolved Open Questions
 
@@ -175,3 +155,7 @@ _None._ _(a união das duas fatias cobre as 8 bullets da Fase 07: 6 em `home-bus
 - **OQ-9** _(resolved_by testes-producao/TD-09)_ — TD-09 pending — build das imagens, entrega e segredos. TD-09 decidido: B (build local pelo compose da raiz, `.env.production` fora do git — Revision).
 - **OQ-10** _(resolved_by testes-producao/TD-10)_ — TD-10 pending — saúde, logs e encerramento. TD-10 decidido: B (health simples + Logger nativo + shutdown hooks).
 - **OQ-11** _(resolved_by testes-producao/TD-11)_ — TD-11 pending — backup e recuperação dos dados. TD-11 decidido: C (sem backup automatizado — Revision).
+- **IC-1** _(resolved_by testes-producao/TD-05)_ — Storage inalcançável pelo navegador: Caddy único publicado e URL assinada com minio:9000. Opção (a): o Caddy serve o storage num endereço próprio (host ou porta, não um path, por causa da colisão do bucket `videos` com `/videos/{publicId}`), e a API ganha um endpoint público só para assinar, separado do interno (Revisions do TD-05 e do TD-07).
+- **IC-2** _(resolved_by testes-producao/TD-08)_ — Mailpit da stack de produção sem caminho de acesso (UI e API da suíte). Opção (a): a UI e a API HTTP do Mailpit ficam publicadas no host, fora do Caddy, como no dev; o SMTP fica só na rede interna (Revisions do TD-08 e do TD-07).
+- **IC-3** _(resolved_by testes-producao/TD-02)_ — Suíte com ambiente zerado sobe sobre o compose de produção e apaga seus dados. Opção (a): a suíte sobe o mesmo compose de produção com outro nome de projeto (`-p`), com volumes e portas próprios, e o derruba ao fim; a stack de produção nunca é tocada (Revision do TD-02).
+- **ICC-1** _(resolved_by testes-producao/TD-07)_ — confirm-email direto do Caddy cai no balde ip:<caddy> de 10/60 s para todos. Opção (a): o link de confirmação aponta para uma rota `GET` do BFF no mesmo path `/auth/confirm-email`, que repassa à API com `X-Client-IP` e o token e redireciona para `/login`; o Caddy não expõe nenhuma rota da API (Revision do TD-07).
