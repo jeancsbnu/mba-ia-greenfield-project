@@ -40,6 +40,8 @@ import { VideoDetailResponse } from './dto/video-detail-response.dto';
 import { PublicVideoDetailResponse } from './dto/public-video-detail-response.dto';
 import { SuggestionsQueryDto } from './dto/suggestions-query.dto';
 import { SuggestedVideosPage } from './dto/suggested-videos-response.dto';
+import { VideoFeedQueryDto } from './dto/video-feed-query.dto';
+import { VideoFeedPage } from './dto/video-feed-response.dto';
 import { VideoCategory, VideoVisibility } from './entities/video.entity';
 
 const THUMBNAIL_MAX_BYTES = 2 * 1024 * 1024;
@@ -49,6 +51,42 @@ const THUMBNAIL_MIME = /^image\/(jpeg|png|webp)$/;
 @Controller('videos')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
+
+  // Sem @Throttle nem @SkipThrottle: fica no default global de 120/60 s por
+  // visitante (home-busca/TD-09, Revision de 2026-10-11).
+  @Public()
+  @Get()
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary:
+      'List published videos for the home page, category filter and search',
+    description:
+      'Returns published, public videos, newest first, with optional and combinable filters. `category` filters by the enum value; `q` (3 to 100 characters after trimming) matches the video title, the channel name or the channel nickname, ignoring case and accents, and returns videos only. Drafts and unlisted videos never appear. Paginated with offset/limit; the default page is 12. An empty list is a legitimate result, not an error. A bearer token is optional and does not change the response.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Feed page',
+    schema: { $ref: getSchemaPath(VideoFeedPage) },
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'q shorter than 3 or longer than 100 characters, unknown category, or offset/limit outside the accepted range',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'More than 120 requests in 60 seconds from the same visitor',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  async listFeed(@Query() query: VideoFeedQueryDto): Promise<VideoFeedPage> {
+    return this.videosService.listFeed({
+      q: query.q,
+      category: query.category,
+      offset: query.offset ?? 0,
+      limit: query.limit ?? 12,
+    });
+  }
 
   @Get(':publicId')
   @ApiBearerAuth('access-token')

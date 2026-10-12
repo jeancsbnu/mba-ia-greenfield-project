@@ -559,6 +559,108 @@
         ]
       }
     },
+    "/videos": {
+      "get": {
+        "description": "Returns published, public videos, newest first, with optional and combinable filters. `category` filters by the enum value; `q` (3 to 100 characters after trimming) matches the video title, the channel name or the channel nickname, ignoring case and accents, and returns videos only. Drafts and unlisted videos never appear. Paginated with offset/limit; the default page is 12. An empty list is a legitimate result, not an error. A bearer token is optional and does not change the response.",
+        "operationId": "VideosController_listFeed",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Termo de busca por título, nome do canal ou nickname; aparado nas pontas.",
+            "schema": {
+              "minLength": 3,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Categoria, com o valor do enum como está (sem mapa de slugs).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Música",
+                "Jogos",
+                "Educação",
+                "Entretenimento",
+                "Notícias",
+                "Esportes",
+                "Tecnologia",
+                "Outros"
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Quantos vídeos pular.",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Quantos vídeos retornar.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 12,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feed page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoFeedPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "q shorter than 3 or longer than 100 characters, unknown category, or offset/limit outside the accepted range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 120 requests in 60 seconds from the same visitor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List published videos for the home page, category filter and search",
+        "tags": [
+          "videos"
+        ]
+      }
+    },
     "/videos/{publicId}": {
       "get": {
         "description": "Returns the current status and metadata of a video. Only the owning channel can access this endpoint.",
@@ -2668,6 +2770,25 @@
           "total": {
             "type": "number",
             "description": "Total de sugestões elegíveis, ignorando a página."
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "VideoFeedPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedVideoListItem"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de vídeos que satisfazem os filtros, ignorando a página."
           }
         },
         "required": [

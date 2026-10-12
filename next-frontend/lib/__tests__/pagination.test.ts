@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  FEED_PAGE_SIZE,
   OWNER_PAGE_SIZE,
   parsePage,
   toOffset,
@@ -54,5 +55,12 @@ describe("totalPages", () => {
 
   it("returns 1 for an empty channel so page 1 still exists", () => {
     expect(totalPages(0, OWNER_PAGE_SIZE)).toBe(1);
+  });
+});
+
+describe("FEED_PAGE_SIZE", () => {
+  it("pages the home and the search results by 12 (home-busca/TD-02)", () => {
+    expect(FEED_PAGE_SIZE).toBe(12);
+    expect(toOffset(3, FEED_PAGE_SIZE)).toBe(24);
   });
 });

@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Not, IsNull, Repository } from 'typeorm';
+import {
+  EntityManager,
+  type FindOptionsWhere,
+  Not,
+  IsNull,
+  Repository,
+  type SelectQueryBuilder,
+} from 'typeorm';
 import {
   VideoForbiddenException,
   VideoNotFoundException,
@@ -8,6 +15,7 @@ import {
   VideoNotReadyException,
 } from '../common/exceptions/domain.exception';
 import { ChannelsService } from '../channels/channels.service';
+import { escapeLikePattern } from '../common/sql/escape-like-pattern';
 import { ReactionStateResponse } from '../reactions/dto/reaction-state-response.dto';
 import { likesDelta } from '../reactions/reaction-delta';
 import { ReactionType } from '../reactions/reaction-type.enum';
@@ -17,8 +25,33 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { PLAYBACK_URL_TTL_SECONDS } from './videos.constants';
 import { PublicVideoDetailResponse } from './dto/public-video-detail-response.dto';
-import { SuggestedVideosPage } from './dto/suggested-videos-response.dto';
-import { Video, VideoStatus, VideoVisibility } from './entities/video.entity';
+import {
+  SuggestedVideoListItem,
+  SuggestedVideosPage,
+} from './dto/suggested-videos-response.dto';
+import { VideoFeedPage } from './dto/video-feed-response.dto';
+import {
+  Video,
+  VideoCategory,
+  VideoStatus,
+  VideoVisibility,
+} from './entities/video.entity';
+
+// Regra "listável", num ponto só (home-busca/TD-01): publicado e público.
+// Rascunho (published_at nulo) e `unlisted` nunca entram em listagem —
+// `unlisted` só se alcança por link direto (video-channel-management/TD-02).
+// `whereListable` é a mesma regra para o query builder.
+const LISTABLE_WHERE: FindOptionsWhere<Video> = {
+  published_at: Not(IsNull()),
+  visibility: VideoVisibility.PUBLIC,
+};
+
+export interface VideoFeedFilters {
+  q?: string;
+  category?: VideoCategory;
+  offset: number;
+  limit: number;
+}
 
 @Injectable()
 export class VideosService {
@@ -119,11 +152,7 @@ export class VideosService {
     limit: number,
   ): Promise<{ items: Video[]; total: number }> {
     const [items, total] = await this.videoRepository.findAndCount({
-      where: {
-        channel_id: channelId,
-        published_at: Not(IsNull()),
-        visibility: VideoVisibility.PUBLIC,
-      },
+      where: { ...LISTABLE_WHERE, channel_id: channelId },
       order: { published_at: 'DESC' },
       skip: offset,
       take: limit,
@@ -134,11 +163,7 @@ export class VideosService {
   // Mesmo critério da listagem: o contador do cabeçalho não pode divergir dela.
   async countPublicByChannel(channelId: string): Promise<number> {
     return this.videoRepository.count({
-      where: {
-        channel_id: channelId,
-        published_at: Not(IsNull()),
-        visibility: VideoVisibility.PUBLIC,
-      },
+      where: { ...LISTABLE_WHERE, channel_id: channelId },
     });
   }
 
@@ -153,15 +178,12 @@ export class VideosService {
     if (channelIds.length === 0) {
       return counts;
     }
-    const rows = await this.videoRepository
+    const query = this.videoRepository
       .createQueryBuilder('video')
       .select('video.channel_id', 'channel_id')
       .addSelect('COUNT(*)', 'count')
-      .where('video.channel_id IN (:...channelIds)', { channelIds })
-      .andWhere('video.published_at IS NOT NULL')
-      .andWhere('video.visibility = :visibility', {
-        visibility: VideoVisibility.PUBLIC,
-      })
+      .where('video.channel_id IN (:...channelIds)', { channelIds });
+    const rows = await this.whereListable(query, 'video')
       .groupBy('video.channel_id')
       .getRawMany<{ channel_id: string; count: string }>();
     for (const row of rows) {
@@ -358,10 +380,9 @@ export class VideosService {
   ): Promise<SuggestedVideosPage> {
     const [videos, total] = await this.videoRepository.findAndCount({
       where: {
+        ...LISTABLE_WHERE,
         category: reference.category,
         id: Not(reference.id),
-        published_at: Not(IsNull()),
-        visibility: VideoVisibility.PUBLIC,
       },
       relations: { channel: true },
       order: { published_at: 'DESC' },
@@ -370,21 +391,81 @@ export class VideosService {
     });
 
     const items = await Promise.all(
-      videos.map(async (video) => ({
-        publicId: video.public_id,
-        title: video.title,
-        thumbnailUrl: await this.resolveThumbnailUrl(video),
-        durationSeconds: video.duration_seconds,
-        viewsCount: video.views_count,
-        publishedAt: video.published_at as Date,
-        channel: {
-          nickname: video.channel.nickname,
-          name: video.channel.name,
-        },
-      })),
+      videos.map((video) => this.toListItem(video)),
     );
 
     return { items, total };
+  }
+
+  /**
+   * Listagem global: home, filtro por categoria e busca no mesmo caminho
+   * (home-busca/TD-01). Sempre por recência, com ou sem termo
+   * (home-busca/TD-03 e TD-04). O termo casa com o título, com o nome do canal
+   * ou com o nickname, sem caixa e sem acento (home-busca/TD-05); só vídeos
+   * voltam, nunca canais. As expressões são as dos índices GIN da migration
+   * CreateVideoFeedAndSearchIndexes.
+   */
+  async listFeed(filters: VideoFeedFilters): Promise<VideoFeedPage> {
+    const query = this.whereListable(
+      this.videoRepository
+        .createQueryBuilder('video')
+        .innerJoinAndSelect('video.channel', 'channel'),
+      'video',
+    );
+    if (filters.category) {
+      query.andWhere('video.category = :category', {
+        category: filters.category,
+      });
+    }
+    if (filters.q) {
+      // O escape vem antes da normalização: lower e unaccent preservam `\`, `%`
+      // e `_`, então um curinga digitado continua literal depois dela.
+      const pattern = `'%' || immutable_unaccent(lower(:term)) || '%'`;
+      query.andWhere(
+        `(immutable_unaccent(lower(video.title)) LIKE ${pattern} ESCAPE '\\'
+          OR immutable_unaccent(lower(channel.name)) LIKE ${pattern} ESCAPE '\\'
+          OR channel.nickname LIKE ${pattern} ESCAPE '\\')`,
+        { term: escapeLikePattern(filters.q) },
+      );
+    }
+    const [videos, total] = await query
+      .orderBy('video.published_at', 'DESC')
+      .addOrderBy('video.id', 'DESC')
+      .skip(filters.offset)
+      .take(filters.limit)
+      .getManyAndCount();
+
+    const items = await Promise.all(
+      videos.map((video) => this.toListItem(video)),
+    );
+    return { items, total };
+  }
+
+  private whereListable(
+    query: SelectQueryBuilder<Video>,
+    alias: string,
+  ): SelectQueryBuilder<Video> {
+    return query
+      .andWhere(`${alias}.published_at IS NOT NULL`)
+      .andWhere(`${alias}.visibility = :listableVisibility`, {
+        listableVisibility: VideoVisibility.PUBLIC,
+      });
+  }
+
+  // Exige `video.channel` carregado: o item credita o canal.
+  private async toListItem(video: Video): Promise<SuggestedVideoListItem> {
+    return {
+      publicId: video.public_id,
+      title: video.title,
+      thumbnailUrl: await this.resolveThumbnailUrl(video),
+      durationSeconds: video.duration_seconds,
+      viewsCount: video.views_count,
+      publishedAt: video.published_at as Date,
+      channel: {
+        nickname: video.channel.nickname,
+        name: video.channel.name,
+      },
+    };
   }
 
   private assertReady(video: Video): void {

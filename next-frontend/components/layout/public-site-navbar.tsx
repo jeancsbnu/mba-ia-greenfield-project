@@ -1,42 +1,20 @@
-import Link from "next/link"
-
-import { ChannelUserMenu } from "@/components/layout/channel-user-menu"
 import { SiteNavbar } from "@/components/layout/site-navbar"
-import { Button } from "@/components/ui/button"
 import { getViewerChannel } from "@/lib/api/viewer-channel"
 
 /**
- * Navbar das páginas públicas (watch page e página do canal), sensível à
- * sessão: com sessão, avatar + "Sair" e o link "Canais seguidos"; sem sessão,
- * o "Entrar" de sempre. O nome do canal vem de `getViewerChannel` (GET
- * /me/channel com auth opcional, memoizado por requisição) — uma falha nessa
- * leitura degrada para o chrome anônimo e nunca derruba a página.
+ * Navbar de todas as telas com chrome, montada uma vez em layout
+ * (home-busca/TD-07, Revision de 2026-10-11). Resolve no servidor quem está
+ * vendo — nome e nickname do canal, por `getViewerChannel` (GET /me/channel com
+ * auth opcional, memoizado por requisição) — e entrega à SiteNavbar. Uma falha
+ * nessa leitura degrada para o chrome anônimo e nunca derruba a página.
  */
-type PublicSiteNavbarProps = {
-  /** Variante do "Entrar" do chrome anônimo — cada tela mantém a do seu desenho. */
-  loginVariant?: "secondary" | "outline"
-}
+async function PublicSiteNavbar() {
+  const channel = await getViewerChannel()
+  const viewer = channel
+    ? { name: channel.name, nickname: channel.nickname }
+    : null
 
-async function PublicSiteNavbar({
-  loginVariant = "secondary",
-}: PublicSiteNavbarProps) {
-  const viewer = await getViewerChannel()
-
-  if (viewer) {
-    return (
-      <SiteNavbar showSubscriptionsLink>
-        <ChannelUserMenu channelName={viewer.name} />
-      </SiteNavbar>
-    )
-  }
-
-  return (
-    <SiteNavbar>
-      <Button asChild variant={loginVariant}>
-        <Link href="/login">Entrar</Link>
-      </Button>
-    </SiteNavbar>
-  )
+  return <SiteNavbar viewer={viewer} />
 }
 
 export { PublicSiteNavbar }

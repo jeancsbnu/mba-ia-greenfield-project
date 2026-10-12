@@ -32,6 +32,7 @@ import {
   SuggestedVideoListItem,
   SuggestedVideosPage,
 } from '../videos/dto/suggested-videos-response.dto';
+import { VideoFeedPage } from '../videos/dto/video-feed-response.dto';
 
 export function buildSwaggerConfig() {
   return new DocumentBuilder()
@@ -59,6 +60,7 @@ export function buildSwaggerDocument(app: INestApplication) {
       PublicVideosPage,
       SuggestedVideoListItem,
       SuggestedVideosPage,
+      VideoFeedPage,
       ReactionStateResponse,
       SubscriptionStateResponse,
       CommentAuthor,

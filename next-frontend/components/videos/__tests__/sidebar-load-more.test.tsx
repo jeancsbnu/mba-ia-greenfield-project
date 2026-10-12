@@ -152,4 +152,18 @@ describe("SidebarLoadMore", () => {
     });
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("renders appended cards linking to the video, with no outer link", async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(pageResponse([buildItem(4)], 5));
+
+    render(
+      <SidebarLoadMore publicId={PUBLIC_ID} initialCount={4} total={5} />
+    );
+    await user.click(screen.getByRole("button", { name: "Ver mais" }));
+
+    const title = await screen.findByRole("link", { name: "Sugestão 4" });
+    expect(title).toHaveAttribute("href", "/videos/suggestion-4");
+    expect(document.querySelector("a a")).toBeNull();
+  });
 });

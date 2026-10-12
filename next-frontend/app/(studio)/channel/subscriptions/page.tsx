@@ -19,7 +19,7 @@ export default async function ChannelSubscriptionsPage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 px-12 py-12">
+    <div className="flex flex-col gap-6 px-4 py-12 lg:px-12">
       <div className="flex flex-col gap-1.5">
         <h1 className="text-h2 text-foreground">Canais que você segue</h1>
         <p className="text-caption text-muted-foreground">

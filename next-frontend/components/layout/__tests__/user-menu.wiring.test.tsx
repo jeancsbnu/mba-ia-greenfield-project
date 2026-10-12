@@ -3,13 +3,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { ChannelUserMenu } from "../channel-user-menu";
+import { SiteNavbar } from "../site-navbar";
 
 const push = vi.fn();
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, refresh }),
+  useRouter: () => ({ push, refresh, prefetch: vi.fn() }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 // O logout é same-origin (/api/auth/logout), então não passa pelo MSW, que só
@@ -28,15 +30,14 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("ChannelUserMenu", () => {
-  it("shows the channel initials", () => {
-    render(<ChannelUserMenu channelName="Joana Cria" />);
-    expect(screen.getByText("JC")).toBeInTheDocument();
-  });
+// O UserMenu recebe o logout da SiteNavbar, que o tira do useLogout
+// (home-busca/TD-07, Revision de 2026-10-11).
+describe("UserMenu wired through the SiteNavbar", () => {
+  const viewer = { name: "Joana Cria", nickname: "joana_cria" };
 
   it("calls POST /api/auth/logout and navigates to /login on sign out", async () => {
     const user = userEvent.setup();
-    render(<ChannelUserMenu channelName="Joana Cria" />);
+    render(<SiteNavbar viewer={viewer} />);
 
     await user.click(screen.getByRole("button", { name: "Sair" }));
 
@@ -48,17 +49,7 @@ describe("ChannelUserMenu", () => {
     await waitFor(() => {
       expect(push).toHaveBeenCalledWith("/login");
     });
-  });
-
-  it("refreshes the router so the cached tree drops the old channel", async () => {
-    const user = userEvent.setup();
-    render(<ChannelUserMenu channelName="Joana Cria" />);
-
-    await user.click(screen.getByRole("button", { name: "Sair" }));
-
-    await waitFor(() => {
-      expect(refresh).toHaveBeenCalledTimes(1);
-    });
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it("disables the button while the logout request is in flight", async () => {
@@ -70,7 +61,7 @@ describe("ChannelUserMenu", () => {
       })
     );
 
-    render(<ChannelUserMenu channelName="Joana Cria" />);
+    render(<SiteNavbar viewer={viewer} />);
     const button = screen.getByRole("button", { name: "Sair" });
 
     await user.click(button);

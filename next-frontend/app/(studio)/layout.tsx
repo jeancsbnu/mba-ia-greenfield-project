@@ -1,17 +1,12 @@
 import { redirect } from "next/navigation"
 
-import { ChannelUserMenu } from "@/components/layout/channel-user-menu"
-import { SiteNavbar } from "@/components/layout/site-navbar"
-import type { Channel } from "@/lib/api/contracts"
-import { fetchFromUpstream } from "@/lib/api/server-upstream"
-import { upstream } from "@/lib/api/upstream"
+import { PublicSiteNavbar } from "@/components/layout/public-site-navbar"
 import { getSession } from "@/lib/auth/session"
-import { DEFAULT_RETURN_TO } from "@/lib/auth/refresh-redirect"
 
-// Route group autenticado das três telas do canal. O nome do canal vem de
-// GET /me/channel a cada requisição, e não de session.channelSlug: o login
-// grava esse campo vazio, e a troca de nickname é livre (TD-07), então o valor
-// da sessão envelheceria em silêncio (TD-09).
+// Route group autenticado das telas do canal. A navbar é a mesma do site
+// (home-busca/TD-07, Revision de 2026-10-11): o PublicSiteNavbar lê o canal de
+// GET /me/channel a cada requisição, e não de session.channelSlug, que o login
+// grava vazio e a troca de nickname envelheceria (TD-09).
 export default async function StudioLayout({
   children,
 }: {
@@ -22,16 +17,9 @@ export default async function StudioLayout({
     redirect("/login")
   }
 
-  const channel = await fetchFromUpstream<Channel>(
-    (init) => upstream.GET("/me/channel", init),
-    DEFAULT_RETURN_TO
-  )
-
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteNavbar showSubscriptionsLink>
-        <ChannelUserMenu channelName={channel.name} />
-      </SiteNavbar>
+      <PublicSiteNavbar />
 
       <main className="flex-1">{children}</main>
     </div>

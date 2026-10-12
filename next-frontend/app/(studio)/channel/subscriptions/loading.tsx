@@ -2,7 +2,7 @@
 // layout quando os dados chegam.
 export default function ChannelSubscriptionsLoading() {
   return (
-    <div className="flex flex-col gap-6 px-12 py-12">
+    <div className="flex flex-col gap-6 px-4 py-12 lg:px-12">
       <div className="flex flex-col gap-1.5">
         <div className="h-8 w-72 animate-pulse rounded-[var(--radius-2)] bg-muted" />
         <div className="h-4 w-20 animate-pulse rounded-[var(--radius-1)] bg-muted" />

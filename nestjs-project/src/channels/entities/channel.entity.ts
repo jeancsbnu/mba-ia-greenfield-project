@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
@@ -12,6 +13,10 @@ import { User } from '../../users/entities/user.entity';
 import { Video } from '../../videos/entities/video.entity';
 
 @Entity('channels')
+// Índices de trigramas da busca (migration CreateVideoFeedAndSearchIndexes);
+// declarados só para o diff de schema não os tratar como órfãos.
+@Index('channels_name_search_idx', { synchronize: false })
+@Index('channels_nickname_search_idx', { synchronize: false })
 export class Channel {
   @PrimaryGeneratedColumn('uuid')
   id: string;

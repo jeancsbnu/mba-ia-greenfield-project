@@ -50,7 +50,11 @@ test.describe("channel-videos", () => {
     await page.goto("/channel/videos?page=2")
     // 12 no total, 10 na primeira página → 2 restantes.
     await expect(page.locator("[data-slot='video-table-row']")).toHaveCount(2)
-    await expect(page.locator("[aria-current='page']")).toHaveText("2")
+    // Escopado na paginação: o link "Meus vídeos" da navbar também é a
+    // página atual aqui.
+    await expect(
+      page.locator("[data-slot='pagination-link'][aria-current='page']")
+    ).toHaveText("2")
 
     // `page` inválido normaliza para a página 1 em vez de virar erro.
     await page.goto("/channel/videos?page=abc")

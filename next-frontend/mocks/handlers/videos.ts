@@ -4,10 +4,12 @@ import type { paths } from "@/lib/api/types.gen";
 import { env } from "@/lib/env";
 
 import {
+  buildFeedCatalog,
   buildOwnerVideoListItem,
   buildPublicVideo,
   buildSuggestedVideoListItem,
   buildVideo,
+  feedCategoryOf,
 } from "../factories/videos";
 import { socialVideoOverrides } from "../factories/social";
 import { emailFromAuthHeader } from "./auth";
@@ -20,6 +22,8 @@ type OwnerVideosOk =
   paths["/me/videos"]["get"]["responses"][200]["content"]["application/json"];
 type SuggestionsOk =
   paths["/videos/{publicId}/suggestions"]["get"]["responses"][200]["content"]["application/json"];
+type VideoFeedOk =
+  paths["/videos"]["get"]["responses"][200]["content"]["application/json"];
 
 // Reserved trigger table (shared with E2E — trigger values must not collide across test suites).
 const NOT_FOUND_PUBLIC_ID = "missing-video";
@@ -56,6 +60,18 @@ const SUGGESTIONS_ERROR_PUBLIC_ID = "trigger-suggestions-error";
 const SUGGESTIONS_TOTAL = 6;
 const SUGGESTIONS_DEFAULT_LIMIT = 4;
 const DEFAULT_OWNER_LIMIT = 10;
+// Fase 07 (listagem global): este termo faz o upstream responder 500, para
+// exercitar o error.tsx da home e dos resultados.
+const FEED_ERROR_TERM = "erro-upstream";
+const FEED_DEFAULT_LIMIT = 12;
+
+// Mesma normalização do backend: sem caixa e sem acento.
+function normalizeTerm(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function errorEnvelope(
   statusCode: number,
@@ -83,6 +99,37 @@ let pollTransitionCallCount = 0;
 const uploads = new Map<string, { length: number; offset: number }>();
 
 export const handlers = [
+  // Listagem global: home, filtro por categoria e busca (home-busca/TD-01).
+  // O catálogo já vem do mais novo ao mais antigo, que é a ordem da API.
+  http.get(`${env.API_URL}/videos`, ({ request }) => {
+    const url = new URL(request.url);
+    const q = url.searchParams.get("q")?.trim();
+    const category = url.searchParams.get("category");
+    const offset = Number(url.searchParams.get("offset") ?? 0);
+    const limit = Number(url.searchParams.get("limit") ?? FEED_DEFAULT_LIMIT);
+
+    if (q === FEED_ERROR_TERM) {
+      return HttpResponse.json(
+        errorEnvelope(500, "INTERNAL_ERROR", "Something went wrong"),
+        { status: 500 }
+      );
+    }
+
+    const term = q ? normalizeTerm(q) : null;
+    const matches = buildFeedCatalog().filter(
+      (item) =>
+        (!category || feedCategoryOf(item.publicId) === category) &&
+        (!term ||
+          [item.title, item.channel.name, item.channel.nickname].some((field) =>
+            normalizeTerm(field).includes(term)
+          ))
+    );
+    return HttpResponse.json<VideoFeedOk>({
+      items: matches.slice(offset, offset + limit),
+      total: matches.length,
+    });
+  }),
+
   // Rotas da Fase 05 primeiro: são mais específicas que /videos/:publicId.
   http.get(`${env.API_URL}/videos/:publicId/public`, ({ params, request }) => {
     const publicId = params.publicId as string;

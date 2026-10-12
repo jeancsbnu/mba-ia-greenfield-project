@@ -242,4 +242,51 @@ describe('Video entity (integration)', () => {
       ).rejects.toBeInstanceOf(QueryFailedError);
     });
   });
+
+  describe('Fase 07 — índices da listagem global e da busca', () => {
+    async function indexDefinition(name: string): Promise<string | undefined> {
+      const rows = await dataSource.query<{ indexdef: string }[]>(
+        `SELECT indexdef FROM pg_indexes WHERE schemaname = 'public' AND indexname = $1`,
+        [name],
+      );
+      return rows[0]?.indexdef;
+    }
+
+    it('declares immutable_unaccent as IMMUTABLE and strips accents', async () => {
+      const [fn] = await dataSource.query<{ provolatile: string }[]>(
+        `SELECT provolatile FROM pg_proc WHERE proname = 'immutable_unaccent'`,
+      );
+      expect(fn?.provolatile).toBe('i');
+
+      const [row] = await dataSource.query<
+        { plain: string; lowered: string }[]
+      >(
+        `SELECT immutable_unaccent('Música') AS plain, immutable_unaccent(lower('Educação')) AS lowered`,
+      );
+      expect(row).toEqual({ plain: 'Musica', lowered: 'educacao' });
+    });
+
+    // O DataSource de teste roda com synchronize: true; os índices sobreviverem
+    // a ele prova que a declaração { synchronize: false } nas entidades funciona.
+    it('keeps the trigram indexes on title, channel name and nickname', async () => {
+      expect(await indexDefinition('videos_title_search_idx')).toMatch(
+        /USING gin \(immutable_unaccent\(lower\(\(title\)::text\)\) gin_trgm_ops\)/,
+      );
+      expect(await indexDefinition('channels_name_search_idx')).toMatch(
+        /USING gin \(immutable_unaccent\(lower\(\(name\)::text\)\) gin_trgm_ops\)/,
+      );
+      expect(await indexDefinition('channels_nickname_search_idx')).toMatch(
+        /USING gin \(nickname gin_trgm_ops\)/,
+      );
+    });
+
+    it('keeps the partial index over listable videos', async () => {
+      const definition = await indexDefinition('videos_listable_published_idx');
+
+      expect(definition).toMatch(/\(published_at DESC, id DESC\)/);
+      expect(definition).toMatch(
+        /WHERE \(\(published_at IS NOT NULL\) AND \(visibility = 'public'::videos_visibility_enum\)\)/,
+      );
+    });
+  });
 });

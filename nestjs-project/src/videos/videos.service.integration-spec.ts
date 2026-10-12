@@ -493,3 +493,103 @@ describe('VideosService.listSuggestions (integration)', () => {
     );
   }, 30000);
 });
+
+// A regra "listável" consolidada (home-busca/TD-01) não pode mudar o que a
+// página pública do canal e o contador do cabeçalho já devolviam.
+describe('VideosService public channel queries (integration)', () => {
+  let dataSource: DataSource;
+  let videosService: VideosService;
+  let videoRepository: Repository<Video>;
+  let userRepository: Repository<User>;
+  let channelRepository: Repository<Channel>;
+  let channelId: string;
+
+  beforeAll(async () => {
+    dataSource = createTestDataSource(SERVABLE_ENTITIES);
+    await dataSource.initialize();
+    videoRepository = dataSource.getRepository(Video);
+    userRepository = dataSource.getRepository(User);
+    channelRepository = dataSource.getRepository(Channel);
+
+    const module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, load: [storageConfig] }),
+        StorageModule,
+      ],
+      providers: [
+        VideosService,
+        { provide: ReactionsService, useValue: {} },
+        { provide: SubscriptionsService, useValue: {} },
+        { provide: getRepositoryToken(Video), useValue: videoRepository },
+        { provide: ChannelsService, useValue: {} },
+      ],
+    }).compile();
+    await module.init();
+    videosService = module.get(VideosService);
+  }, 60000);
+
+  afterAll(async () => {
+    await dataSource.destroy();
+  });
+
+  let counter = 0;
+  const BASE = Date.UTC(2026, 8, 20, 12, 0, 0);
+  let newestFirst: Video[];
+
+  async function persistVideo(overrides: Partial<Video>): Promise<Video> {
+    return videoRepository.save(
+      videoRepository.create({
+        public_id: `pub${++counter}`,
+        channel_id: channelId,
+        title: 'Vídeo',
+        status: VideoStatus.READY,
+        storage_bucket: 'videos',
+        ...overrides,
+      }),
+    );
+  }
+
+  beforeEach(async () => {
+    await cleanAllTables(dataSource);
+    const owner = await userRepository.save(
+      userRepository.create({
+        email: `public_owner_${++counter}@example.com`,
+        password: 'hashed',
+      }),
+    );
+    channelId = (
+      await channelRepository.save(
+        channelRepository.create({
+          name: 'Canal',
+          nickname: `public_${counter}`,
+          user_id: owner.id,
+        }),
+      )
+    ).id;
+
+    newestFirst = [
+      await persistVideo({ published_at: new Date(BASE) }),
+      await persistVideo({ published_at: new Date(BASE - 86_400_000) }),
+    ];
+    await persistVideo({ published_at: null });
+    await persistVideo({
+      published_at: new Date(BASE + 86_400_000),
+      visibility: VideoVisibility.UNLISTED,
+    });
+  });
+
+  it('lists only the published public videos of the channel, newest first', async () => {
+    const page = await videosService.listPublicByChannel(channelId, 0, 50);
+
+    expect(page.items.map((video) => video.public_id)).toEqual(
+      newestFirst.map((video) => video.public_id),
+    );
+    expect(page.total).toBe(2);
+  });
+
+  it('counts the same videos the public listing shows', async () => {
+    await expect(videosService.countPublicByChannel(channelId)).resolves.toBe(
+      2,
+    );
+  });
+});

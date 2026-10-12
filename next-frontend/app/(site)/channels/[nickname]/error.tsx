@@ -9,7 +9,7 @@ export default function PublicChannelError({
   reset: () => void
 }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-12 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
       <h1 className="text-h2 text-foreground">Não foi possível carregar o canal</h1>
       <p className="text-body-md text-muted-foreground">
         Tente de novo em instantes.

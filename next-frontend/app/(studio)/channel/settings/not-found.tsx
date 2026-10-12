@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 export default function ChannelSettingsNotFound() {
   return (
-    <div className="flex flex-col items-center gap-4 px-12 py-24 text-center">
+    <div className="flex flex-col items-center gap-4 px-4 py-24 lg:px-12 text-center">
       <h1 className="text-h2 text-foreground">Canal não encontrado</h1>
       <p className="text-body-md text-muted-foreground">
         Não localizamos um canal associado à sua conta.

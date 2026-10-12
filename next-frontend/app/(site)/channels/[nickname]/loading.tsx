@@ -4,7 +4,7 @@ export default function PublicChannelLoading() {
       role="status"
       aria-busy="true"
       aria-label="Carregando o canal"
-      className="flex flex-col gap-6 px-12 py-12"
+      className="flex flex-col gap-6 py-12"
     >
       <div className="flex items-center gap-4">
         <div className="size-20 animate-pulse rounded-full bg-muted" />

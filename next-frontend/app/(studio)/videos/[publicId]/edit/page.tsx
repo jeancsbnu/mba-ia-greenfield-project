@@ -42,7 +42,7 @@ export default async function VideoEditPage({
   }
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-8">
+    <div className="flex flex-col gap-5 px-4 py-8 lg:px-8">
       <BackLink
         href="/channel/videos"
         icon={<ChevronLeftIcon className="size-3.5" />}

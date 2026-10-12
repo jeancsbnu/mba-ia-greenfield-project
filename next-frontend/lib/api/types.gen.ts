@@ -224,6 +224,26 @@ export interface paths {
         patch: operations["ChannelsController_updateMyChannel"];
         trace?: never;
     };
+    "/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List published videos for the home page, category filter and search
+         * @description Returns published, public videos, newest first, with optional and combinable filters. `category` filters by the enum value; `q` (3 to 100 characters after trimming) matches the video title, the channel name or the channel nickname, ignoring case and accents, and returns videos only. Drafts and unlisted videos never appear. Paginated with offset/limit; the default page is 12. An empty list is a legitimate result, not an error. A bearer token is optional and does not change the response.
+         */
+        get: operations["VideosController_listFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/videos/{publicId}": {
         parameters: {
             query?: never;
@@ -743,6 +763,11 @@ export interface components {
         SuggestedVideosPage: {
             items: components["schemas"]["SuggestedVideoListItem"][];
             /** @description Total de sugestões elegíveis, ignorando a página. */
+            total: number;
+        };
+        VideoFeedPage: {
+            items: components["schemas"]["SuggestedVideoListItem"][];
+            /** @description Total de vídeos que satisfazem os filtros, ignorando a página. */
             total: number;
         };
         ReactionStateResponse: {
@@ -1273,6 +1298,53 @@ export interface operations {
             };
             /** @description Nickname already belongs to another channel */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    VideosController_listFeed: {
+        parameters: {
+            query?: {
+                /** @description Termo de busca por título, nome do canal ou nickname; aparado nas pontas. */
+                q?: string;
+                /** @description Categoria, com o valor do enum como está (sem mapa de slugs). */
+                category?: "Música" | "Jogos" | "Educação" | "Entretenimento" | "Notícias" | "Esportes" | "Tecnologia" | "Outros";
+                /** @description Quantos vídeos pular. */
+                offset?: number;
+                /** @description Quantos vídeos retornar. */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Feed page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VideoFeedPage"];
+                };
+            };
+            /** @description q shorter than 3 or longer than 100 characters, unknown category, or offset/limit outside the accepted range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description More than 120 requests in 60 seconds from the same visitor */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

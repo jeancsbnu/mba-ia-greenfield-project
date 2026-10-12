@@ -55,12 +55,12 @@ function VideoTable({
     <div
       data-slot="video-table"
       className={cn(
-        "w-full overflow-hidden rounded-[var(--radius-4)] border border-border bg-card shadow-showcase-card",
+        "relative w-full overflow-x-auto rounded-[var(--radius-4)] border border-border bg-card shadow-showcase-card",
         className
       )}
       {...props}
     >
-      <table className="w-full border-collapse text-left">
+      <table className="w-full min-w-max border-collapse text-left">
       <thead>
         <tr className="border-b border-border bg-muted/40">
           <th scope="col" className="px-6 py-3.5 text-caption uppercase text-muted-foreground">Vídeo</th>

@@ -39,6 +39,11 @@ export enum VideoVisibility {
 
 @Entity('videos')
 @Index(['channel_id', 'published_at'])
+// Índices de expressão e parcial da migration CreateVideoFeedAndSearchIndexes:
+// o decorator não os representa, mas declará-los evita que o diff de schema
+// os trate como órfãos.
+@Index('videos_title_search_idx', { synchronize: false })
+@Index('videos_listable_published_idx', { synchronize: false })
 export class Video {
   @PrimaryGeneratedColumn('uuid')
   id: string;

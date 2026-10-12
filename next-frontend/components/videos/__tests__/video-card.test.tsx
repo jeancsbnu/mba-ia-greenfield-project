@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import { VideoCard } from "../video-card";
 
 const BASE = {
+  publicId: "abc123",
   title: "Receita de bolo de cenoura",
   thumbnailUrl: "https://cdn.example.com/thumb.jpg",
   durationSeconds: 492,
@@ -58,5 +59,62 @@ describe("VideoCard", () => {
     expect(
       screen.getByRole("heading", { name: "Receita de bolo de cenoura" })
     ).toBeInTheDocument();
+  });
+
+  it("links the thumbnail and the title to the watch page", () => {
+    render(<VideoCard {...BASE} />);
+
+    expect(
+      screen.getByRole("link", { name: "Receita de bolo de cenoura" })
+    ).toHaveAttribute("href", "/videos/abc123");
+    const thumbnailLink = document.querySelector("img")?.closest("a");
+    expect(thumbnailLink).toHaveAttribute("href", "/videos/abc123");
+  });
+
+  it("links the channel avatar and name to the public channel page", () => {
+    render(
+      <VideoCard
+        {...BASE}
+        channel={{ name: "Joana Cria", nickname: "joana_cria" }}
+      />
+    );
+
+    expect(screen.getByRole("link", { name: "Joana Cria" })).toHaveAttribute(
+      "href",
+      "/@joana_cria"
+    );
+    const initials = screen.getByText("JC");
+    expect(initials.closest("a")).toHaveAttribute("href", "/@joana_cria");
+  });
+
+  it("leaves the channel row out when no channel is given", () => {
+    render(<VideoCard {...BASE} />);
+
+    expect(
+      document.querySelector("[data-slot='video-card-channel']")
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("never nests a link inside another", () => {
+    render(
+      <VideoCard
+        {...BASE}
+        channel={{ name: "Joana Cria", nickname: "joana_cria" }}
+      />
+    );
+
+    expect(document.querySelector("a a")).toBeNull();
+  });
+
+  it("serves the mobile thumbnail at full width and the desktop one at the column width", () => {
+    const { unmount } = render(<VideoCard {...BASE} size="mobile" />);
+    const mobileSizes = document.querySelector("img")?.getAttribute("sizes");
+    unmount();
+    render(<VideoCard {...BASE} size="desktop" />);
+    const desktopSizes = document.querySelector("img")?.getAttribute("sizes");
+
+    expect(mobileSizes).toBe("100vw");
+    expect(desktopSizes).not.toBe(mobileSizes);
   });
 });

@@ -21,7 +21,7 @@ export default async function ChannelSettingsPage() {
   }
 
   return (
-    <div className="flex justify-center px-8 py-12">
+    <div className="flex justify-center px-4 py-12 lg:px-8">
       <ChannelEditForm defaultValues={defaultValues}>
         <Link
           href="/channel/videos"
