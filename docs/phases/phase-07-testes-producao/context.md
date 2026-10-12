@@ -3,7 +3,7 @@ kind: phase
 name: phase-07-testes-producao
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:16:13-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:41:11-03:00"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "2026-10-08T19:04:24-03:00"
@@ -20,7 +20,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-testes-producao.md: "349b5b293339"
+  docs/decisions/technical-decisions-testes-producao.md: "1f2a4e4f9a78"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "8d27d591df0e"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "0d1493a08793"
@@ -79,17 +79,25 @@ sources_hash:
 
 | Ref | Source | Scope | Topic | Status | Decision | Libraries | Renders in |
 |-----|--------|-------|-------|--------|----------|-----------|------------|
-| testes-producao/TD-01 | phase | Repo-wide | Camada dos testes ponta a ponta dos fluxos principais | pending | — | — | — |
-| testes-producao/TD-02 | phase | Repo-wide | Dados e estado da suíte full-stack | pending | — | — | — |
-| testes-producao/TD-03 | phase | Repo-wide | Pipeline de CI | pending | — | — | — |
-| testes-producao/TD-04 | phase | Repo-wide | Plataforma de hospedagem | pending | — | — | — |
-| testes-producao/TD-05 | phase | Cross-layer | Armazenamento de objetos em produção | pending | — | — | — |
-| testes-producao/TD-06 | phase | Backend | Execução das migrations em produção | pending | — | — | — |
-| testes-producao/TD-07 | phase | Repo-wide | Proxy reverso, TLS e superfície pública | pending | — | — | — |
-| testes-producao/TD-08 | phase | Backend | Envio de e-mail transacional em produção | pending | — | — | — |
-| testes-producao/TD-09 | phase | Repo-wide | Build das imagens, entrega e segredos | pending | — | — | — |
-| testes-producao/TD-10 | phase | Backend | Saúde, logs e encerramento dos processos | pending | — | — | — |
-| testes-producao/TD-11 | phase | Repo-wide | Backup e recuperação dos dados | pending | — | — | — |
+| testes-producao/TD-01 | phase | Repo-wide | Camada dos testes ponta a ponta dos fluxos principais | decided | A | — | — |
+|     └─ Last revision: 2026-10-12 — Fluxos da suíte fixados no resolve (mesma Option A; resolve AMB-1), um por fase… | | | | | | | |
+| testes-producao/TD-02 | phase | Repo-wide | Dados e estado da suíte full-stack | decided | A | — | — |
+| testes-producao/TD-03 | phase | Repo-wide | Pipeline de CI | decided | B | — | — |
+|     └─ Last revision: 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a… | | | | | | | |
+| testes-producao/TD-04 | phase | Repo-wide | Plataforma de hospedagem | decided | A | — | — |
+|     └─ Last revision: 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do… | | | | | | | |
+| testes-producao/TD-05 | phase | Cross-layer | Armazenamento de objetos em produção | decided | A | — | — |
+|     └─ Last revision: 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b… | | | | | | | |
+| testes-producao/TD-06 | phase | Backend | Execução das migrations em produção | decided | A | — | — |
+| testes-producao/TD-07 | phase | Repo-wide | Proxy reverso, TLS e superfície pública | decided | A | — | — |
+|     └─ Last revision: 2026-10-12 — Superfície pública fixada no resolve (mesma Option A; resolve DG-1, opção a): | | | | | | | |
+| testes-producao/TD-08 | phase | Backend | Envio de e-mail transacional em produção | decided | C | — | — |
+|     └─ Last revision: 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das… | | | | | | | |
+| testes-producao/TD-09 | phase | Repo-wide | Build das imagens, entrega e segredos | decided | B | — | — |
+|     └─ Last revision: 2026-10-12 — Decisão B, diferente da Recommendation A (GHCR + deploy por SSH), por causa do… | | | | | | | |
+| testes-producao/TD-10 | phase | Backend | Saúde, logs e encerramento dos processos | decided | B | — | — |
+| testes-producao/TD-11 | phase | Repo-wide | Backup e recuperação dos dados | decided | C | — | — |
+|     └─ Last revision: 2026-10-12 — Decisão C, diferente da Recommendation A (`pg_dump` agendado), porque a stack… | | | | | | | |
 
 _Source files:_
 
@@ -106,7 +114,99 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
 
 ## Decisions Detail
 
-_No decided TDs yet._ _(as 11 TDs da fatia estão `pending`; esta seção é preenchida quando o `/plan-context` rodar de novo depois do `/plan-resolve`)_
+### testes-producao/TD-01
+
+**Recommendation:** é a única que prova a integração entre BFF, API, worker e storage, que nenhuma suíte cobre hoje, e mantém o MSW onde ele é forte: muitos cenários de tela, rápidos e com erros sob comando.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Fluxos da suíte fixados no resolve (mesma Option A; resolve AMB-1), um por fase entregue:
+  1. cadastro → confirmação pelo link lido no Mailpit → login e logout;
+  2. upload tus → processamento no worker → publicação;
+  3. assistir com URL pré-assinada e view contada;
+  4. like, comentário e inscrição;
+  5. home, busca e categoria.
+
+  A recuperação de senha fica fora da suíte: o front não tem tela de nova senha (adiada em `phase-02-auth-frontend`) e o link de reset segue como lacuna conhecida (DG-1, ver TD-07). A suíte roda contra a stack do compose de produção da raiz (TD-04).
+
+### testes-producao/TD-02
+
+**Recommendation:** com uma suíte pequena, como o TD-01 propõe, o custo por jornada é aceitável. Em troca, o isolamento é real e o cadastro e o processamento são exercitados, que são exatamente os fluxos principais que a capability pede.
+**Libraries:** —
+
+### testes-producao/TD-03
+
+**Recommendation:** reaproveita a topologia e os comandos que o projeto já trata como fonte da verdade, resolve o MinIO sem gambiarra e dá ao deploy do TD-09 um portão automático.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a frase da Recommendation sobre dar "ao deploy do TD-09 um portão automático" deixa de valer. A CI é o portão do PR, com as suítes de cada subprojeto, `tsc --noEmit`, lint, a checagem de frescor do contrato OpenAPI e a suíte full-stack do TD-01.
+
+### testes-producao/TD-04
+
+**Recommendation:** o projeto já é descrito inteiro em Docker Compose, e uma VPS roda o worker e os uploads longos sem os limites de plataforma, com custo previsível. A operação que sobra (TLS, backup) é coberta pelos TD-07 e TD-11.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Host fixado no resolve (resolve AMB-2, opção b): a stack de produção roda **só no Docker local** e não será colocada em servidor externo. A VPS da Option A sai do escopo, e não há domínio, provedor nem roteiro de deploy. A fatia termina com os artefatos de produção completos (compose, Dockerfiles, configuração do proxy, workflow de CI), validados subindo essa stack localmente.
+- 2026-10-12 — Instância única de API, worker e BFF (resolve AMB-3, opção a). O throttler em memória de `phase-02-auth/TD-08` continua valendo, e não há TD de storage do throttler em Redis.
+- 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do repositório referencia as imagens de API, worker e BFF numa rede única. O BFF alcança a API pelo nome do serviço (`API_URL` com o nome do serviço, nunca `localhost`), e a API não publica porta no host. Os compose de desenvolvimento de cada subprojeto ficam como estão (`next-frontend-openapi-typing/TD-02`). A suíte full-stack do TD-01 sobe sobre esse mesmo compose.
+
+### testes-producao/TD-05
+
+**Recommendation:** tira do servidor o volume de vídeo e o tráfego de streaming, sem custo de egress e sem operar um MinIO que deixou de ser mantido. O ponto a validar no build é a regra de partes uniformes com o `@tus/s3-store`, num teste de upload retomado.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b: sem servidor externo, não há conta de storage em nuvem. O MinIO roda no compose de produção da raiz, com volume próprio, bucket e credenciais por env. O endpoint público usado nas URLs pré-assinadas e nas thumbnails continua parametrizado por env, como no dev. O código S3-compatível de `upload-processing/TD-01` não muda.
+
+### testes-producao/TD-06
+
+**Recommendation:** garante a ordem (schema antes de API e worker) dentro do próprio compose, sem depender de pessoa nem de corrida entre processos.
+**Libraries:** —
+
+### testes-producao/TD-07
+
+**Recommendation:** com um só serviço público, o Caddy entrega TLS automático e não barra o corpo do upload, com a menor configuração entre as três.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Superfície pública fixada no resolve (mesma Option A; resolve DG-1, opção a):
+  - todo o tráfego vai para o BFF, exceto `GET /auth/confirm-email`, roteado para a API;
+  - o `APP_URL` da API aponta para a origem servida pelo Caddy, para o link de confirmação do e-mail chegar à API;
+  - a borda sobrescreve `X-Forwarded-For`, e o app nunca confia no valor vindo do cliente (`rate-limit-visitor-identity/TD-01`);
+  - sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy.
+
+  A recuperação de senha fica como **lacuna conhecida e documentada**: o link de reset (`/auth/reset-password`, que só aceita `POST`) continua sem destino, e a tela de nova senha segue adiada (`phase-02-auth-frontend`).
+
+### testes-producao/TD-08
+
+**Recommendation:** o código e os templates ficam como estão, a mudança cabe na configuração e a entregabilidade fica com quem a faz bem.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das três do research. Ela foi registrada como C (servidor SMTP próprio no host, sem terceiros) por ser a mais próxima, com uma diferença: o Mailpit **captura e não entrega**, e os e-mails são lidos na UI dele. Sem servidor externo (AMB-2 b), nenhum e-mail sai de verdade. O transporte de `phase-02-auth/TD-05` (host, porta, `secure`, `auth`) fica todo em env, então trocar por um relay real seria só configuração. A Recommendation A (relay de provedor) não se aplica.
+
+### testes-producao/TD-09
+
+**Recommendation:** usa o CI do TD-03 como portão, dá versões imutáveis com rollback trivial e mantém o servidor só executando, com o mínimo de peças novas.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Decisão B, diferente da Recommendation A (GHCR + deploy por SSH), por causa do AMB-2 b: o "servidor" é a máquina local, e não há registry nem deploy remoto. Dockerfiles multi-stage de produção para API/worker e para o BFF são construídos com `docker compose build` a partir do compose da raiz. Os segredos ficam num `.env.production` fora do git, com um `.env.production.example` versionado, e o mesmo `INTERNAL_API_SECRET` é lido pelos dois containers (`rate-limit-visitor-identity/TD-02`).
+
+### testes-producao/TD-10
+
+**Recommendation:** atende ao healthcheck, à ordem de subida e à verificação de deploy, e protege o processamento no encerramento, sem dependências novas. O Terminus e o pino passam a valer quando houver agregador de logs.
+**Libraries:** —
+
+### testes-producao/TD-11
+
+**Recommendation:** leva um backup consistente do banco para fora da máquina, independente do provedor e quase sem custo. Os vídeos já ficam duráveis no storage se o TD-05 for R2.
+**Libraries:** —
+
+**Revisions:**
+- 2026-10-12 — Decisão C, diferente da Recommendation A (`pg_dump` agendado), porque a stack de produção é só local (AMB-2 b) e a perda dos volumes Docker do Postgres e do MinIO é aceita. Não há serviço de backup nem roteiro de restauração.
 
 ## Inherited Decisions Detail
 

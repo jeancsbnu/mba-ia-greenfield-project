@@ -1,7 +1,7 @@
 ---
 scope_type: phase
 related_phases: [7]
-status: pending
+status: decided
 date: 2026-10-11
 scope_description: "Fatia testes-producao da Fase 07: testes ponta a ponta dos fluxos principais contra a stack real, pipeline de CI e o ambiente de produção (hospedagem, storage, proxy/TLS, e-mail, migrations, entrega, saúde e backup)"
 covers_capabilities:
@@ -106,7 +106,18 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — é a única que prova a integração entre BFF, API, worker e storage, que nenhuma suíte cobre hoje, e mantém o MSW onde ele é forte: muitos cenários de tela, rápidos e com erros sob comando.
 
-**Decision:** _[pending]_
+**Decision:** A (suíte de fumaça full-stack em Playwright contra a stack real, além das suítes MSW e supertest atuais, que ficam como estão). (resolve OQ-1 e AMB-1 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Fluxos da suíte fixados no resolve (mesma Option A; resolve AMB-1), um por fase entregue:
+  1. cadastro → confirmação pelo link lido no Mailpit → login e logout;
+  2. upload tus → processamento no worker → publicação;
+  3. assistir com URL pré-assinada e view contada;
+  4. like, comentário e inscrição;
+  5. home, busca e categoria.
+
+  A recuperação de senha fica fora da suíte: o front não tem tela de nova senha (adiada em `phase-02-auth-frontend`) e o link de reset segue como lacuna conhecida (DG-1, ver TD-07). A suíte roda contra a stack do compose de produção da raiz (TD-04).
 
 ---
 
@@ -138,7 +149,7 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — com uma suíte pequena, como o TD-01 propõe, o custo por jornada é aceitável. Em troca, o isolamento é real e o cadastro e o processamento são exercitados, que são exatamente os fluxos principais que a capability pede.
 
-**Decision:** _[pending]_
+**Decision:** A (ambiente zerado por execução; cada jornada cria os próprios dados — cadastro confirmado pelo link lido na API do Mailpit e upload de um vídeo-fixture curto versionado no repositório). (resolve OQ-2 do /plan-validate)
 
 ---
 
@@ -169,7 +180,11 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option B — reaproveita a topologia e os comandos que o projeto já trata como fonte da verdade, resolve o MinIO sem gambiarra e dá ao deploy do TD-09 um portão automático.
 
-**Decision:** _[pending]_
+**Decision:** B (GitHub Actions dirigindo os próprios compose do projeto, com a checagem de frescor do `openapi.json`/`types.gen.ts` de `next-frontend-openapi-typing/TD-03`). (resolve OQ-3 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a frase da Recommendation sobre dar "ao deploy do TD-09 um portão automático" deixa de valer. A CI é o portão do PR, com as suítes de cada subprojeto, `tsc --noEmit`, lint, a checagem de frescor do contrato OpenAPI e a suíte full-stack do TD-01.
 
 ---
 
@@ -200,7 +215,13 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — o projeto já é descrito inteiro em Docker Compose, e uma VPS roda o worker e os uploads longos sem os limites de plataforma, com custo previsível. A operação que sobra (TLS, backup) é coberta pelos TD-07 e TD-11.
 
-**Decision:** _[pending]_
+**Decision:** A (Docker Compose de produção, instância única, num compose da raiz que une os dois stacks numa rede só — executado só no Docker local, sem servidor externo). (resolve OQ-4, AMB-2, AMB-3 e AMB-4 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Host fixado no resolve (resolve AMB-2, opção b): a stack de produção roda **só no Docker local** e não será colocada em servidor externo. A VPS da Option A sai do escopo, e não há domínio, provedor nem roteiro de deploy. A fatia termina com os artefatos de produção completos (compose, Dockerfiles, configuração do proxy, workflow de CI), validados subindo essa stack localmente.
+- 2026-10-12 — Instância única de API, worker e BFF (resolve AMB-3, opção a). O throttler em memória de `phase-02-auth/TD-08` continua valendo, e não há TD de storage do throttler em Redis.
+- 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do repositório referencia as imagens de API, worker e BFF numa rede única. O BFF alcança a API pelo nome do serviço (`API_URL` com o nome do serviço, nunca `localhost`), e a API não publica porta no host. Os compose de desenvolvimento de cada subprojeto ficam como estão (`next-frontend-openapi-typing/TD-02`). A suíte full-stack do TD-01 sobe sobre esse mesmo compose.
 
 ---
 
@@ -231,7 +252,11 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option B — tira do servidor o volume de vídeo e o tráfego de streaming, sem custo de egress e sem operar um MinIO que deixou de ser mantido. O ponto a validar no build é a regra de partes uniformes com o `@tus/s3-store`, num teste de upload retomado.
 
-**Decision:** _[pending]_
+**Decision:** A (MinIO na stack de produção do Docker local). (resolve OQ-5 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b: sem servidor externo, não há conta de storage em nuvem. O MinIO roda no compose de produção da raiz, com volume próprio, bucket e credenciais por env. O endpoint público usado nas URLs pré-assinadas e nas thumbnails continua parametrizado por env, como no dev. O código S3-compatível de `upload-processing/TD-01` não muda.
 
 ---
 
@@ -262,7 +287,7 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — garante a ordem (schema antes de API e worker) dentro do próprio compose, sem depender de pessoa nem de corrida entre processos.
 
-**Decision:** _[pending]_
+**Decision:** A (serviço one-off `migrate` no compose de produção, rodando as migrations compiladas antes de API e worker subirem). (resolve OQ-6 do /plan-validate)
 
 ---
 
@@ -293,7 +318,17 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — com um só serviço público, o Caddy entrega TLS automático e não barra o corpo do upload, com a menor configuração entre as três.
 
-**Decision:** _[pending]_
+**Decision:** A (Caddy como único serviço publicado da stack de produção local). (resolve OQ-7 e DG-1 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Superfície pública fixada no resolve (mesma Option A; resolve DG-1, opção a):
+  - todo o tráfego vai para o BFF, exceto `GET /auth/confirm-email`, roteado para a API;
+  - o `APP_URL` da API aponta para a origem servida pelo Caddy, para o link de confirmação do e-mail chegar à API;
+  - a borda sobrescreve `X-Forwarded-For`, e o app nunca confia no valor vindo do cliente (`rate-limit-visitor-identity/TD-01`);
+  - sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy.
+
+  A recuperação de senha fica como **lacuna conhecida e documentada**: o link de reset (`/auth/reset-password`, que só aceita `POST`) continua sem destino, e a tela de nova senha segue adiada (`phase-02-auth-frontend`).
 
 ---
 
@@ -324,7 +359,11 @@ A decisão é onde essa prova mora.
 
 **Recommendation:** Option A — o código e os templates ficam como estão, a mudança cabe na configuração e a entregabilidade fica com quem a faz bem.
 
-**Decision:** _[pending]_
+**Decision:** C (Mailpit como servidor SMTP da stack de produção local; transporte inteiro por env). (resolve OQ-8 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das três do research. Ela foi registrada como C (servidor SMTP próprio no host, sem terceiros) por ser a mais próxima, com uma diferença: o Mailpit **captura e não entrega**, e os e-mails são lidos na UI dele. Sem servidor externo (AMB-2 b), nenhum e-mail sai de verdade. O transporte de `phase-02-auth/TD-05` (host, porta, `secure`, `auth`) fica todo em env, então trocar por um relay real seria só configuração. A Recommendation A (relay de provedor) não se aplica.
 
 ---
 
@@ -361,7 +400,11 @@ Os segredos são `JWT_SECRET`, `JWT_REFRESH_SECRET`, `INTERNAL_API_SECRET` (igua
 
 **Recommendation:** Option A — usa o CI do TD-03 como portão, dá versões imutáveis com rollback trivial e mantém o servidor só executando, com o mínimo de peças novas.
 
-**Decision:** _[pending]_
+**Decision:** B (build das imagens de produção no próprio host — o Docker local — pelo compose da raiz; segredos num `.env` de produção fora do git). (resolve OQ-9 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Decisão B, diferente da Recommendation A (GHCR + deploy por SSH), por causa do AMB-2 b: o "servidor" é a máquina local, e não há registry nem deploy remoto. Dockerfiles multi-stage de produção para API/worker e para o BFF são construídos com `docker compose build` a partir do compose da raiz. Os segredos ficam num `.env.production` fora do git, com um `.env.production.example` versionado, e o mesmo `INTERNAL_API_SECRET` é lido pelos dois containers (`rate-limit-visitor-identity/TD-02`).
 
 ---
 
@@ -398,7 +441,7 @@ Hoje não há endpoint de saúde nem log estruturado, e nada trata o SIGTERM. O 
 
 **Recommendation:** Option B — atende ao healthcheck, à ordem de subida e à verificação de deploy, e protege o processamento no encerramento, sem dependências novas. O Terminus e o pino passam a valer quando houver agregador de logs.
 
-**Decision:** _[pending]_
+**Decision:** B (endpoint de health simples + Logger nativo + `enableShutdownHooks`). (resolve OQ-10 do /plan-validate)
 
 ---
 
@@ -429,7 +472,11 @@ Hoje não há endpoint de saúde nem log estruturado, e nada trata o SIGTERM. O 
 
 **Recommendation:** Option A — leva um backup consistente do banco para fora da máquina, independente do provedor e quase sem custo. Os vídeos já ficam duráveis no storage se o TD-05 for R2.
 
-**Decision:** _[pending]_
+**Decision:** C (sem backup automatizado). (resolve OQ-11 do /plan-validate)
+
+**Revisions:**
+
+- 2026-10-12 — Decisão C, diferente da Recommendation A (`pg_dump` agendado), porque a stack de produção é só local (AMB-2 b) e a perda dos volumes Docker do Postgres e do MinIO é aceita. Não há serviço de backup nem roteiro de restauração.
 
 ---
 
@@ -437,14 +484,14 @@ Hoje não há endpoint de saúde nem log estruturado, e nada trata o SIGTERM. O 
 
 | ID | Scope | Decision | Recommendation | Choice |
 |----|-------|----------|---------------|--------|
-| TD-01 | Repo-wide | Camada dos testes ponta a ponta dos fluxos principais | A — suíte de fumaça full-stack, além das atuais | _[pending]_ |
-| TD-02 | Repo-wide | Dados e estado da suíte full-stack | A — ambiente zerado, dados criados pelos cenários | _[pending]_ |
-| TD-03 | Repo-wide | Pipeline de CI | B — GitHub Actions dirigindo os compose do projeto | _[pending]_ |
-| TD-04 | Repo-wide | Plataforma de hospedagem | A — VPS única com Docker Compose | _[pending]_ |
-| TD-05 | Cross-layer | Armazenamento de objetos em produção | B — Cloudflare R2 | _[pending]_ |
-| TD-06 | Backend | Execução das migrations em produção | A — serviço one-off `migrate` | _[pending]_ |
-| TD-07 | Repo-wide | Proxy reverso, TLS e superfície pública | A — Caddy | _[pending]_ |
-| TD-08 | Backend | Envio de e-mail transacional | A — relay SMTP de provedor transacional | _[pending]_ |
-| TD-09 | Repo-wide | Build das imagens, entrega e segredos | A — GHCR + deploy por SSH | _[pending]_ |
-| TD-10 | Backend | Saúde, logs e encerramento | B — health simples + Logger nativo + shutdown hooks | _[pending]_ |
-| TD-11 | Repo-wide | Backup e recuperação dos dados | A — `pg_dump` agendado no object storage | _[pending]_ |
+| TD-01 | Repo-wide | Camada dos testes ponta a ponta dos fluxos principais | A — suíte de fumaça full-stack, além das atuais | A (5 fluxos, sem reset de senha) |
+| TD-02 | Repo-wide | Dados e estado da suíte full-stack | A — ambiente zerado, dados criados pelos cenários | A |
+| TD-03 | Repo-wide | Pipeline de CI | B — GitHub Actions dirigindo os compose do projeto | B (portão de PR, sem deploy) |
+| TD-04 | Repo-wide | Plataforma de hospedagem | A — VPS única com Docker Compose | A (só Docker local, instância única, compose na raiz) |
+| TD-05 | Cross-layer | Armazenamento de objetos em produção | B — Cloudflare R2 | A (MinIO local) |
+| TD-06 | Backend | Execução das migrations em produção | A — serviço one-off `migrate` | A |
+| TD-07 | Repo-wide | Proxy reverso, TLS e superfície pública | A — Caddy | A (expõe `GET /auth/confirm-email`) |
+| TD-08 | Backend | Envio de e-mail transacional | A — relay SMTP de provedor transacional | C (Mailpit) |
+| TD-09 | Repo-wide | Build das imagens, entrega e segredos | A — GHCR + deploy por SSH | B (build local, sem registry) |
+| TD-10 | Backend | Saúde, logs e encerramento | B — health simples + Logger nativo + shutdown hooks | B |
+| TD-11 | Repo-wide | Backup e recuperação dos dados | A — `pg_dump` agendado no object storage | C |
