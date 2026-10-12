@@ -3,7 +3,7 @@ kind: phase
 name: phase-07-testes-producao
 sources_mtime:
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:41:11-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:09:12-03:00"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "2026-10-08T19:04:24-03:00"
@@ -20,7 +20,7 @@ sources_mtime:
   .claude/skills/testing-guide-next-frontend/SKILL.md: "2026-06-29T19:03:26-03:00"
 sources_hash:
   docs/project-plan.md: "18d6466649bb"
-  docs/decisions/technical-decisions-testes-producao.md: "1f2a4e4f9a78"
+  docs/decisions/technical-decisions-testes-producao.md: "5ffc012066d0"
   docs/decisions/technical-decisions-next-frontend-config-base.md: "8d27d591df0e"
   docs/decisions/technical-decisions-next-frontend-msw-foundation.md: "a53ada59d6a6"
   docs/decisions/technical-decisions-rate-limit-visitor-identity.md: "0d1493a08793"
@@ -82,17 +82,18 @@ sources_hash:
 | testes-producao/TD-01 | phase | Repo-wide | Camada dos testes ponta a ponta dos fluxos principais | decided | A | — | — |
 |     └─ Last revision: 2026-10-12 — Fluxos da suíte fixados no resolve (mesma Option A; resolve AMB-1), um por fase… | | | | | | | |
 | testes-producao/TD-02 | phase | Repo-wide | Dados e estado da suíte full-stack | decided | A | — | — |
+|     └─ Last revision: 2026-10-12 — Isolamento da suíte fixado no resolve (mesma Option A; resolve IC-3, opção a):… | | | | | | | |
 | testes-producao/TD-03 | phase | Repo-wide | Pipeline de CI | decided | B | — | — |
-|     └─ Last revision: 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Sem deploy real (AMB-2 b, ver TD-04), a CI não alimenta nenhuma entrega: a fras… | | | | | | | |
 | testes-producao/TD-04 | phase | Repo-wide | Plataforma de hospedagem | decided | A | — | — |
-|     └─ Last revision: 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Topologia de rede (resolve AMB-4, opção a): um compose de produção na raiz do r… | | | | | | | |
 | testes-producao/TD-05 | phase | Cross-layer | Armazenamento de objetos em produção | decided | A | — | — |
-|     └─ Last revision: 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Endpoint público de assinatura (mesma Option A; resolve IC-1, opção a). Hoje o… | | | | | | | |
 | testes-producao/TD-06 | phase | Backend | Execução das migrations em produção | decided | A | — | — |
 | testes-producao/TD-07 | phase | Repo-wide | Proxy reverso, TLS e superfície pública | decided | A | — | — |
-|     └─ Last revision: 2026-10-12 — Superfície pública fixada no resolve (mesma Option A; resolve DG-1, opção a): | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Superfície pública revista no resolve (mesma Option A; resolve IC-1, IC-2 e ICC… | | | | | | | |
 | testes-producao/TD-08 | phase | Backend | Envio de e-mail transacional em produção | decided | C | — | — |
-|     └─ Last revision: 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das… | | | | | | | |
+|     └─ Last revision: 2026-10-12 — Acesso ao Mailpit fixado no resolve (mesma Option C; resolve IC-2, opção a): a… | | | | | | | |
 | testes-producao/TD-09 | phase | Repo-wide | Build das imagens, entrega e segredos | decided | B | — | — |
 |     └─ Last revision: 2026-10-12 — Decisão B, diferente da Recommendation A (GHCR + deploy por SSH), por causa do… | | | | | | | |
 | testes-producao/TD-10 | phase | Backend | Saúde, logs e encerramento dos processos | decided | B | — | — |
@@ -134,6 +135,9 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
 **Recommendation:** com uma suíte pequena, como o TD-01 propõe, o custo por jornada é aceitável. Em troca, o isolamento é real e o cadastro e o processamento são exercitados, que são exatamente os fluxos principais que a capability pede.
 **Libraries:** —
 
+**Revisions:**
+- 2026-10-12 — Isolamento da suíte fixado no resolve (mesma Option A; resolve IC-3, opção a): a suíte sobe o **mesmo** compose de produção da raiz com outro nome de projeto (`docker compose -p …`), com volumes próprios e portas publicadas próprias (Caddy e Mailpit, por env), e o derruba com os volumes ao terminar. Assim o "ambiente zerado por execução" vale só para o projeto da suíte, e a stack de produção local nunca é tocada; as duas podem rodar ao mesmo tempo.
+
 ### testes-producao/TD-03
 
 **Recommendation:** reaproveita a topologia e os comandos que o projeto já trata como fonte da verdade, resolve o MinIO sem gambiarra e dá ao deploy do TD-09 um portão automático.
@@ -159,6 +163,7 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
 
 **Revisions:**
 - 2026-10-12 — Decisão A, diferente da Recommendation B (Cloudflare R2), por causa do AMB-2 b: sem servidor externo, não há conta de storage em nuvem. O MinIO roda no compose de produção da raiz, com volume próprio, bucket e credenciais por env. O endpoint público usado nas URLs pré-assinadas e nas thumbnails continua parametrizado por env, como no dev. O código S3-compatível de `upload-processing/TD-01` não muda.
+- 2026-10-12 — Endpoint público de assinatura (mesma Option A; resolve IC-1, opção a). Hoje o `StorageService` assina com o mesmo client que usa internamente (`MINIO_ENDPOINT`/`MINIO_PORT` → `http://minio:9000`), e o navegador não resolve esse host. A API passa a ter um endpoint público **só para assinar** URLs, separado do endpoint interno usado para ler e gravar. Esse endpoint aponta para o endereço com que o Caddy serve o storage (TD-07), que repassa o `Host` original, o mesmo que foi assinado. Sem o endpoint público configurado, o comportamento de dev continua igual.
 
 ### testes-producao/TD-06
 
@@ -178,6 +183,10 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
   - sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy.
 
   A recuperação de senha fica como **lacuna conhecida e documentada**: o link de reset (`/auth/reset-password`, que só aceita `POST`) continua sem destino, e a tela de nova senha segue adiada (`phase-02-auth-frontend`).
+- 2026-10-12 — Superfície pública revista no resolve (mesma Option A; resolve IC-1, IC-2 e ICC-1), substituindo os dois primeiros itens da Revision anterior:
+  - **nenhuma rota da API é exposta.** O link de confirmação aponta para uma rota `GET` do **BFF** no mesmo path `/auth/confirm-email` (assim o `mail.service.ts` e o `APP_URL` na origem do Caddy não mudam). Ela repassa a confirmação à API com `X-Client-IP` e `X-Internal-Token`, como as demais rotas do BFF (`rate-limit-visitor-identity/TD-02`), e redireciona para `/login` em vez de devolver o 204 em branco. O rate limit de 10/60 s volta a contar por visitante, e não mais pelo IP do container do Caddy (ICC-1);
+  - **o Caddy também serve o storage** num endereço próprio (host ou porta separados), fazendo proxy para o MinIO e preservando o `Host`. Não é um path da mesma origem: com URLs path-style, o bucket `videos` colidiria com a rota `/videos/{publicId}` do front. É esse endereço que a API usa para assinar (TD-05, IC-1);
+  - **o Mailpit publica a própria porta** de UI e API no host, fora do Caddy, como no dev (TD-08, IC-2). O Caddy deixa de ser o único serviço publicado: são ele e o Mailpit.
 
 ### testes-producao/TD-08
 
@@ -186,6 +195,7 @@ _Só as duas bullets da fatia (`covers_capabilities`); as seis primeiras bullets
 
 **Revisions:**
 - 2026-10-12 — O usuário escolheu o **Mailpit** na stack de produção, uma opção fora das três do research. Ela foi registrada como C (servidor SMTP próprio no host, sem terceiros) por ser a mais próxima, com uma diferença: o Mailpit **captura e não entrega**, e os e-mails são lidos na UI dele. Sem servidor externo (AMB-2 b), nenhum e-mail sai de verdade. O transporte de `phase-02-auth/TD-05` (host, porta, `secure`, `auth`) fica todo em env, então trocar por um relay real seria só configuração. A Recommendation A (relay de provedor) não se aplica.
+- 2026-10-12 — Acesso ao Mailpit fixado no resolve (mesma Option C; resolve IC-2, opção a): a UI e a API HTTP do Mailpit ficam publicadas no host, fora do Caddy, como no dev. O SMTP fica só na rede interna do compose. É por essa API que a suíte do TD-01, rodando no host, lê o link de confirmação; o projeto Compose da suíte usa uma porta própria (TD-02).
 
 ### testes-producao/TD-09
 
