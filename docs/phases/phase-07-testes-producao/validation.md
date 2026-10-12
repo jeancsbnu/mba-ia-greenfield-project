@@ -2,15 +2,15 @@
 kind: phase
 name: phase-07-testes-producao
 status: dirty
-issue_count: 0
+issue_count: 2
 sources_mtime:
-  docs/phases/phase-07-testes-producao/context.md: "2026-10-12T19:50:53-03:00"
-  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T19:50:53-03:00"
+  docs/phases/phase-07-testes-producao/context.md: "2026-10-12T20:17:20-03:00"
+  docs/decisions/technical-decisions-testes-producao.md: "2026-10-12T20:17:20-03:00"
   docs/project-plan.md: "2026-06-29T19:03:26-03:00"
   docs/decisions/technical-decisions-home-busca.md: "2026-10-11T17:47:13-03:00"
 sources_hash:
-  docs/phases/phase-07-testes-producao/context.md: "cc5d7077756d"
-  docs/decisions/technical-decisions-testes-producao.md: "1f2a4e4f9a78"
+  docs/phases/phase-07-testes-producao/context.md: "5fe28e4011be"
+  docs/decisions/technical-decisions-testes-producao.md: "5ffc012066d0"
   docs/project-plan.md: "18d6466649bb"
   docs/decisions/technical-decisions-home-busca.md: "feda55ba3eed"
 issues:
@@ -94,6 +94,12 @@ issues:
     status: resolved
     summary: "confirm-email direto do Caddy cai no balde ip:<caddy> de 10/60 s para todos"
     resolved_by: testes-producao/TD-07
+  - id: IC-4
+    status: open
+    summary: "TLS da CA interna + storage em origem separada: navegador bloqueia mídia"
+  - id: ICC-2
+    status: open
+    summary: "Rota GET do BFF como destino do link contraria phase-02-auth-frontend/TD-07 (RSC)"
 advisories: []
 ---
 
@@ -103,7 +109,14 @@ advisories: []
 
 ### Inconsistencies
 
-_None._
+- **IC-4** — A combinação de TLS pela CA interna com o storage numa origem separada bloqueia a mídia no navegador. Os pontos em conflito:
+  - a 1ª Revision do TD-07 diz que, "sem domínio público (AMB-2 b), o TLS usa a CA interna do Caddy";
+  - a 2ª Revision do TD-07 e a do TD-05 dizem que o Caddy serve o storage "num endereço próprio (host ou porta separados)", e é esse endereço que vai nas URLs assinadas.
+
+  O navegador só oferece aceitar um certificado não confiável na navegação da página principal. `<img>` e `<video>` de outra origem com certificado da CA interna falham sem aviso. O Caddy em container também não instala a própria CA raiz no host. Na prática, vídeos e thumbnails não carregam até que alguém confie manualmente na CA. Explicit choice:
+  - (a) a stack local serve **só HTTP em `localhost`** (sem TLS, já que não há domínio). O cookie de sessão `secure` em produção (`next-frontend/lib/auth/session.ts`) continua aceito, porque os navegadores tratam `localhost` como contexto seguro. É uma Revision no TD-07;
+  - (b) mantém a CA interna e documenta, como passo de setup, exportar a CA raiz do Caddy (do volume de dados dele) e instalá-la no host. A suíte usa `ignoreHTTPSErrors`. É uma Revision no TD-07;
+  - (c) volta o storage para um path da mesma origem, com um prefixo que não colida com `/videos/{publicId}`. Isso reverte o IC-1 e é uma Revision no TD-05 e no TD-07.
 
 ### Ambiguities
 
@@ -119,7 +132,14 @@ _None._
 
 ### Inherited Constraint Conflicts
 
-_None._
+- **ICC-2** — A rota de confirmação no BFF contraria a decisão herdada sobre o destino do link de confirmação:
+  - a 2ª Revision do TD-07 (resolve ICC-1) faz o link apontar para uma **rota `GET` do BFF** em `/auth/confirm-email`, que repassa a confirmação à API e redireciona para `/login`;
+  - `phase-02-auth-frontend/TD-07` decidiu que "confirmation is RSC-only" e rejeitou essa forma: "Option B's Route-Handler-as-link-target adds redirects for no clean gain".
+
+  A tela RSC de confirmação está adiada (`## Inherited Deferred Capabilities`, `phase-02-auth-frontend`), e por isso esta fatia não tem UI para implementá-la. Explicit choice:
+  - (a) manter a rota do BFF como **ponte até a tela adiada existir**. Uma Revision no TD-07 desta fatia registra a divergência e diz que a página RSC substitui a rota quando a tela de confirmação for entregue, sem mudar o link;
+  - (b) implementar a página RSC de confirmação agora, conforme a decisão herdada. É uma superfície de UI sem desenho e exige `/screen-inventory` e escopo de UI, fora desta fatia;
+  - (c) registrar uma Revision em `phase-02-auth-frontend/TD-07` trocando a decisão para a Route Handler.
 
 ### Unresolved Open Questions
 
