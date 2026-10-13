@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { http, HttpResponse } from "msw"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { DEFAULT_RETURN_TO } from "@/lib/auth/refresh-redirect"
 import { server } from "@/mocks/server"
 import { LoginForm } from "../login-form"
 
@@ -170,7 +171,7 @@ describe("<LoginForm /> returnTo (social-interactions-anonymous-gate/TD-03)", ()
     expect(replaceMock.mock.calls[0][0]).not.toContain("outro.site")
   })
 
-  it("keeps the refresh-only flow when there is no returnTo", async () => {
+  it("leaves /login for the default destination when there is no returnTo", async () => {
     const user = userEvent.setup()
     acceptLogin()
 
@@ -178,7 +179,7 @@ describe("<LoginForm /> returnTo (social-interactions-anonymous-gate/TD-03)", ()
     await fillValid(user)
     await user.click(screen.getByRole("button", { name: "Entrar" }))
 
-    await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1))
-    expect(replaceMock).not.toHaveBeenCalled()
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith(DEFAULT_RETURN_TO))
+    expect(refreshMock).toHaveBeenCalledTimes(1)
   })
 })

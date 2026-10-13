@@ -57,13 +57,12 @@ function LoginForm({ returnTo, className, ...props }: LoginFormProps) {
     }
 
     // On 200 the BFF has already sealed the iron-session cookie (tokens never
-    // cross to the browser, per TD-02). Com returnTo, volta ao ponto de
-    // interação de onde o visitante anônimo saiu, validado por safeReturnTo
+    // cross to the browser, per TD-02). Volta ao ponto de interação de onde o
+    // visitante anônimo saiu, validado por safeReturnTo; sem returnTo, o
+    // destino padrão — ficar em /login deixava o usuário logado sem saber
     // (social-interactions-anonymous-gate/TD-03). Refresh so server chrome
     // reflects the authenticated session (per phase-02-auth-frontend/TD-06).
-    if (returnTo) {
-      router.replace(safeReturnTo(returnTo))
-    }
+    router.replace(safeReturnTo(returnTo))
     router.refresh()
   }
 
