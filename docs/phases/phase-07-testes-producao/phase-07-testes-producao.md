@@ -33,7 +33,7 @@ Entregar a fatia testes-producao da Fase 07: os "Testes dos fluxos principais da
 **Description:** Expor o health simples da API, que o compose de produção usa como `healthcheck` e como condição de subida dos serviços dependentes (per `testes-producao/TD-10`).
 
 **Route:** GET /health
-**Test Specs:** _pending /plan-test-specs_
+**Test Specs:** see `nestjs-project/specs/health.plan.md`
 **Authorization:** Anonymous (`@Public()`)
 
 **Technical actions:**
