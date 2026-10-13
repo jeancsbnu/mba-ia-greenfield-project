@@ -13,6 +13,7 @@ const CONFLICT_EMAIL = "conflict@example.com";
 const BAD_REQUEST_EMAIL = "badrequest@example.com";
 const INVALID_CREDENTIALS_EMAIL = "invalid@example.com";
 const UNCONFIRMED_EMAIL = "unconfirmed@example.com";
+const INVALID_CONFIRMATION_TOKEN = "invalid-confirmation-token";
 
 /**
  * Prefixo do token de acesso fabricado no login.
@@ -99,6 +100,19 @@ export const handlers = [
 
   // POST /auth/logout
   http.post(`${env.API_URL}/auth/logout`, () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // GET /auth/confirm-email — idempotente no Nest: 204 também para link já usado.
+  http.get(`${env.API_URL}/auth/confirm-email`, ({ request }) => {
+    const token = new URL(request.url).searchParams.get("token");
+
+    if (token === INVALID_CONFIRMATION_TOKEN) {
+      return HttpResponse.json(
+        errorEnvelope(401, "INVALID_TOKEN", "Token is invalid"),
+        { status: 401 }
+      );
+    }
     return new HttpResponse(null, { status: 204 });
   }),
 

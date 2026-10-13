@@ -1,0 +1,178 @@
+# Portão do PR (testes-producao/TD-03, Option B): suítes de cada subprojeto,
+# type-check, lint e a suíte full-stack, dirigindo os próprios compose do
+# projeto — mesma topologia e mesmo Node do dev. Sem deploy (a stack de
+# produção é só local), a CI não alimenta nenhuma entrega.
+#
+# A checagem de frescor do contrato OpenAPI continua no workflow
+# `openapi-freshness.yml` (job `freshness`), que não muda.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: nestjs-project
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          # Os containers rodam como `node` (uid 1000); o checkout pertence ao
+          # usuário do runner. Sem isso o `npm ci` no bind mount dá EACCES.
+          chmod -R a+rwX .
+          # Mantém o nestjs-api de pé sem o dev server (os testes sobem o app
+          # em processo), como o compose.override.yaml local.
+          cat > compose.ci.yaml <<'EOF'
+          services:
+            nestjs-api:
+              command: tail -f /dev/null
+          EOF
+
+      - name: Start infrastructure
+        run: docker compose -f compose.yaml -f compose.ci.yaml up -d --wait db redis minio mailpit nestjs-api
+
+      - name: Install dependencies
+        run: docker compose exec -T nestjs-api npm ci
+
+      - name: Unit + integration tests
+        run: docker compose exec -T nestjs-api npm test -- --runInBand
+
+      - name: E2E tests
+        run: docker compose exec -T nestjs-api npm run test:e2e
+
+      - name: Type-check
+        run: docker compose exec -T nestjs-api npx tsc --noEmit
+
+      # Sem `--fix`: o `npm run lint` corrige arquivos, o que na CI esconderia
+      # o erro em vez de reprovar.
+      - name: Lint
+        run: docker compose exec -T nestjs-api npx eslint "{src,apps,libs,test}/**/*.ts"
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: next-frontend
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Prepare environment
+        run: |
+          chmod -R a+rwX .
+          # O .gitignore do subprojeto ignora `.env*`: valores só de CI.
+          cat > .env.local <<'EOF'
+          API_URL=http://host.docker.internal:3000
+          SESSION_PASSWORD=ci-session-password-with-32-chars!
+          INTERNAL_API_SECRET=ci-internal-api-secret
+          EOF
+
+      - name: Start container
+        run: docker compose up -d --wait
+
+      - name: Install dependencies
+        run: docker compose exec -T next-frontend npm ci
+
+      - name: Unit + integration tests
+        run: docker compose exec -T next-frontend npm test
+
+      - name: Type-check
+        run: docker compose exec -T next-frontend npx tsc --noEmit
+
+      - name: Lint
+        run: docker compose exec -T next-frontend npm run lint
+
+  frontend-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: next-frontend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: next-frontend/package-lock.json
+
+      - name: Prepare environment
+        run: |
+          chmod -R a+rwX .
+          cat > .env.local <<'EOF'
+          API_URL=http://host.docker.internal:3000
+          SESSION_PASSWORD=ci-session-password-with-32-chars!
+          INTERNAL_API_SECRET=ci-internal-api-secret
+          EOF
+
+      - name: Start container and install dependencies
+        run: |
+          docker compose up -d --wait
+          docker compose exec -T next-frontend npm ci
+
+      # Em comando próprio, separado de qualquer restart (next-frontend/CLAUDE.md).
+      - name: Start dev server with MSW
+        run: docker compose exec -d next-frontend sh -c "MSW_ENABLED=true npm run dev"
+
+      - name: Wait for the dev server
+        run: curl --retry 30 --retry-delay 2 --retry-connrefused -sSf -o /dev/null http://localhost:3001
+
+      - name: Install Playwright on the runner
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: E2E tests (MSW)
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: next-frontend/playwright-report
+
+  fullstack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: next-frontend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: next-frontend/package-lock.json
+
+      # Google Chrome, não Chromium: o vídeo de exemplo é H.264/AAC.
+      - name: Install dependencies and Chrome
+        run: |
+          npm ci
+          npx playwright install --with-deps chrome
+
+      # Sobe e derruba o projeto Compose `streamtube-fullstack` (globalSetup e
+      # globalTeardown) a partir do compose.prod.yaml da raiz.
+      - name: Full-stack suite
+        run: npm run test:fullstack
+
+      - name: Tear down the suite project
+        if: always()
+        working-directory: .
+        run: docker compose -p streamtube-fullstack -f compose.prod.yaml --env-file next-frontend/fullstack/fullstack.env down -v --remove-orphans
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-fullstack
+          path: next-frontend/playwright-report-fullstack

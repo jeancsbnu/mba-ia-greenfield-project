@@ -1,0 +1,28 @@
+# Borda da stack de produção local (testes-producao/TD-07). Serve só HTTP em
+# localhost — sem domínio público, sem TLS e sem CA interna (Revision "Sem TLS
+# na stack local"). As portas abaixo são as internas do container; as do host
+# vêm do compose.prod.yaml. Nenhum site aponta para a API: o Nest fica só na
+# rede interna, e o link de confirmação de e-mail é atendido pela rota-ponte do
+# BFF.
+
+{
+	auto_https off
+}
+
+# App: o site inteiro vai para o BFF.
+:80 {
+	reverse_proxy bff:3000 {
+		# A borda sobrescreve o X-Forwarded-For com o IP de quem conectou; o
+		# valor vindo do cliente nunca chega ao app
+		# (rate-limit-visitor-identity/TD-01).
+		header_up X-Forwarded-For {remote_host}
+	}
+	# Sem limite de corpo: o upload tus atravessa a borda inteiro.
+}
+
+# Storage: endereço próprio, não um path do app — com URLs path-style o bucket
+# `videos` colidiria com a rota /videos/{publicId} do front. O Caddy repassa o
+# Host recebido, que é o mesmo com que a API assinou a URL (MINIO_PUBLIC_URL).
+:9001 {
+	reverse_proxy minio:9000
+}

@@ -119,6 +119,10 @@ export class AuthService {
   }
 
   async confirm(token: string): Promise<void> {
+    if (await this.isConfirmationAlreadyApplied(token)) {
+      return;
+    }
+
     const record = await this.consumeVerificationToken(
       token,
       VerificationTokenType.EMAIL_CONFIRMATION,
@@ -321,6 +325,23 @@ export class AuthService {
 
     record.used_at = new Date();
     return record;
+  }
+
+  // Confirmação idempotente (testes-producao/TD-07): o link do e-mail pode ser
+  // visitado mais de uma vez — leitores de e-mail que pré-carregam links, ou a
+  // rota-ponte do BFF, que confirma a cada visita. Um token já usado cuja conta
+  // está confirmada não é erro. Só vale para a confirmação: o reset de senha
+  // continua de uso único pelo `consumeVerificationToken`.
+  private async isConfirmationAlreadyApplied(token: string): Promise<boolean> {
+    const record = await this.verificationTokenRepository.findOne({
+      where: {
+        token_hash: this.hashToken(token),
+        type: VerificationTokenType.EMAIL_CONFIRMATION,
+      },
+      relations: ['user'],
+    });
+
+    return record?.used_at != null && record.user.is_confirmed;
   }
 
   private async invalidateActiveVerificationTokens(

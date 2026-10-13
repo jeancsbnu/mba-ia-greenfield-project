@@ -14,6 +14,7 @@ import storageConfig from './config/storage.config';
 import swaggerConfig from './config/swagger.config';
 import { envValidationSchema } from './config/env.validation';
 import { CommentsModule } from './comments/comments.module';
+import { HealthModule } from './health/health.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { VideosModule } from './videos/videos.module';
 
@@ -52,6 +53,7 @@ import { VideosModule } from './videos/videos.module';
     VideosModule,
     SubscriptionsModule,
     CommentsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

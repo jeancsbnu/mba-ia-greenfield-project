@@ -1,0 +1,190 @@
+# Stack de produção local (testes-producao/TD-04): roda só no Docker local, sem
+# servidor externo; instância única de cada processo, numa rede só.
+#
+#   docker compose -f compose.prod.yaml --env-file .env.production up -d --build
+#
+# Só o `caddy` (app e storage) e o `mailpit` (UI e API) publicam portas. As
+# portas do host vêm de APP_PORT, STORAGE_PORT e MAILPIT_PORT, com defaults que
+# não colidem com os compose de dev. A suíte full-stack (next-frontend/fullstack)
+# sobe este mesmo arquivo com outro nome de projeto (`-p`) e outras portas.
+
+name: streamtube-prod
+
+# Uma imagem só para migrate, api e worker. Só a `api` declara o build (três
+# builds da mesma tag em paralelo colidem); os outros dois usam a imagem pronta —
+# o compose constrói tudo antes de criar qualquer container.
+x-nest-image: &nest-image
+  image: streamtube-api:local
+  pull_policy: never
+
+x-nest-env: &nest-env
+  NODE_ENV: production
+  PORT: "3000"
+  # Origem pública servida pelo Caddy: é para onde aponta o link de confirmação
+  # do e-mail (rota-ponte do BFF, testes-producao/TD-07).
+  APP_URL: http://localhost:${APP_PORT:-8088}
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_USERNAME: ${DB_USERNAME:-streamtube}
+  DB_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env.production}
+  DB_NAME: ${DB_NAME:-streamtube}
+  JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env.production}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?defina JWT_REFRESH_SECRET no .env.production}
+  JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-15m}
+  JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
+  # O mesmo valor do bff (rate-limit-visitor-identity/TD-02).
+  INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:?defina INTERNAL_API_SECRET no .env.production}
+  CONFIRMATION_TOKEN_EXPIRATION_HOURS: ${CONFIRMATION_TOKEN_EXPIRATION_HOURS:-1}
+  PASSWORD_RESET_TOKEN_EXPIRATION_HOURS: ${PASSWORD_RESET_TOKEN_EXPIRATION_HOURS:-1}
+  # Mailpit captura e não entrega (testes-producao/TD-08).
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  SWAGGER_ENABLED: "false"
+  MINIO_ENDPOINT: minio
+  MINIO_PORT: "9000"
+  MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-streamtube}
+  MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?defina MINIO_SECRET_KEY no .env.production}
+  MINIO_BUCKET: videos
+  # Host das URLs assinadas: o site do storage no Caddy (testes-producao/TD-05).
+  MINIO_PUBLIC_URL: http://localhost:${STORAGE_PORT:-9200}
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-streamtube}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env.production}
+      POSTGRES_DB: ${DB_NAME:-streamtube}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # Por TCP: no primeiro boot de um volume novo o Postgres sobe um servidor
+    # temporário só no socket Unix, e um `pg_isready` sem `-h` daria "pronto"
+    # antes de a porta 5432 aceitar conexões (o `migrate` levava ECONNREFUSED).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USERNAME:-streamtube}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Storage de produção: MinIO local (testes-producao/TD-05). O bucket é criado
+  # pela própria API no boot (StorageService.onModuleInit).
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-streamtube}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?defina MINIO_SECRET_KEY no .env.production}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # SMTP só na rede interna; UI e API HTTP publicadas no host, fora do Caddy
+  # (testes-producao/TD-08).
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "${MAILPIT_PORT:-8125}:8025"
+    restart: unless-stopped
+
+  # One-off: aplica as migrations compiladas antes de API e worker subirem; uma
+  # falha impede a subida dos dois (testes-producao/TD-06).
+  migrate:
+    <<: *nest-image
+    command: ["npm", "run", "migration:run:prod"]
+    environment: *nest-env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ./nestjs-project
+    image: streamtube-api:local
+    environment: *nest-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    # Health simples (testes-producao/TD-10). A imagem slim não tem curl.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+  worker:
+    <<: *nest-image
+    command: ["node", "dist/worker.main"]
+    environment: *nest-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    # Tempo para o job em andamento terminar no `stop` (encerramento gracioso,
+    # testes-producao/TD-10).
+    stop_grace_period: 2m
+    restart: unless-stopped
+
+  bff:
+    build:
+      context: ./next-frontend
+    image: streamtube-bff:local
+    environment:
+      # Pelo nome do serviço, nunca localhost (testes-producao/TD-04).
+      API_URL: http://api:3000
+      SESSION_PASSWORD: ${SESSION_PASSWORD:?defina SESSION_PASSWORD no .env.production}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:?defina INTERNAL_API_SECRET no .env.production}
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Borda: HTTP em localhost, app e storage (testes-producao/TD-07).
+  caddy:
+    image: caddy:2.10-alpine
+    ports:
+      - "${APP_PORT:-8088}:80"
+      - "${STORAGE_PORT:-9200}:9001"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - bff
+      - minio
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  minio-data:

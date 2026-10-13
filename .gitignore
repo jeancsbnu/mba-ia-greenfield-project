@@ -1,2 +1,5 @@
 .history/
 settings.local.json
+
+# Segredos da stack de produção local (compose.prod.yaml)
+.env.production

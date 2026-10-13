@@ -261,6 +261,22 @@ Real browser → real Next.js (RSC, layouts, real `/api/**` Route Handlers serve
 - Upstream handlers are **shared** with Vitest — no E2E-only fork; per-scenario deviation is a reserved trigger fixture branch, not a runtime override. Trigger values must not collide with Vitest fixture values.
 - `onUnhandledRequest`: `"error"` in Vitest, **`"bypass"`** in instrumentation — never copy `"error"` into `instrumentation.ts`.
 
+### Suíte full-stack (`fullstack/`)
+
+Uma suíte de fumaça **separada** da E2E acima: o Playwright roda contra a **stack real** — o `compose.prod.yaml` da raiz (API, worker, BFF de produção, Postgres, Redis, MinIO, Mailpit e Caddy) — em vez do `next dev` com MSW. Prova a integração BFF ↔ API ↔ worker ↔ storage ↔ e-mail, que nenhuma outra suíte cobre (testes-producao/TD-01).
+
+```bash
+# No HOST, a partir de next-frontend/ (Docker de pé; precisa do Google Chrome)
+npm run test:fullstack
+```
+
+- **Cinco jornadas, uma por fase entregue:** cadastro → confirmação pelo link lido no Mailpit → login/logout; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria. A recuperação de senha fica fora (sem tela de destino).
+- **Ambiente zerado por execução.** O `globalSetup` sobe o projeto Compose `streamtube-fullstack` (outro nome, outras portas — `fullstack/fullstack.env`: app 8180, storage 9280, Mailpit 8181) e o `globalTeardown` o derruba com os volumes. Não toca a stack de produção local nem os compose de dev, e pode rodar ao lado deles.
+- **Cada jornada cria os próprios dados** (`fullstack/helpers.ts`): contas com e-mail único, confirmadas pela API do Mailpit, e vídeos enviados pelo protocolo tus às rotas do BFF, com o fixture `fullstack/fixtures/sample.mp4` (~8 s, acima do limiar de 5 s da view).
+- **Google Chrome, não o Chromium do Playwright** (`channel: "chrome"`): o Chromium não decodifica H.264/AAC e o vídeo não tocaria. Na CI: `npx playwright install chrome`.
+- **Ações otimistas** (like, comentário, inscrição) mudam a tela antes de a API responder: espere a resposta do BFF antes de recarregar, ou o reload aborta o POST.
+- A config é `playwright.fullstack.config.ts`; os relatórios vão para `playwright-report-fullstack/` e `test-results-fullstack/` (ignorados pelo git). A suíte E2E de `tests/` não enxerga estes arquivos, e vice-versa.
+
 ## Stack Summary
 
 Next.js App Router with React Server Components, TypeScript strict, React 19, Tailwind CSS v4 (CSS-first config via `@theme inline` in `app/globals.css` — there is NO `tailwind.config.js`), shadcn/ui (style `radix-nova`, baseColor `neutral`, `cssVariables: true`) on top of `radix-ui` primitives, `class-variance-authority` (`cva`) with extended `tailwind-merge`, custom SVG icon components in `components/icons/` (no external icon library), `Inter` + `Geist_Mono` fonts loaded via `next/font/google` in `app/layout.tsx`. Exact versions in `package.json`.

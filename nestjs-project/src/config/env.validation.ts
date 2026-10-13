@@ -27,6 +27,9 @@ export const envValidationSchema = Joi.object({
   MINIO_ACCESS_KEY: Joi.string().required(),
   MINIO_SECRET_KEY: Joi.string().required(),
   MINIO_BUCKET: Joi.string().default('videos'),
+  // Host com que as URLs pré-assinadas saem, alcançável pelo navegador. Só a
+  // stack de produção define; sem ele, assina-se com o endpoint interno.
+  MINIO_PUBLIC_URL: Joi.string().uri(),
   REDIS_HOST: Joi.string().default('localhost'),
   REDIS_PORT: Joi.number().default(6379),
   REDIS_DB: Joi.number().integer().min(0).default(0),

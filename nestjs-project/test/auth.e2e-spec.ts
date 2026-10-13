@@ -205,7 +205,7 @@ describe('Auth (e2e)', () => {
         .expect(204);
     });
 
-    it('returns 401 with INVALID_TOKEN on an already-used token', async () => {
+    it('returns 204 again when the same link is visited a second time (idempotent)', async () => {
       const token = await captureConfirmationToken('usedtoken@example.com');
 
       await request(app.getHttpServer())
@@ -213,9 +213,22 @@ describe('Auth (e2e)', () => {
         .query({ token })
         .expect(204);
 
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/auth/confirm-email')
         .query({ token })
+        .expect(204);
+
+      const user = await dataSource.query<{ is_confirmed: boolean }[]>(
+        `SELECT is_confirmed FROM users WHERE email = $1`,
+        ['usedtoken@example.com'],
+      );
+      expect(user[0].is_confirmed).toBe(true);
+    });
+
+    it('returns 401 with INVALID_TOKEN on a token that does not exist', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/auth/confirm-email')
+        .query({ token: 'f'.repeat(64) })
         .expect(401);
 
       expect((res.body as ErrorBody).error).toBe('INVALID_TOKEN');

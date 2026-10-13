@@ -22,13 +22,27 @@ export interface GetPresignedUrlOptions {
 @Injectable()
 export class StorageService implements OnModuleInit {
   private readonly client: S3Client;
+  // Só para assinar URLs: o host interno (`minio:9000`) não é alcançável pelo
+  // navegador, então a stack de produção assina com o endereço com que o Caddy
+  // serve o storage. Sem `publicUrl`, assina com o client interno, como no dev
+  // (testes-producao/TD-05).
+  private readonly signingClient: S3Client;
 
   constructor(
     @Inject(storageConfig.KEY)
     private readonly config: ConfigType<typeof storageConfig>,
   ) {
-    this.client = new S3Client({
-      endpoint: `http://${this.config.minioEndpoint}:${this.config.minioPort}`,
+    this.client = this.createClient(
+      `http://${this.config.minioEndpoint}:${this.config.minioPort}`,
+    );
+    this.signingClient = this.config.publicUrl
+      ? this.createClient(this.config.publicUrl)
+      : this.client;
+  }
+
+  private createClient(endpoint: string): S3Client {
+    return new S3Client({
+      endpoint,
       forcePathStyle: true,
       region: 'us-east-1',
       credentials: {
@@ -79,7 +93,9 @@ export class StorageService implements OnModuleInit {
         ResponseContentDisposition: responseContentDisposition,
       }),
     });
-    return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+    return getSignedUrl(this.signingClient, command, {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   async downloadToFile(

@@ -301,6 +301,46 @@ describe('AuthService — confirm', () => {
     expect(usersService.save).toHaveBeenCalledWith(user);
   });
 
+  it('returns without writing when the token was already used to confirm the account', async () => {
+    const rawToken = 'c'.repeat(64);
+    const record = {
+      token_hash: crypto.createHash('sha256').update(rawToken).digest('hex'),
+      type: VerificationTokenType.EMAIL_CONFIRMATION,
+      used_at: new Date(Date.now() - 60_000),
+      expires_at: new Date(Date.now() - 1000),
+      user: { id: 'u1', is_confirmed: true },
+    } as VerificationToken;
+
+    verificationTokenRepository.findOne.mockResolvedValue(record);
+
+    await expect(authService.confirm(rawToken)).resolves.toBeUndefined();
+
+    expect(verificationTokenRepository.save).not.toHaveBeenCalled();
+    expect(usersService.save).not.toHaveBeenCalled();
+  });
+
+  it('throws InvalidTokenException when a used token belongs to an unconfirmed account', async () => {
+    const rawToken = 'd'.repeat(64);
+    const usedRecord = {
+      token_hash: crypto.createHash('sha256').update(rawToken).digest('hex'),
+      type: VerificationTokenType.EMAIL_CONFIRMATION,
+      used_at: new Date(Date.now() - 60_000),
+      expires_at: new Date(Date.now() + 60_000),
+      user: { id: 'u1', is_confirmed: false },
+    } as VerificationToken;
+
+    // 1ª busca (sem filtro de used_at) acha o token usado; a do
+    // consumeVerificationToken filtra used_at IS NULL e não acha nada.
+    verificationTokenRepository.findOne
+      .mockResolvedValueOnce(usedRecord)
+      .mockResolvedValueOnce(null);
+
+    await expect(authService.confirm(rawToken)).rejects.toThrow(
+      InvalidTokenException,
+    );
+    expect(usersService.save).not.toHaveBeenCalled();
+  });
+
   it('throws InvalidTokenException when token is not found', async () => {
     verificationTokenRepository.findOne.mockResolvedValue(null);
 
