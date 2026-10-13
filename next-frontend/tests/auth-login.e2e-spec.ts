@@ -46,6 +46,9 @@ test.describe("auth-login", () => {
 
     // No invalid-credentials / not-confirmed alert on success.
     await expect(page.locator("[data-slot='form-error']")).toHaveCount(0)
+
+    // Sem returnTo, o login sai de /login para o destino padrão.
+    await expect(page).toHaveURL("/channel/videos", { timeout: 15_000 })
   })
 
   test("1.2 login-erros-401-403-400", async ({ page }) => {
