@@ -71,6 +71,9 @@ services:
     # A MinIO parou de publicar imagens (minio/minio saiu do Docker Hub); a
     # Chainguard mantém um build community com o mesmo entrypoint e o `mc`.
     image: cgr.dev/chainguard/minio:latest-dev
+    # A imagem da Chainguard roda como `nonroot`; volumes criados pela minio/minio
+    # (root) ficariam sem permissão de escrita. Como root, serve aos dois.
+    user: root
     ports:
       - "9000:9000"
       - "9001:9001"

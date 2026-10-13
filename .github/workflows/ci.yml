@@ -116,6 +116,13 @@ jobs:
           INTERNAL_API_SECRET=ci-internal-api-secret
           EOF
 
+      # Antes do container: o volume nomeado em ./node_modules faz o Docker criar
+      # a pasta no runner como root, e o `npm ci` daqui daria EACCES.
+      - name: Install Playwright on the runner
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
       - name: Start container and install dependencies
         run: |
           docker compose up -d --wait
@@ -129,11 +136,6 @@ jobs:
         # `--retry-all-errors`: com a porta publicada e o servidor ainda subindo, o
         # docker-proxy aceita e derruba a conexão (reset, não refused).
         run: curl --retry 30 --retry-delay 2 --retry-all-errors -sSf -o /dev/null http://localhost:3001
-
-      - name: Install Playwright on the runner
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
 
       - name: E2E tests (MSW)
         run: npx playwright test
