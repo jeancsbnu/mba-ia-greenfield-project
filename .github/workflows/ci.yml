@@ -84,8 +84,10 @@ jobs:
       - name: Unit + integration tests
         run: docker compose exec -T next-frontend npm test
 
+      # `RouteContext` e os demais tipos globais de rota vêm de `.next/types`,
+      # que só existe depois de um dev/build — num checkout limpo, gera antes.
       - name: Type-check
-        run: docker compose exec -T next-frontend npx tsc --noEmit
+        run: docker compose exec -T next-frontend sh -c "npx next typegen && npx tsc --noEmit"
 
       - name: Lint
         run: docker compose exec -T next-frontend npm run lint
@@ -124,7 +126,9 @@ jobs:
         run: docker compose exec -d next-frontend sh -c "MSW_ENABLED=true npm run dev"
 
       - name: Wait for the dev server
-        run: curl --retry 30 --retry-delay 2 --retry-connrefused -sSf -o /dev/null http://localhost:3001
+        # `--retry-all-errors`: com a porta publicada e o servidor ainda subindo, o
+        # docker-proxy aceita e derruba a conexão (reset, não refused).
+        run: curl --retry 30 --retry-delay 2 --retry-all-errors -sSf -o /dev/null http://localhost:3001
 
       - name: Install Playwright on the runner
         run: |

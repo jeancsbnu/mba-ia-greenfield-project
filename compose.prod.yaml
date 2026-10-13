@@ -82,7 +82,9 @@ services:
   # Storage de produção: MinIO local (testes-producao/TD-05). O bucket é criado
   # pela própria API no boot (StorageService.onModuleInit).
   minio:
-    image: minio/minio:latest
+    # A MinIO parou de publicar imagens (minio/minio saiu do Docker Hub); a
+    # Chainguard mantém um build community com o mesmo entrypoint e o `mc`.
+    image: cgr.dev/chainguard/minio:latest-dev
     command: server /data
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-streamtube}
