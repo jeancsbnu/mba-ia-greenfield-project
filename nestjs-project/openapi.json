@@ -100,7 +100,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Email confirmed successfully"
+            "description": "Email confirmed successfully. Also returned when the link was already used to confirm this account, so revisiting it is harmless."
           },
           "400": {
             "description": "Validation failed",

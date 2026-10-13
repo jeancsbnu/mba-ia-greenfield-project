@@ -938,7 +938,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Email confirmed successfully */
+            /** @description Email confirmed successfully. Also returned when the link was already used to confirm this account, so revisiting it is harmless. */
             204: {
                 headers: {
                     [name: string]: unknown;

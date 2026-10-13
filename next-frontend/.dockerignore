@@ -1,0 +1,16 @@
+# Contexto de build da imagem de produção (Dockerfile): sem segredos, sem
+# artefatos locais e sem o que só os testes usam.
+node_modules
+.next
+.env*
+tests
+playwright-report
+test-results
+specs
+coverage
+compose.yaml
+compose.override.yaml
+Dockerfile*
+*.log
+fullstack
+playwright.fullstack.config.ts

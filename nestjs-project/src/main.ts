@@ -48,6 +48,11 @@ async function bootstrap() {
   uploadApp.use((req, res) => tusServer.handle(req, res));
   app.use('/videos/upload', uploadApp);
 
+  // O SIGTERM do `docker compose stop` dispara os hooks de encerramento dos
+  // módulos (TypeORM, BullMQ, mailer) em vez de matar o processo no meio de
+  // uma requisição (testes-producao/TD-10).
+  app.enableShutdownHooks();
+
   await app.listen(port);
 }
 void bootstrap();

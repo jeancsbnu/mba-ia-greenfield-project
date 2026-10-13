@@ -1,0 +1,14 @@
+# Contexto de build da imagem de produção (Dockerfile): sem segredos, sem
+# artefatos locais e sem o que só os testes usam.
+node_modules
+dist
+coverage
+test
+specs
+.env
+.env.*
+!.env.example
+compose.yaml
+compose.override.yaml
+Dockerfile*
+*.log

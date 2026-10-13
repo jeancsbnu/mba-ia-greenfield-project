@@ -61,3 +61,25 @@ describe('envValidationSchema — SWAGGER_ENABLED', () => {
     expect(value.SWAGGER_ENABLED).toBe('false');
   });
 });
+
+describe('envValidationSchema — MINIO_PUBLIC_URL', () => {
+  it('should accept the environment without MINIO_PUBLIC_URL', () => {
+    const { value, error } = validate({}) as {
+      value: Record<string, unknown>;
+      error?: Error;
+    };
+    expect(error).toBeUndefined();
+    expect(value.MINIO_PUBLIC_URL).toBeUndefined();
+  });
+
+  it('should accept an absolute URL', () => {
+    const { error } = validate({ MINIO_PUBLIC_URL: 'http://localhost:9100' });
+    expect(error).toBeUndefined();
+  });
+
+  it('should reject a value that is not a URI', () => {
+    const { error } = validate({ MINIO_PUBLIC_URL: 'localhost 9100' });
+    expect(error).toBeDefined();
+    expect(error!.message).toContain('MINIO_PUBLIC_URL');
+  });
+});

@@ -26,4 +26,9 @@ export const env = createEnv({
   },
 
   emptyStringAsUndefined: true,
+
+  // Só o `next build` da imagem de produção define SKIP_ENV_VALIDATION: os
+  // segredos não existem no build e chegam em tempo de execução, quando a
+  // validação volta a valer (testes-producao/TD-09).
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });

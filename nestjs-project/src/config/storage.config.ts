@@ -6,4 +6,5 @@ export default registerAs('storage', () => ({
   minioAccessKey: process.env.MINIO_ACCESS_KEY!,
   minioSecretKey: process.env.MINIO_SECRET_KEY!,
   minioBucket: process.env.MINIO_BUCKET || 'videos',
+  publicUrl: process.env.MINIO_PUBLIC_URL || undefined,
 }));

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Saída enxuta para a imagem de produção (testes-producao/TD-09): o
+  // `.next/standalone` traz só o servidor e as dependências rastreadas.
+  output: "standalone",
   // MSW e seus interceptors precisam ficar FORA do bundle do servidor: se o
   // Turbopack os empacota, eles patcheiam cópias dos módulos em vez das
   // instâncias reais que o fetch de servidor do Next usa, e nenhuma chamada

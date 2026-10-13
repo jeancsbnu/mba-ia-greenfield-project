@@ -77,7 +77,11 @@ export class AuthController {
     description:
       "Validates the confirmation token and marks the user's email as confirmed.",
   })
-  @ApiResponse({ status: 204, description: 'Email confirmed successfully' })
+  @ApiResponse({
+    status: 204,
+    description:
+      'Email confirmed successfully. Also returned when the link was already used to confirm this account, so revisiting it is harmless.',
+  })
   @ApiResponse({
     status: 400,
     description: 'Validation failed',

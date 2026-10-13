@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .playwright-cli/
+
+# Relatórios da suíte full-stack (playwright.fullstack.config.ts)
+/playwright-report-fullstack/
+/test-results-fullstack/

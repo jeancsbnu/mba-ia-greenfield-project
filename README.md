@@ -98,6 +98,42 @@ A aplicação ficará disponível em **http://localhost:3001**.
 
 > As stacks são separadas, então o frontend acessa o backend via `host.docker.internal:3000` (configurado em `next-frontend/.env.local` e no `extra_hosts` do compose).
 
+## 🏭 Stack de produção local
+
+A plataforma inteira em modo de produção — imagens compiladas da API, do worker e do BFF, migrations aplicadas por um serviço one-off e o Caddy na borda — sobe a partir do `compose.prod.yaml` da raiz. Ela roda **só no Docker local**: não há servidor externo nem roteiro de deploy.
+
+```bash
+# 1. Crie o arquivo de segredos (ignorado pelo git) e troque os valores de exemplo
+cp .env.production.example .env.production
+
+# 2. Construa as imagens e suba a stack
+docker compose -f compose.prod.yaml --env-file .env.production up -d --build
+
+# Estado dos serviços: api "healthy", migrate "Exited (0)", os demais em execução
+docker compose -f compose.prod.yaml --env-file .env.production ps -a
+
+# Logs de um serviço (api, worker, bff, caddy, migrate…)
+docker compose -f compose.prod.yaml --env-file .env.production logs -f api
+
+# 3. Derrube (acrescente -v para apagar também os volumes do banco e do MinIO)
+docker compose -f compose.prod.yaml --env-file .env.production down
+```
+
+| O quê | Endereço (padrão) | Variável |
+|---|---|---|
+| Aplicação | http://localhost:8088 | `APP_PORT` |
+| Storage (vídeos e thumbnails, URLs assinadas) | http://localhost:9200 | `STORAGE_PORT` |
+| E-mails capturados (UI e API do Mailpit) | http://localhost:8125 | `MAILPIT_PORT` |
+
+As portas padrão não colidem com as dos compose de desenvolvimento, então as duas coisas podem rodar ao mesmo tempo. A API, o banco, o Redis, o MinIO e o BFF ficam só na rede interna.
+
+**Limites assumidos:**
+
+- **Só a partir da própria máquina.** A stack é servida em HTTP em `localhost`, sem TLS. O cookie de sessão é `secure` em produção e os navegadores só o aceitam em HTTP porque `localhost` conta como contexto seguro; por IP da rede local o login não funciona.
+- **Sem backup.** Não há serviço de backup; perder os volumes do Docker (`down -v`) apaga contas e vídeos.
+- **E-mails não são entregues.** O Mailpit captura todo e-mail (confirmação de conta, recuperação de senha); leia-os na UI dele. O link de confirmação leva a `/login` depois de confirmar a conta.
+- **Recuperação de senha sem destino.** O e-mail de redefinição é enviado, mas o front ainda não tem a tela de nova senha: o link fica sem destino (lacuna conhecida).
+
 ## 🧪 Testes
 
 ### Backend (Jest)
