@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import * as React from "react"
 import * as tus from "tus-js-client"
 
@@ -67,6 +68,12 @@ function UploadForm({ className, ...props }: React.ComponentProps<"div">) {
 
     return () => clearInterval(interval)
   }, [state])
+
+  function resetForm() {
+    setFile(null)
+    setTitle("")
+    setState({ phase: "idle" })
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     setFile(event.target.files?.[0] ?? null)
@@ -163,13 +170,35 @@ function UploadForm({ className, ...props }: React.ComponentProps<"div">) {
       )}
 
       {state.phase === "ready" && (
-        <p data-slot="upload-ready">Vídeo pronto!</p>
+        <>
+          <p data-slot="upload-ready">Vídeo pronto!</p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href={`/videos/${state.publicId}/edit`}>
+                Editar e publicar
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/channel/videos">Meus vídeos</Link>
+            </Button>
+          </div>
+        </>
       )}
 
       {state.phase === "failed" && (
-        <p role="alert" data-slot="upload-failed">
-          O processamento do vídeo falhou. Tente enviar novamente.
-        </p>
+        <>
+          <p role="alert" data-slot="upload-failed">
+            O processamento do vídeo falhou. Tente enviar novamente.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button type="button" onClick={resetForm}>
+              Enviar outro vídeo
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/channel/videos">Meus vídeos</Link>
+            </Button>
+          </div>
+        </>
       )}
     </div>
   )

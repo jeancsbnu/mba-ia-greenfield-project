@@ -150,6 +150,13 @@ test.describe("video-upload", () => {
     await expect(page.locator("[data-slot='upload-ready']")).toBeVisible({
       timeout: 10000,
     })
+
+    // A tela fica no layout do studio (navbar do site) e o estado pronto leva
+    // à edição do vídeo recém-enviado.
+    await expect(page.getByRole("banner")).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: "Editar e publicar" })
+    ).toHaveAttribute("href", /^\/videos\/[^/]+\/edit$/)
   })
 
   // 3. Tratamento de erros do backend sem vazar detalhes internos
