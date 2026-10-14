@@ -115,6 +115,52 @@ describe("<UploadForm />", () => {
       await screen.findByText("Vídeo pronto!", {}, { timeout: 5000 })
     ).toBeInTheDocument()
     expect(callCount).toBeGreaterThanOrEqual(2)
+
+    // Pronto não é beco sem saída: leva à edição/publicação ou à lista.
+    expect(screen.getByRole("link", { name: "Editar e publicar" })).toHaveAttribute(
+      "href",
+      "/videos/fixture-upload-id/edit"
+    )
+    expect(screen.getByRole("link", { name: "Meus vídeos" })).toHaveAttribute(
+      "href",
+      "/channel/videos"
+    )
+  }, 10000);
+
+  it("offers a fresh upload after processing fails", async () => {
+    server.use(
+      http.get("/api/videos/:publicId", () =>
+        HttpResponse.json({
+          publicId: "fixture-upload-id",
+          title: "My Video",
+          description: null,
+          status: "failed",
+          durationSeconds: null,
+          createdAt: new Date().toISOString(),
+        })
+      )
+    )
+
+    const user = userEvent.setup()
+    render(<UploadForm />)
+
+    await user.upload(screen.getByLabelText("Arquivo de vídeo"), makeVideoFile())
+    await user.click(screen.getByRole("button", { name: "Enviar vídeo" }))
+
+    uploadInstances[0].options.onAfterResponse?.(
+      { getMethod: () => "POST" },
+      { getHeader: (header) => (header === "X-Video-Public-Id" ? "fixture-upload-id" : undefined) }
+    )
+    uploadInstances[0].options.onSuccess?.()
+
+    await user.click(
+      await screen.findByRole("button", { name: "Enviar outro vídeo" }, { timeout: 5000 })
+    )
+
+    // De volta ao formulário vazio: sem o arquivo anterior, o envio fica travado.
+    expect(screen.getByLabelText("Título")).toHaveValue("")
+    expect(screen.getByRole("button", { name: "Enviar vídeo" })).toBeDisabled()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   }, 10000);
 
   it("shows a safe error message on UPLOAD_FILE_TOO_LARGE without leaking internals", async () => {
