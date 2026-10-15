@@ -45,6 +45,8 @@ function TermsCheckbox({
         Concordo com os{" "}
         <Link
           href="/terms"
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-link hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-[var(--radius-0-5)]"
         >
           Termos de Uso
@@ -52,6 +54,8 @@ function TermsCheckbox({
         e a{" "}
         <Link
           href="/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-link hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-[var(--radius-0-5)]"
         >
           Política de Privacidade
