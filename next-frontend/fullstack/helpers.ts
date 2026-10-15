@@ -25,34 +25,53 @@ type MailpitSearch = { messages: { ID: string }[] }
 type MailpitMessage = { Text: string }
 
 /**
- * Link de confirmação do e-mail que a API mandou para `email`, lido pela API
- * HTTP do Mailpit da stack da suíte. Espera o e-mail chegar (o envio é
- * assíncrono em relação à resposta do cadastro).
+ * Link `/auth/{route}?token=` do e-mail que a API mandou para `email`, lido
+ * pela API HTTP do Mailpit da stack da suíte. Espera o e-mail chegar (o envio
+ * é assíncrono em relação à resposta) e percorre a caixa inteira do endereço:
+ * a conta que pede recuperação de senha já recebeu o e-mail de confirmação.
  */
-export async function readConfirmationLink(
+async function readMailLink(
   request: APIRequestContext,
-  email: string
+  email: string,
+  route: "confirm-email" | "reset-password"
 ): Promise<string> {
-  let messageId = ""
+  const pattern = new RegExp(`https?://\\S+/auth/${route}\\?token=[0-9a-f]+`)
+  let link = ""
   await expect
     .poll(
       async () => {
         const search = await request.get(`${MAILPIT_URL}/api/v1/search`, {
           params: { query: `to:${email}` },
         })
-        const body = (await search.json()) as MailpitSearch
-        messageId = body.messages[0]?.ID ?? ""
-        return messageId
+        const { messages } = (await search.json()) as MailpitSearch
+        for (const { ID } of messages) {
+          const message = await request.get(`${MAILPIT_URL}/api/v1/message/${ID}`)
+          const { Text } = (await message.json()) as MailpitMessage
+          link = Text.match(pattern)?.[0] ?? ""
+          if (link) break
+        }
+        return link
       },
-      { timeout: 15_000, message: `e-mail de confirmação para ${email}` }
+      { timeout: 15_000, message: `link /auth/${route} no e-mail para ${email}` }
     )
     .not.toBe("")
+  return link
+}
 
-  const message = await request.get(`${MAILPIT_URL}/api/v1/message/${messageId}`)
-  const { Text } = (await message.json()) as MailpitMessage
-  const link = Text.match(/https?:\/\/\S+\/auth\/confirm-email\?token=[0-9a-f]+/)
-  if (!link) throw new Error(`link de confirmação ausente no e-mail para ${email}`)
-  return link[0]
+/** Link de confirmação de conta do e-mail enviado no cadastro. */
+export function readConfirmationLink(
+  request: APIRequestContext,
+  email: string
+): Promise<string> {
+  return readMailLink(request, email, "confirm-email")
+}
+
+/** Link de redefinição do e-mail de recuperação de senha. */
+export function readPasswordResetLink(
+  request: APIRequestContext,
+  email: string
+): Promise<string> {
+  return readMailLink(request, email, "reset-password")
 }
 
 /**
@@ -76,18 +95,18 @@ export async function createConfirmedAccount(
 }
 
 /**
- * Entra pela tela de login e espera chegar a `returnTo`. Sem `returnTo` o
- * formulário só faz refresh e continua em /login, então as jornadas sempre
- * passam o destino.
+ * Entra pela tela de login e espera chegar a `returnTo`, que as jornadas
+ * sempre passam para não depender do destino padrão do login.
  */
 export async function loginThroughUi(
   page: Page,
   email: string,
-  returnTo: string
+  returnTo: string,
+  password: string = PASSWORD
 ): Promise<void> {
   await page.goto(`/login?returnTo=${encodeURIComponent(returnTo)}`)
   await page.getByLabel("E-mail").fill(email)
-  await page.getByLabel("Senha", { exact: true }).fill(PASSWORD)
+  await page.getByLabel("Senha", { exact: true }).fill(password)
   await page.getByRole("button", { name: "Entrar" }).click()
   await expect(page).toHaveURL(returnTo, { timeout: 15_000 })
 }

@@ -150,7 +150,6 @@ As portas padrão não colidem com as dos compose de desenvolvimento, então as 
 - **Só a partir da própria máquina.** A stack é servida em HTTP em `localhost`, sem TLS. O cookie de sessão é `secure` em produção e os navegadores só o aceitam em HTTP porque `localhost` conta como contexto seguro; por IP da rede local o login não funciona.
 - **Sem backup.** Não há serviço de backup; perder os volumes do Docker (`down -v`) apaga contas e vídeos.
 - **E-mails não são entregues.** O Mailpit captura todo e-mail (confirmação de conta, recuperação de senha); leia-os na UI dele. O link de confirmação leva a `/login` depois de confirmar a conta.
-- **Recuperação de senha sem destino.** O e-mail de redefinição é enviado, mas o front ainda não tem a tela de nova senha: o link fica sem destino (lacuna conhecida).
 
 ## 🧪 Testes
 
@@ -185,7 +184,7 @@ cd next-frontend
 npm run test:fullstack
 ```
 
-Sobe um projeto Compose próprio (`streamtube-fullstack`, a partir do `compose.prod.yaml`, em outras portas e com volumes zerados), percorre cinco jornadas — cadastro → confirmação pelo e-mail no Mailpit → login/logout; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria — e derruba tudo no fim. Não toca na stack de produção local nem nos compose de desenvolvimento.
+Sobe um projeto Compose próprio (`streamtube-fullstack`, a partir do `compose.prod.yaml`, em outras portas e com volumes zerados), percorre seis jornadas — cadastro → confirmação pelo e-mail no Mailpit → login/logout; recuperação de senha pelo link do e-mail; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria — e derruba tudo no fim. Não toca na stack de produção local nem nos compose de desenvolvimento.
 
 ### CI
 
@@ -203,7 +202,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 - Cadastro com e-mail e senha (Argon2), com canal criado automaticamente a partir do prefixo do e-mail.
 - Confirmação obrigatória da conta pelo link enviado por e-mail; o login é recusado até lá.
 - Login, sessão e logout. O BFF guarda os tokens num cookie **iron-session** (HTTP-only) e eles nunca chegam ao navegador; o access token é renovado com **rotação de refresh token** e detecção de reuso.
-- Solicitação de recuperação de senha por e-mail (a tela de nova senha ainda não existe — veja as lacunas).
+- Recuperação de senha: pedido por e-mail → link com token de uso único → tela de nova senha (`/auth/reset-password`).
 - **Rate limiting** por visitante: o BFF repassa o IP real à API num header autenticado por segredo compartilhado.
 
 ### Upload e processamento (Fase 03)
@@ -253,6 +252,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 | `/videos/{publicId}` | Página do vídeo |
 | `/@{nickname}` | Página pública do canal |
 | `/signup`, `/login`, `/forgot-password` | Cadastro, login e pedido de recuperação de senha |
+| `/auth/reset-password?token=` | Nova senha (destino do link do e-mail) |
 | `/upload` | Envio de vídeo *(autenticada)* |
 | `/channel/videos` | Meus vídeos *(autenticada)* |
 | `/videos/{publicId}/edit` | Edição e publicação do vídeo *(autenticada)* |
@@ -275,7 +275,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 
 ## ⚠️ Lacunas conhecidas
 
-- **Redefinição de senha sem tela.** A API faz todo o fluxo (`POST /auth/forgot-password` e `POST /auth/reset-password`) e o e-mail é enviado, mas o frontend não tem a tela de nova senha: o link do e-mail (`/auth/reset-password?token=`) não leva a lugar nenhum.
 - **Confirmação de conta sem tela própria.** O link do e-mail passa por uma rota de ponte do BFF (`/auth/confirm-email`) que confirma a conta e redireciona para `/login`, sem mensagem de sucesso ou erro.
 - **Reenvio de confirmação sem tela.** A API tem `POST /auth/resend-confirmation`, mas o link "reenviar" do login aponta para `/resend-confirmation`, que não existe.
 - **Edição do canal sem link.** A tela `/channel/settings` funciona, mas só se chega a ela digitando a URL.
@@ -346,7 +345,7 @@ mba-ia-greenfield-project/
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | **01** | Configuração Base do Projeto | ✅ Concluída |
-| **02** | Cadastro, Login e Gerenciamento de Conta | ✅ Concluída — sem as telas de nova senha e de confirmação |
+| **02** | Cadastro, Login e Gerenciamento de Conta | ✅ Concluída — sem a tela de confirmação de conta |
 | **03** | Upload e Processamento de Vídeos | ✅ Concluída |
 | **04** | Gerenciamento de Vídeos e Canal | ✅ Concluída |
 | **05** | Página de Visualização do Vídeo | ✅ Concluída |
