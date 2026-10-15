@@ -74,15 +74,23 @@ export default async function ChannelVideosPage({
 
   return (
     <div className="flex flex-col gap-6 px-4 py-12 lg:px-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-h1 uppercase text-foreground">Seus vídeos</h1>
 
-        <Button asChild size="md">
-          <Link href="/upload">
-            <PlusIcon />
-            Criar novo vídeo
-          </Link>
-        </Button>
+        {/* "Editar canal" é a entrada para /channel/settings, que não tinha
+            nenhum link: fica no painel do studio, ao lado do outro CTA do dono. */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button asChild size="md" variant="outline">
+            <Link href="/channel/settings">Editar canal</Link>
+          </Button>
+
+          <Button asChild size="md">
+            <Link href="/upload">
+              <PlusIcon />
+              Criar novo vídeo
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {rows.length === 0 ? (
