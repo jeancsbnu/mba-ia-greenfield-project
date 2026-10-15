@@ -104,6 +104,7 @@ const basePublicVideo: PublicVideo = {
     name: "Fixture Channel",
     subscribersCount: 0,
     viewerSubscribed: false,
+    viewerIsOwner: false,
   },
   streamUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=stream`,
   downloadUrl: `${STORAGE_ORIGIN}/videos/fixture.mp4?X-Amz-Signature=download&response-content-disposition=attachment%3B%20filename%3D%22fixture-watch-video.mp4%22`,

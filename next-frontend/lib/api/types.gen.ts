@@ -441,7 +441,7 @@ export interface paths {
         };
         /**
          * Get a public channel
-         * @description Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed.
+         * @description Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed and viewerIsOwner.
          */
         get: operations["ChannelVideosController_getPublicChannel"];
         put?: never;
@@ -641,6 +641,8 @@ export interface components {
             subscribersCount: number;
             /** @description Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02). */
             viewerSubscribed: boolean;
+            /** @description Se o canal é de quem pede; false para o visitante anônimo. O dono não se inscreve no próprio canal. */
+            viewerIsOwner: boolean;
         };
         VideoDetailResponse: {
             publicId: string;
@@ -676,6 +678,8 @@ export interface components {
             subscribersCount: number;
             /** @description Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02). */
             viewerSubscribed: boolean;
+            /** @description Se o canal é de quem pede; false para o visitante anônimo. O dono não se inscreve no próprio canal. */
+            viewerIsOwner: boolean;
         };
         /**
          * @description Reação de quem pede; null para o visitante anônimo (social-interactions-anonymous-gate/TD-02).
@@ -1969,6 +1973,15 @@ export interface operations {
             };
             /** @description Channel not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+            /** @description CANNOT_SUBSCRIBE_OWN_CHANNEL: the channel belongs to the requester */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

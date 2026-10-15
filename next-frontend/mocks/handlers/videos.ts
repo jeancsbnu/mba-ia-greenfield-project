@@ -53,6 +53,9 @@ const OWNER_VIDEOS_TOTAL = 12;
 // Triggers da Fase 05 (watch page). O caminho feliz nao precisa de trigger:
 // o handler de /public serve qualquer publicId que nao seja um dos abaixo.
 const VIEW_RATE_LIMITED_PUBLIC_ID = "trigger-view-rate-limited";
+// Vídeo do canal de quem pede: com sessão, o bloco do canal vem com
+// viewerIsOwner (a página troca "Inscrever-se" por "Editar vídeo").
+const OWN_VIDEO_PUBLIC_ID = "trigger-own-video";
 const EMPTY_SUGGESTIONS_PUBLIC_ID = "trigger-empty-suggestions";
 const SUGGESTIONS_ERROR_PUBLIC_ID = "trigger-suggestions-error";
 // Seis elegíveis em páginas de 4, que é o recorte do TD-04 (Revisions de
@@ -141,12 +144,14 @@ export const handlers = [
     }
     // Triggers da Fase 06 acrescentam contadores sociais e o estado pessoal
     // (com sessão) — ver ../factories/social.ts.
-    return HttpResponse.json(
-      buildPublicVideo({
-        publicId,
-        ...socialVideoOverrides(publicId, request.headers.has("authorization")),
-      })
-    );
+    const video = buildPublicVideo({
+      publicId,
+      ...socialVideoOverrides(publicId, request.headers.has("authorization")),
+    });
+    if (publicId === OWN_VIDEO_PUBLIC_ID && request.headers.has("authorization")) {
+      video.channel = { ...video.channel, viewerIsOwner: true };
+    }
+    return HttpResponse.json(video);
   }),
 
   http.post(`${env.API_URL}/videos/:publicId/view`, ({ params }) => {

@@ -65,6 +65,16 @@ describe('SubscriptionsService (integration)', () => {
       expect(await countOnDb(owner.channel.id)).toBe(1);
     });
 
+    it('refuses a subscription to the requester own channel', async () => {
+      const owner = await createUserWithChannel(dataSource);
+
+      await expect(
+        service.subscribe(owner.user.id, owner.channel),
+      ).rejects.toMatchObject({ errorCode: 'CANNOT_SUBSCRIBE_OWN_CHANNEL' });
+      expect(await countOnDb(owner.channel.id)).toBe(0);
+      expect(await dataSource.getRepository(Subscription).count()).toBe(0);
+    });
+
     it('does not add again when the subscription already exists', async () => {
       const follower = await createUserWithChannel(dataSource);
       const owner = await createUserWithChannel(dataSource);

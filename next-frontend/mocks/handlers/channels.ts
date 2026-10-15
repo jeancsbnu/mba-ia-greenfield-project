@@ -102,6 +102,13 @@ export const handlers = [
           nickname,
           request.headers.has("authorization")
         ),
+        // Mesma regra do GET /me/channel acima: toda sessão, menos a do canal
+        // vazio, é dona do joana_cria.
+        viewerIsOwner:
+          nickname === OWNER_NICKNAME &&
+          request.headers.has("authorization") &&
+          emailFromAuthHeader(request.headers.get("authorization")) !==
+            EMPTY_CHANNEL_EMAIL,
       })
     );
   }),

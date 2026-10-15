@@ -24,6 +24,7 @@ const basePublicChannel: PublicChannel = {
   // (social-interactions-anonymous-gate/TD-02).
   subscribersCount: 0,
   viewerSubscribed: false,
+  viewerIsOwner: false,
 };
 
 export const buildPublicChannel = (

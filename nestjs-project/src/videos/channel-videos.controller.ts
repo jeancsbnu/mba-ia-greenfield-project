@@ -156,7 +156,7 @@ export class ChannelVideosController {
   @ApiOperation({
     summary: 'Get a public channel',
     description:
-      'Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed.',
+      'Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed and viewerIsOwner.',
   })
   @ApiResponse({
     status: 200,
@@ -187,6 +187,7 @@ export class ChannelVideosController {
       videosCount,
       subscribersCount: channel.subscribers_count,
       viewerSubscribed,
+      viewerIsOwner: user !== undefined && user.sub === channel.user_id,
     };
   }
 

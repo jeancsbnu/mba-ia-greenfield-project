@@ -155,7 +155,17 @@ export default async function VideoWatchPage({
                   <ProvidedSubscriberCount />
                 </span>
               </div>
-              <SubscribeButton />
+              {/* No próprio vídeo, o dono vê "Editar vídeo" em vez de se
+                  inscrever no próprio canal (a API recusa com 409). */}
+              {video.channel.viewerIsOwner ? (
+                <Button asChild variant="outline">
+                  <Link href={`/videos/${video.publicId}/edit`}>
+                    Editar vídeo
+                  </Link>
+                </Button>
+              ) : (
+                <SubscribeButton />
+              )}
             </div>
 
             {/* Um <a download> sobre a URL que JÁ veio com a página: sem

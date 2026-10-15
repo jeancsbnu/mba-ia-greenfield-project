@@ -78,6 +78,18 @@ export class ChannelNotFoundException extends DomainException {
   }
 }
 
+// O dono não se inscreve no próprio canal: a contagem de inscritos é de quem
+// acompanha o canal, não de quem o publica.
+export class CannotSubscribeOwnChannelException extends DomainException {
+  constructor() {
+    super(
+      'CANNOT_SUBSCRIBE_OWN_CHANNEL',
+      409,
+      'You cannot subscribe to your own channel',
+    );
+  }
+}
+
 // Publicar exige status = ready: `status` pertence ao Video Worker e um vídeo
 // em processamento ou com falha não pode ir ao ar (TD-02, Clarification AMB-1).
 export class VideoNotPublishableException extends DomainException {

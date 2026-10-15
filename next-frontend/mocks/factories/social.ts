@@ -53,6 +53,7 @@ export function socialVideoOverrides(
       name: "Maria Rocha",
       subscribersCount: SOCIAL_CHANNEL_SUBSCRIBERS,
       viewerSubscribed: liked,
+      viewerIsOwner: false,
     },
   };
 }
