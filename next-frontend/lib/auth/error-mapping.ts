@@ -2,8 +2,22 @@ import type { FieldValues, Path, UseFormSetError } from "react-hook-form"
 
 import type { ApiErrorEnvelope } from "@/lib/api/contracts"
 
-function flattenMessage(message: ApiErrorEnvelope["message"]): string {
-  return Array.isArray(message) ? message.join(" ") : message
+// A `message` do envelope é texto técnico em inglês da API ("Invalid email or
+// password"): os formulários mostram o texto em português do status, que é o
+// mesmo critério que cada mapeamento abaixo usa para decidir onde exibir.
+const MESSAGES_BY_STATUS: Record<number, string> = {
+  400: "Verifique os dados informados.",
+  401: "E-mail ou senha incorretos.",
+  403: "Confirme seu e-mail antes de entrar.",
+  409: "Este e-mail já está cadastrado. Você pode",
+  429: "Muitas tentativas. Aguarde um pouco e tente de novo.",
+}
+
+const FALLBACK_MESSAGE = "Não foi possível concluir agora. Tente de novo."
+
+/** Texto para o usuário a partir do envelope de erro do upstream. */
+export function userMessage(envelope: ApiErrorEnvelope): string {
+  return MESSAGES_BY_STATUS[envelope.statusCode] ?? FALLBACK_MESSAGE
 }
 
 /**
@@ -24,7 +38,7 @@ export function mapSignupErrorToForm<T extends FieldValues>(
   envelope: ApiErrorEnvelope,
   setError: UseFormSetError<T>,
 ): void {
-  const message = flattenMessage(envelope.message)
+  const message = userMessage(envelope)
 
   if (envelope.statusCode === 409) {
     setError("email" as Path<T>, { type: "server", message })
@@ -48,7 +62,7 @@ export function mapLoginErrorToForm<T extends FieldValues>(
   envelope: ApiErrorEnvelope,
   setError: UseFormSetError<T>,
 ): void {
-  const message = flattenMessage(envelope.message)
+  const message = userMessage(envelope)
 
   if (envelope.statusCode === 403) {
     setError("root.confirmation" as Path<T>, { type: "server", message })
@@ -74,7 +88,7 @@ export function mapForgotPasswordErrorToForm<T extends FieldValues>(
   envelope: ApiErrorEnvelope,
   setError: UseFormSetError<T>,
 ): void {
-  const message = flattenMessage(envelope.message)
+  const message = userMessage(envelope)
 
   if (envelope.statusCode === 400) {
     setError("email" as Path<T>, { type: "server", message })
@@ -96,7 +110,7 @@ export function mapResetPasswordErrorToForm<T extends FieldValues>(
   envelope: ApiErrorEnvelope,
   setError: UseFormSetError<T>,
 ): void {
-  const message = flattenMessage(envelope.message)
+  const message = userMessage(envelope)
 
   if (envelope.statusCode === 400) {
     setError("newPassword" as Path<T>, { type: "server", message })
@@ -117,7 +131,7 @@ export function mapResendConfirmationErrorToForm<T extends FieldValues>(
   envelope: ApiErrorEnvelope,
   setError: UseFormSetError<T>,
 ): void {
-  const message = flattenMessage(envelope.message)
+  const message = userMessage(envelope)
 
   if (envelope.statusCode === 400) {
     setError("email" as Path<T>, { type: "server", message })

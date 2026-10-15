@@ -80,7 +80,7 @@ describe("<ForgotPasswordForm /> wiring", () => {
     )
     await user.click(screen.getByRole("button", { name: "Enviar link de redefinição" }))
 
-    expect(await screen.findByText("Validation failed")).toBeInTheDocument()
+    expect(await screen.findByText("Verifique os dados informados.")).toBeInTheDocument()
     expect(screen.queryByRole("status")).not.toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Enviar link de redefinição" })

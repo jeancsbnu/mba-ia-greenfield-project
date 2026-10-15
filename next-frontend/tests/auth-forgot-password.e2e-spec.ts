@@ -83,7 +83,7 @@ test.describe("auth-forgot-password", () => {
     await page.getByRole("button", { name: "Enviar link de redefinição" }).click()
     await req
 
-    await expect(page.getByText(/validation failed/i)).toBeVisible()
+    await expect(page.getByText("Verifique os dados informados.")).toBeVisible()
     await expect(page.getByRole("status")).toHaveCount(0)
   })
 })

@@ -119,9 +119,7 @@ describe("<ResetPasswordForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Redefinir senha" }))
 
     expect(
-      await screen.findByText(
-        "new_password must be shorter than or equal to 128 characters"
-      )
+      await screen.findByText("Verifique os dados informados.")
     ).toBeInTheDocument()
     expect(screen.getByLabelText("Nova senha")).toHaveAttribute("aria-invalid", "true")
   })

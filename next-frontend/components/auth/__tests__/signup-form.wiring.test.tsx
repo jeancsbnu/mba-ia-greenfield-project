@@ -63,7 +63,7 @@ describe("<SignupForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     expect(
-      await screen.findByText(/Email already registered/i)
+      await screen.findByText(/Este e-mail já está cadastrado/)
     ).toBeInTheDocument()
     const cta = screen.getByRole("link", { name: /fazer login/i })
     expect(cta).toHaveAttribute("href", "/login")
@@ -82,7 +82,7 @@ describe("<SignupForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Criar conta" }))
 
     const alert = await screen.findByRole("alert")
-    expect(alert).toHaveTextContent("Validation failed")
+    expect(alert).toHaveTextContent("Verifique os dados informados.")
     expect(
       screen.queryByRole("link", { name: /fazer login/i })
     ).not.toBeInTheDocument()

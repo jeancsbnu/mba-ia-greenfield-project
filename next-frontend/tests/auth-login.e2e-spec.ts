@@ -60,7 +60,7 @@ test.describe("auth-login", () => {
     await page.getByRole("button", { name: "Entrar" }).click()
 
     const alert = page.locator("[data-slot='form-error']")
-    await expect(alert).toContainText(/invalid email or password/i)
+    await expect(alert).toContainText("E-mail ou senha incorretos.")
     expect(
       (await page.context().cookies()).some((c) => c.name.includes("session"))
     ).toBe(false)
@@ -70,7 +70,7 @@ test.describe("auth-login", () => {
     await page.getByRole("button", { name: "Entrar" }).click()
 
     const confirmAlert = page.locator("[data-slot='form-confirmation-error']")
-    await expect(confirmAlert).toContainText(/email not confirmed/i)
+    await expect(confirmAlert).toContainText("Confirme seu e-mail antes de entrar.")
     await expect(
       page.getByRole("link", { name: /Reenviar e-mail de confirmação/i })
     ).toBeVisible()
@@ -79,7 +79,7 @@ test.describe("auth-login", () => {
     await page.getByLabel("E-mail").fill("badrequest@example.com")
     await page.getByRole("button", { name: "Entrar" }).click()
 
-    await expect(page.getByText(/validation failed/i)).toBeVisible()
+    await expect(page.getByText("Verifique os dados informados.")).toBeVisible()
     await expect(page.locator("[data-slot='form-error']")).toHaveCount(0)
   })
 

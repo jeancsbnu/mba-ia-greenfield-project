@@ -50,7 +50,7 @@ describe("<ResendConfirmationForm /> wiring", () => {
       screen.getByRole("button", { name: "Reenviar link de confirmação" })
     )
 
-    expect(await screen.findByText("email must be an email")).toBeInTheDocument()
+    expect(await screen.findByText("Verifique os dados informados.")).toBeInTheDocument()
     expect(screen.getByLabelText("E-mail")).toHaveAttribute("aria-invalid", "true")
   })
 

@@ -50,7 +50,7 @@ test.describe("auth-signup", () => {
     await page.getByRole("checkbox").check()
     await page.getByRole("button", { name: "Criar conta" }).click()
 
-    await expect(page.getByText(/already registered/i)).toBeVisible()
+    await expect(page.getByText(/Este e-mail já está cadastrado/)).toBeVisible()
     const cta = page.getByRole("link", { name: /fazer login/i })
     await expect(cta).toHaveAttribute("href", "/login")
 
@@ -59,7 +59,7 @@ test.describe("auth-signup", () => {
     await page.getByRole("button", { name: "Criar conta" }).click()
 
     const alert = page.locator("[data-slot='form-error']")
-    await expect(alert).toContainText(/validation failed/i)
+    await expect(alert).toContainText("Verifique os dados informados.")
     await expect(
       page.getByRole("link", { name: /fazer login/i })
     ).toHaveCount(0)
