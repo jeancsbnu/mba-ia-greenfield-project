@@ -22,7 +22,12 @@ import { cn } from "@/lib/utils"
 // schema is aligned to the upstream rules when the spec expands).
 const signupSchema = z
   .object({
-    fullName: z.string().min(1, "Informe seu nome completo"),
+    // Vira o nome do canal: mesmo teto de 50 do RegisterDto/UpdateChannelDto.
+    fullName: z
+      .string()
+      .trim()
+      .min(1, "Informe seu nome completo")
+      .max(50, "Máximo 50 caracteres"),
     email: z.email("Endereço de e-mail inválido"),
     password: z
       .string()
@@ -71,12 +76,12 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
   const passwordValue = watch("password")
 
   async function onSubmit(values: SignupValues) {
-    // RegisterDto has no declared properties in the contract source yet; the
-    // payload is authored per phase-02-auth-frontend/TD-04 and passed through
-    // by the BFF route (which casts to the upstream shape).
+    // O nome completo vira o nome do canal (`name` do RegisterDto); o
+    // nickname continua saindo do prefixo do e-mail, no backend.
     const payload = {
       email: values.email,
       password: values.password,
+      name: values.fullName,
     }
 
     const res = await fetch("/api/auth/signup", {
@@ -141,8 +146,12 @@ function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
           autoComplete="name"
           placeholder="Digite seu nome completo"
           aria-invalid={!!errors.fullName}
+          aria-describedby="fullName-hint"
           {...register("fullName")}
         />
+        <p id="fullName-hint" className="text-caption text-muted-foreground">
+          É o nome do seu canal; dá para mudar depois.
+        </p>
         <FieldError message={errors.fullName?.message} />
       </div>
 

@@ -14,6 +14,7 @@ export class UsersService {
   async createUserWithChannel(
     email: string,
     hashedPassword: string,
+    channelName?: string,
   ): Promise<User> {
     const user = this.userRepository.create({
       email,
@@ -25,6 +26,7 @@ export class UsersService {
       const channel = await this.channelsService.createChannel(
         savedUser.id,
         email,
+        channelName,
       );
       savedUser.channel = channel;
       return savedUser;

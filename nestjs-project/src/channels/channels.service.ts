@@ -29,8 +29,15 @@ function isPgUniqueViolationOnColumn(err: unknown, column: string): boolean {
 export class ChannelsService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async createChannel(userId: string, email: string): Promise<Channel> {
+  async createChannel(
+    userId: string,
+    email: string,
+    name?: string,
+  ): Promise<Channel> {
     const baseNickname = sanitizeNickname(email.split('@')[0]);
+    // O nome vem do cadastro; em branco ou ausente, o canal leva o prefixo do
+    // e-mail, como antes. O nickname sai sempre do e-mail (é a URL /@nick).
+    const channelName = name?.trim() || baseNickname;
 
     return this.dataSource.transaction(async (manager) => {
       let nickname = baseNickname;
@@ -47,7 +54,7 @@ export class ChannelsService {
         try {
           return await manager.save(
             manager.create(Channel, {
-              name: baseNickname,
+              name: channelName,
               nickname,
               user_id: userId,
             }),

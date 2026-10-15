@@ -2113,6 +2113,12 @@
             "type": "string",
             "minLength": 8,
             "maxLength": 128
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome exibido do canal. Sem ele (ou em branco), o canal leva o prefixo do e-mail.",
+            "minLength": 1,
+            "maxLength": 50
           }
         },
         "required": [
