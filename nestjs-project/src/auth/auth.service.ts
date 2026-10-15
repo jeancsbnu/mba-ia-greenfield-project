@@ -63,6 +63,7 @@ export class AuthService {
     const user = await this.usersService.createUserWithChannel(
       dto.email,
       hashedPassword,
+      dto.name,
     );
 
     const rawToken = await this.createVerificationToken(

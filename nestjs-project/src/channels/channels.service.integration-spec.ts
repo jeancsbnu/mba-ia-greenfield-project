@@ -64,6 +64,31 @@ describe('ChannelsService (integration)', () => {
       expect(persisted!.nickname).toBe('mynick');
     });
 
+    it('names the channel after the given name, keeping the e-mail nickname', async () => {
+      const user = await createUser();
+
+      const channel = await channelsService.createChannel(
+        user.id,
+        'ana.souza@example.com',
+        '  Ana Souza  ',
+      );
+
+      expect(channel.name).toBe('Ana Souza');
+      expect(channel.nickname).toBe('anasouza');
+    });
+
+    it('falls back to the e-mail prefix when the name is blank', async () => {
+      const user = await createUser();
+
+      const channel = await channelsService.createChannel(
+        user.id,
+        'blank@example.com',
+        '   ',
+      );
+
+      expect(channel.name).toBe('blank');
+    });
+
     it('derives nickname from email prefix', async () => {
       const user = await createUser();
 

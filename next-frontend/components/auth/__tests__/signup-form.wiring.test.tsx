@@ -44,6 +44,7 @@ describe("<SignupForm /> wiring", () => {
     expect(received[0]).toMatchObject({
       email: "alice@example.com",
       password: "Password1",
+      name: "Alice Doe",
     })
   })
 

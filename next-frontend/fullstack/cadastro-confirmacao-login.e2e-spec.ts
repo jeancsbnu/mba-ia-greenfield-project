@@ -47,6 +47,13 @@ test.describe("cadastro-confirmacao-login", () => {
     const banner = page.getByRole("banner")
     await expect(banner.getByRole("button", { name: "Sair" })).toBeVisible()
 
+    // O nome completo do cadastro virou o nome do canal.
+    await banner.getByRole("link", { name: "Seu canal" }).click()
+    await expect(page).toHaveURL(/\/@cadastro/, { timeout: 15_000 })
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Conta da Suíte" })
+    ).toBeVisible({ timeout: 15_000 })
+
     await banner.getByRole("button", { name: "Sair" }).click()
     await expect(page).toHaveURL(/\/login$/)
 
