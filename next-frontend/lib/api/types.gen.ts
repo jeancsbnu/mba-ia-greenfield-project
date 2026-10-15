@@ -224,30 +224,6 @@ export interface paths {
         patch: operations["ChannelsController_updateMyChannel"];
         trace?: never;
     };
-    "/me/channel/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Set the authenticated user channel avatar
-         * @description Replaces the channel avatar with a JPEG, PNG or WebP image of up to 2 MB. The previous image is deleted.
-         */
-        put: operations["ChannelsController_setMyAvatar"];
-        post?: never;
-        /**
-         * Remove the authenticated user channel avatar
-         * @description Removes the avatar so the channel falls back to its initials. Idempotent.
-         */
-        delete: operations["ChannelsController_removeMyAvatar"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/channels/{nickname}/avatar": {
         parameters: {
             query?: never;
@@ -263,6 +239,30 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/channel/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set the authenticated user channel avatar
+         * @description Replaces the channel avatar with a JPEG, PNG or WebP image of up to 2 MB. The previous image is deleted.
+         */
+        put: operations["ChannelAvatarController_setMyAvatar"];
+        post?: never;
+        /**
+         * Remove the authenticated user channel avatar
+         * @description Removes the avatar so the channel falls back to its initials. Idempotent.
+         */
+        delete: operations["ChannelAvatarController_removeMyAvatar"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1357,7 +1357,36 @@ export interface operations {
             };
         };
     };
-    ChannelsController_setMyAvatar: {
+    ChannelAvatarController_getAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirects to a presigned storage URL */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CHANNEL_NOT_FOUND or AVATAR_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ChannelAvatarController_setMyAvatar: {
         parameters: {
             query?: never;
             header?: never;
@@ -1400,7 +1429,7 @@ export interface operations {
             };
         };
     };
-    ChannelsController_removeMyAvatar: {
+    ChannelAvatarController_removeMyAvatar: {
         parameters: {
             query?: never;
             header?: never;
@@ -1417,35 +1446,6 @@ export interface operations {
                 content?: never;
             };
             /** @description The authenticated user has no channel */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiErrorEnvelope"];
-                };
-            };
-        };
-    };
-    ChannelAvatarController_getAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                nickname: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Redirects to a presigned storage URL */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description CHANNEL_NOT_FOUND or AVATAR_NOT_FOUND */
             404: {
                 headers: {
                     [name: string]: unknown;

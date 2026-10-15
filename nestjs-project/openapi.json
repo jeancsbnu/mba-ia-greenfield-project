@@ -559,10 +559,45 @@
         ]
       }
     },
+    "/channels/{nickname}/avatar": {
+      "get": {
+        "description": "Redirects to a presigned storage URL for the channel avatar. Accessible without authentication. 404 when the channel has no avatar — clients fall back to the initials.",
+        "operationId": "ChannelAvatarController_getAvatar",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to a presigned storage URL"
+          },
+          "404": {
+            "description": "CHANNEL_NOT_FOUND or AVATAR_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a channel avatar",
+        "tags": [
+          "channels"
+        ]
+      }
+    },
     "/me/channel/avatar": {
       "put": {
         "description": "Replaces the channel avatar with a JPEG, PNG or WebP image of up to 2 MB. The previous image is deleted.",
-        "operationId": "ChannelsController_setMyAvatar",
+        "operationId": "ChannelAvatarController_setMyAvatar",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -620,7 +655,7 @@
       },
       "delete": {
         "description": "Removes the avatar so the channel falls back to its initials. Idempotent.",
-        "operationId": "ChannelsController_removeMyAvatar",
+        "operationId": "ChannelAvatarController_removeMyAvatar",
         "parameters": [],
         "responses": {
           "204": {
@@ -643,41 +678,6 @@
           }
         ],
         "summary": "Remove the authenticated user channel avatar",
-        "tags": [
-          "channels"
-        ]
-      }
-    },
-    "/channels/{nickname}/avatar": {
-      "get": {
-        "description": "Redirects to a presigned storage URL for the channel avatar. Accessible without authentication. 404 when the channel has no avatar — clients fall back to the initials.",
-        "operationId": "ChannelAvatarController_getAvatar",
-        "parameters": [
-          {
-            "name": "nickname",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Redirects to a presigned storage URL"
-          },
-          "404": {
-            "description": "CHANNEL_NOT_FOUND or AVATAR_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get a channel avatar",
         "tags": [
           "channels"
         ]
