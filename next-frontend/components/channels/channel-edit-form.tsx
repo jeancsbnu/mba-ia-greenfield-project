@@ -82,10 +82,13 @@ function ChannelEditForm({
       return
     }
 
+    // A `message` da API é texto técnico em inglês: nunca vai para a tela.
     setFormError(
-      typeof envelope.message === "string"
-        ? envelope.message
-        : envelope.message.join(" ")
+      response.status === 400
+        ? "Verifique os dados informados."
+        : response.status === 429
+          ? "Muitas tentativas. Aguarde um pouco e tente de novo."
+          : "Não foi possível salvar o canal. Tente de novo."
     )
   }
 

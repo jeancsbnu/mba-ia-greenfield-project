@@ -39,10 +39,11 @@ Conta usada: uma conta de teste criada na própria validação (`ana.validacao@e
 | 5 | **Navbar não atualiza a foto** depois do envio, só ao recarregar | `05` | O avatar da navbar já tinha registrado o 404 e a URL dele não muda; o `router.refresh()` não basta. |
 | 6 | **"Voltar para o login" sem ação** em `/forgot-password` | — | O `IconButton` não tem link nem `onClick`. |
 | 7 | **E-mails em inglês** (assunto e corpo da confirmação e da recuperação) numa plataforma em português | — | Templates Handlebars e assuntos em inglês. |
+| 8 | **Mensagens cruas da API nas telas de edição** (canal e vídeo), achadas ao corrigir o item 4: thumbnail recusada no servidor, publicação antes do processamento e o caminho de reserva | — | Mesmo defeito do item 4, fora da autenticação. Não apareceu nesta rodada; corrigido junto. |
 
 ## Depois das correções
 
-A stack de produção foi recompilada a partir desta branch e os sete itens foram conferidos de novo no Chrome:
+A stack de produção foi recompilada a partir desta branch e os itens 1 a 7 foram conferidos de novo no Chrome:
 
 | # | Resultado | Evidência |
 |---|---|---|
@@ -57,7 +58,6 @@ A stack de produção foi recompilada a partir desta branch e os sete itens fora
 ## Observações (sem correção)
 
 - **Canal inexistente responde HTTP 200** (`obs-canal-inexistente.jpg`): a tela "Canal não encontrado" aparece certa, mas o status fica 200 porque a resposta já começou a ser transmitida (`loading.tsx`) quando o `notFound()` acontece — limitação do streaming do Next.
-- **Mensagens cruas da API fora da autenticação:** o mesmo defeito do item 4 existe nos caminhos de reserva da edição do canal e da edição do vídeo (erro de thumbnail e publicação antes do processamento). Não apareceram nesta rodada e ficaram para uma tarefa separada.
 - **"Indisponível"** como rótulo de vídeo não listado é decisão registrada (video-channel-management/TD-02, revisão de 2026-08-08), não defeito.
 - Responsividade não foi verificada nesta rodada (a extensão não redimensiona a janela); está coberta pelo `responsive-retrofit.e2e-spec.ts`.
 
