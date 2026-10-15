@@ -11,6 +11,7 @@ import { AppModule } from '../src/app.module';
 import { AuthService } from '../src/auth/auth.service';
 import { DomainExceptionFilter } from '../src/common/filters/domain-exception.filter';
 import { ValidationExceptionFilter } from '../src/common/filters/validation-exception.filter';
+import { StorageService } from '../src/storage/storage.service';
 import { cleanAllTables } from '../src/test/create-test-data-source';
 import { Video, VideoStatus } from '../src/videos/entities/video.entity';
 import { createTusUploadServer } from '../src/videos/tus-upload.server';
@@ -136,7 +137,11 @@ describe('POST /videos/upload (e2e)', () => {
       .set('Upload-Length', String(fileContent.length))
       .set(
         'Upload-Metadata',
-        metadataHeader({ title: 'My Video', description: 'A description' }),
+        metadataHeader({
+          title: 'My Video',
+          description: 'A description',
+          filetype: 'video/mp4',
+        }),
       )
       .expect(201);
 
@@ -168,6 +173,18 @@ describe('POST /videos/upload (e2e)', () => {
     );
     expect(job).toBeDefined();
     expect(job?.name).toBe('video.processing');
+
+    // The object lands in storage with the client's video type, not
+    // binary/octet-stream.
+    const stored = await videoRepository.findOneOrFail({
+      where: { upload_id: uploadId },
+    });
+    const url = await app
+      .get(StorageService)
+      .getPresignedUrl(stored.storage_bucket!, stored.storage_key!);
+    const object = await fetch(url);
+    expect(object.status).toBe(200);
+    expect(object.headers.get('content-type')).toBe('video/mp4');
   });
 
   it('rejects Upload-Length above 10GB with 400 and errorCode UPLOAD_FILE_TOO_LARGE', async () => {
