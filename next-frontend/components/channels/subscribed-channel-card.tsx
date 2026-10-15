@@ -6,9 +6,9 @@ import {
   ProvidedSubscriberCount,
 } from "@/components/channels/channel-subscription-provider"
 import { SubscriptionButton } from "@/components/channels/subscription-button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import type { SubscribedChannel } from "@/lib/api/contracts"
-import { formatVideosCount, initialsOf } from "@/lib/format"
+import { formatVideosCount } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type SubscribedChannelCardProps = {
@@ -39,9 +39,12 @@ function SubscribedChannelCard({
         initialSubscribersCount={channel.subscribersCount}
         isAuthenticated
       >
-        <Avatar size="lg" aria-hidden="true">
-          <AvatarFallback>{initialsOf(channel.name)}</AvatarFallback>
-        </Avatar>
+        <ChannelAvatar
+          size="lg"
+          aria-hidden="true"
+          nickname={channel.nickname}
+          name={channel.name}
+        />
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <Link

@@ -3,9 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { Button } from "@/components/ui/button"
-import { initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type UserMenuProps = {
@@ -38,9 +37,7 @@ function UserMenu({
         aria-label="Seu canal"
         className="rounded-[var(--radius-full)] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <Avatar>
-          <AvatarFallback>{initialsOf(channelName)}</AvatarFallback>
-        </Avatar>
+        <ChannelAvatar nickname={nickname} name={channelName} />
       </Link>
 
       <Button

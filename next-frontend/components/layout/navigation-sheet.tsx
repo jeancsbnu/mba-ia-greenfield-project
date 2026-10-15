@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { MenuIcon } from "@/components/icons/menu-icon"
 import { XIcon } from "@/components/icons/x-icon"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
 import {
@@ -15,7 +15,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type NavigationSheetViewer = {
@@ -84,9 +83,11 @@ function NavigationSheet({
                 data-slot="navigation-sheet-user"
                 className="flex items-center gap-3 rounded-[var(--radius-2)] outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
-                <Avatar size="lg">
-                  <AvatarFallback>{initialsOf(viewer.name)}</AvatarFallback>
-                </Avatar>
+                <ChannelAvatar
+                  size="lg"
+                  nickname={viewer.nickname}
+                  name={viewer.name}
+                />
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate text-label-md text-foreground">
                     {viewer.name}

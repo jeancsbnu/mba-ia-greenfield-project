@@ -78,6 +78,13 @@ export class ChannelNotFoundException extends DomainException {
   }
 }
 
+// Canal existe, mas não tem foto: o cliente mostra as iniciais.
+export class AvatarNotFoundException extends DomainException {
+  constructor() {
+    super('AVATAR_NOT_FOUND', 404, 'Channel has no avatar');
+  }
+}
+
 // O dono não se inscreve no próprio canal: a contagem de inscritos é de quem
 // acompanha o canal, não de quem o publica.
 export class CannotSubscribeOwnChannelException extends DomainException {

@@ -26,6 +26,9 @@ const UNKNOWN_NICKNAME = "nao_existe";
 const EMPTY_SHOWCASE_NICKNAME = "sem_videos";
 const OWNER_NICKNAME = "joana_cria";
 const EMPTY_CHANNEL_EMAIL = "empty-channel@example.com";
+// Único canal com foto no upstream fingido; o resto responde 404 e o avatar
+// fica nas iniciais.
+const AVATAR_CHANNEL_NICKNAME = "com_foto";
 
 const PUBLIC_VIDEOS_TOTAL = 12;
 const DEFAULT_PUBLIC_LIMIT = 8;
@@ -77,6 +80,28 @@ export const handlers = [
         description,
       })
     );
+  }),
+
+  // Foto do canal: 302 para um asset do próprio site no canal com foto.
+  http.get(`${env.API_URL}/channels/:nickname/avatar`, ({ params }) => {
+    if (params.nickname === AVATAR_CHANNEL_NICKNAME) {
+      return new HttpResponse(null, {
+        status: 302,
+        headers: { Location: "/next.svg" },
+      });
+    }
+    return HttpResponse.json(
+      errorEnvelope(404, "AVATAR_NOT_FOUND", "Channel has no avatar"),
+      { status: 404 }
+    );
+  }),
+
+  http.put(`${env.API_URL}/me/channel/avatar`, () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.delete(`${env.API_URL}/me/channel/avatar`, () => {
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.get(`${env.API_URL}/channels/:nickname`, ({ params, request }) => {

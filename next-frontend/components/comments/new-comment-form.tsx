@@ -6,12 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import type { Comment } from "@/lib/api/contracts"
 import { buildLoginHref } from "@/lib/auth/return-to"
-import { initialsOf } from "@/lib/format"
 import type { MutationOutcome } from "@/lib/social/mutation"
 import { cn } from "@/lib/utils"
 
@@ -46,6 +45,8 @@ type NewCommentFormProps = {
   isAuthenticated: boolean
   /** Nome do canal de quem comenta, para as iniciais do avatar. */
   viewerName?: string
+  /** Nickname do canal de quem comenta, para a foto do avatar. */
+  viewerNickname?: string
   /** Modo resposta (OQ-12): o mesmo formulário, com rótulos de resposta. */
   mode?: "comment" | "reply"
   id?: string
@@ -62,6 +63,7 @@ function NewCommentForm({
   onSubmit,
   isAuthenticated,
   viewerName,
+  viewerNickname,
   mode = "comment",
   id,
   autoFocus = false,
@@ -125,9 +127,12 @@ function NewCommentForm({
     >
       <div className="flex items-start gap-3">
         {viewerName ? (
-          <Avatar size={isReply ? "sm" : "default"} aria-label={viewerName}>
-            <AvatarFallback>{initialsOf(viewerName)}</AvatarFallback>
-          </Avatar>
+          <ChannelAvatar
+            size={isReply ? "sm" : "default"}
+            aria-label={viewerName}
+            nickname={viewerNickname}
+            name={viewerName}
+          />
         ) : null}
 
         <label htmlFor={fieldId} className="sr-only">

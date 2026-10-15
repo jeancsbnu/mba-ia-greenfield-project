@@ -38,6 +38,10 @@ export class Channel {
   @Column({ type: 'int', default: 0 })
   subscribers_count: number;
 
+  /** Chave da foto de perfil no storage; nula enquanto o canal usa as iniciais. */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  avatar_key: string | null;
+
   @CreateDateColumn()
   created_at: Date;
 
