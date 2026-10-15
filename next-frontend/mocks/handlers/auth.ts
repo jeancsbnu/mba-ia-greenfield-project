@@ -130,6 +130,20 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
+  // POST /auth/resend-confirmation — 204 para qualquer e-mail (anti-enumeration),
+  // 400 para o gatilho reservado badrequest@example.com.
+  http.post(`${env.API_URL}/auth/resend-confirmation`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+
+    if (body.email === BAD_REQUEST_EMAIL) {
+      return HttpResponse.json(
+        errorEnvelope(400, "VALIDATION_FAILED", "Validation failed"),
+        { status: 400 }
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   // POST /auth/refresh
   http.post(`${env.API_URL}/auth/refresh`, async ({ request }) => {
     // O e-mail atravessa o refresh: sem isso a sessão renovada perderia a

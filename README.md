@@ -201,7 +201,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 ### Conta e autenticação (Fase 02)
 
 - Cadastro com e-mail e senha (Argon2), com canal criado automaticamente a partir do prefixo do e-mail.
-- Confirmação obrigatória da conta pelo link enviado por e-mail; o login é recusado até lá.
+- Confirmação obrigatória da conta pelo link enviado por e-mail; o login é recusado até lá e oferece o reenvio do link (`/resend-confirmation`).
 - Login, sessão e logout. O BFF guarda os tokens num cookie **iron-session** (HTTP-only) e eles nunca chegam ao navegador; o access token é renovado com **rotação de refresh token** e detecção de reuso.
 - Solicitação de recuperação de senha por e-mail (a tela de nova senha ainda não existe — veja as lacunas).
 - **Rate limiting** por visitante: o BFF repassa o IP real à API num header autenticado por segredo compartilhado.
@@ -253,6 +253,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 | `/videos/{publicId}` | Página do vídeo |
 | `/@{nickname}` | Página pública do canal |
 | `/signup`, `/login`, `/forgot-password` | Cadastro, login e pedido de recuperação de senha |
+| `/resend-confirmation` | Reenvio do link de confirmação de conta |
 | `/upload` | Envio de vídeo *(autenticada)* |
 | `/channel/videos` | Meus vídeos *(autenticada)* |
 | `/videos/{publicId}/edit` | Edição e publicação do vídeo *(autenticada)* |
@@ -277,7 +278,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 
 - **Redefinição de senha sem tela.** A API faz todo o fluxo (`POST /auth/forgot-password` e `POST /auth/reset-password`) e o e-mail é enviado, mas o frontend não tem a tela de nova senha: o link do e-mail (`/auth/reset-password?token=`) não leva a lugar nenhum.
 - **Confirmação de conta sem tela própria.** O link do e-mail passa por uma rota de ponte do BFF (`/auth/confirm-email`) que confirma a conta e redireciona para `/login`, sem mensagem de sucesso ou erro.
-- **Reenvio de confirmação sem tela.** A API tem `POST /auth/resend-confirmation`, mas o link "reenviar" do login aponta para `/resend-confirmation`, que não existe.
 - **Edição do canal sem link.** A tela `/channel/settings` funciona, mas só se chega a ela digitando a URL.
 - **Termos de uso e privacidade.** O checkbox do cadastro aponta para `/terms` e `/privacy`, que não existem.
 - **Sem foto de perfil.** Os avatares mostram só as iniciais.
