@@ -23,9 +23,10 @@ test.describe("home-busca-categoria", () => {
 
     // O thumbnail vem do storage por URL assinada e precisa carregar de verdade
     // (no MSW ele é um arquivo local, então só esta suíte pega a quebra).
+    // O `has` é relativo ao card: o título, não outro `video-card` dentro dele.
     const card = page
       .locator("[data-slot='video-card']")
-      .filter({ has: cardTitle() })
+      .filter({ has: page.getByRole("heading", { level: 3, name: title }) })
     await expect
       .poll(() =>
         card.locator("img").first().evaluate((img) => (img as HTMLImageElement).naturalWidth)
