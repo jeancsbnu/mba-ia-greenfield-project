@@ -88,7 +88,10 @@ export const STORAGE_ORIGIN = "http://storage.test";
 const basePublicVideo: PublicVideo = {
   publicId: "fixture-public-watch-video",
   title: "Fixture Watch Video",
-  description: "Um vídeo de fixture para a watch page.",
+  // Três linhas: passa do recolhimento de duas, então a página mostra o
+  // "Mostrar mais" (que os E2E usam como sinal de hidratação).
+  description:
+    "Um vídeo de fixture para a watch page.\nSegunda linha da descrição.\nTerceira linha, que só aparece ao expandir.",
   durationSeconds: 42,
   category: "Outros",
   visibility: "public",
