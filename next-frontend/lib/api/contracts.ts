@@ -42,6 +42,9 @@ export type ForgotPasswordDto =
 export type ResetPasswordDto =
   paths["/auth/reset-password"]["post"]["requestBody"]["content"]["application/json"];
 
+export type ResendConfirmationDto =
+  paths["/auth/resend-confirmation"]["post"]["requestBody"]["content"]["application/json"];
+
 export type RefreshTokenDto =
   paths["/auth/refresh"]["post"]["requestBody"]["content"]["application/json"];
 
