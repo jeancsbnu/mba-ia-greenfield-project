@@ -81,8 +81,12 @@ test.describe("channel-videos", () => {
     await page.goto("/channel/videos")
 
     // O nome acessível inclui o título: "Editar" sozinho se repetiria em
-    // todas as linhas e não identificaria o alvo.
-    const edit = page.getByRole("link", { name: /^Editar .+/ }).first()
+    // todas as linhas e não identificaria o alvo. Escopado à tabela, porque o
+    // "Editar canal" do cabeçalho também casa com o padrão.
+    const edit = page
+      .locator("[data-slot='video-table']")
+      .getByRole("link", { name: /^Editar .+/ })
+      .first()
     await expect(edit).toBeVisible()
 
     const href = await edit.getAttribute("href")
@@ -105,5 +109,16 @@ test.describe("channel-videos", () => {
       page.getByRole("button", { name: "Tentar de novo" })
     ).toBeVisible()
     await expect(page.locator("[data-slot='video-table']")).toHaveCount(0)
+  })
+
+  test("1.7 editar-canal-leva-as-configuracoes", async ({ page }) => {
+    await login(page, "user@example.com")
+    await page.goto("/channel/videos")
+
+    const editChannel = page.getByRole("link", { name: "Editar canal" })
+    await expect(editChannel).toHaveAttribute("href", "/channel/settings")
+    await editChannel.click()
+
+    await page.waitForURL("**/channel/settings", { timeout: 15000 })
   })
 })
