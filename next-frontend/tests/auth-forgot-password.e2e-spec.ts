@@ -86,4 +86,11 @@ test.describe("auth-forgot-password", () => {
     await expect(page.getByText("Verifique os dados informados.")).toBeVisible()
     await expect(page.getByRole("status")).toHaveCount(0)
   })
+
+  test("1.4 voltar-leva-ao-login", async ({ page }) => {
+    await page.goto("/forgot-password")
+
+    await page.getByRole("link", { name: "Voltar para o login" }).click()
+    await expect(page).toHaveURL(/\/login$/, { timeout: 15_000 })
+  })
 })
