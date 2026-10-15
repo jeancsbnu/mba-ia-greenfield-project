@@ -105,3 +105,24 @@ export function mapResetPasswordErrorToForm<T extends FieldValues>(
 
   setError("root.serverError" as Path<T>, { type: "server", message })
 }
+
+/**
+ * Maps the upstream `ApiErrorEnvelope` onto react-hook-form errors for the
+ * resend-confirmation screen. Same shape as forgot-password: the upstream is
+ * anti-enumeration (204 for any address), so the only enumerated error is
+ *  - 400: validation failed → inline message on the `email` field.
+ * Anything else falls back to a form-level error (`root.serverError`).
+ */
+export function mapResendConfirmationErrorToForm<T extends FieldValues>(
+  envelope: ApiErrorEnvelope,
+  setError: UseFormSetError<T>,
+): void {
+  const message = flattenMessage(envelope.message)
+
+  if (envelope.statusCode === 400) {
+    setError("email" as Path<T>, { type: "server", message })
+    return
+  }
+
+  setError("root.serverError" as Path<T>, { type: "server", message })
+}
