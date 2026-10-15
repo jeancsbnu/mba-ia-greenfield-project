@@ -572,6 +572,8 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
+            /** @description Nome exibido do canal. Sem ele (ou em branco), o canal leva o prefixo do e-mail. */
+            name?: string;
         };
         ResendConfirmationDto: {
             /** Format: email */

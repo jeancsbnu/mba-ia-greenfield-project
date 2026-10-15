@@ -34,14 +34,25 @@ test.describe("cadastro-confirmacao-login", () => {
       page.locator("[data-slot='form-confirmation-error']")
     ).toBeVisible()
 
-    // O link do e-mail aponta para a rota-ponte, que confirma e manda ao login.
+    // O link do e-mail aponta para a rota-ponte, que confirma e manda ao login
+    // com o aviso de conta confirmada.
     const link = await readConfirmationLink(request, email)
     await page.goto(link)
-    await expect(page).toHaveURL(/\/login$/)
+    await expect(page).toHaveURL(/\/login\?confirmation=confirmed$/)
+    await expect(
+      page.locator("[data-slot='confirmation-notice']")
+    ).toContainText("Conta confirmada")
 
     await loginThroughUi(page, email, "/")
     const banner = page.getByRole("banner")
     await expect(banner.getByRole("button", { name: "Sair" })).toBeVisible()
+
+    // O nome completo do cadastro virou o nome do canal.
+    await banner.getByRole("link", { name: "Seu canal" }).click()
+    await expect(page).toHaveURL(/\/@cadastro/, { timeout: 15_000 })
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Conta da Suíte" })
+    ).toBeVisible({ timeout: 15_000 })
 
     await banner.getByRole("button", { name: "Sair" }).click()
     await expect(page).toHaveURL(/\/login$/)

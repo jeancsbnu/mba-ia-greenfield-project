@@ -23,28 +23,45 @@ function makeRequest(query = "") {
   return new Request(`http://localhost:8080/auth/confirm-email${query}`);
 }
 
-function expectRedirectToLogin(response: Response) {
+function expectRedirectToLogin(response: Response, outcome: string) {
   expect(response.status).toBe(303);
   // Relativo: não depende do host com que o servidor montou `request.url`.
-  expect(response.headers.get("location")).toBe("/login");
+  expect(response.headers.get("location")).toBe(
+    `/login?confirmation=${outcome}`
+  );
 }
 
 describe("GET /auth/confirm-email (ponte do BFF)", () => {
-  it("confirms upstream and redirects to /login when the API answers 204", async () => {
+  it("confirms upstream and redirects to /login?confirmation=confirmed on 204", async () => {
     const response = await GET(makeRequest("?token=valid-token"));
 
-    expectRedirectToLogin(response);
+    expectRedirectToLogin(response, "confirmed");
   });
 
-  it("still redirects to /login when the API rejects the token (401)", async () => {
+  it("redirects with confirmation=invalid when the API rejects the token (401)", async () => {
     const response = await GET(
       makeRequest("?token=invalid-confirmation-token")
     );
 
-    expectRedirectToLogin(response);
+    expectRedirectToLogin(response, "invalid");
   });
 
-  it("redirects to /login without calling the API when there is no token", async () => {
+  it("redirects with confirmation=error on any other upstream failure", async () => {
+    server.use(
+      http.get(`${env.API_URL}/auth/confirm-email`, () =>
+        HttpResponse.json(
+          { statusCode: 429, error: "RATE_LIMIT_EXCEEDED", message: "Too many requests", code: null },
+          { status: 429 }
+        )
+      )
+    );
+
+    const response = await GET(makeRequest("?token=valid-token"));
+
+    expectRedirectToLogin(response, "error");
+  });
+
+  it("redirects with confirmation=invalid without calling the API when there is no token", async () => {
     const upstreamCall = vi.fn();
     server.use(
       http.get(`${env.API_URL}/auth/confirm-email`, () => {
@@ -55,7 +72,7 @@ describe("GET /auth/confirm-email (ponte do BFF)", () => {
 
     const response = await GET(makeRequest());
 
-    expectRedirectToLogin(response);
+    expectRedirectToLogin(response, "invalid");
     expect(upstreamCall).not.toHaveBeenCalled();
   });
 

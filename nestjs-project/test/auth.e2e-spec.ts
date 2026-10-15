@@ -141,6 +141,33 @@ describe('Auth (e2e)', () => {
       expect((res.body as RegisteredUserBody).email).toBe('user@example.com');
     });
 
+    it('names the channel after the sign-up name, keeping the e-mail nickname', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          email: 'ana.souza@example.com',
+          password: 'password123',
+          name: 'Ana Souza',
+        })
+        .expect(201);
+
+      const channel = await request(app.getHttpServer())
+        .get('/channels/anasouza')
+        .expect(200);
+      expect((channel.body as { name: string }).name).toBe('Ana Souza');
+    });
+
+    it('returns 400 when the sign-up name exceeds 50 characters', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({
+          email: 'long@example.com',
+          password: 'password123',
+          name: 'x'.repeat(51),
+        })
+        .expect(400);
+    });
+
     it('returns 409 with EMAIL_ALREADY_EXISTS on duplicate email', async () => {
       await request(app.getHttpServer())
         .post('/auth/register')

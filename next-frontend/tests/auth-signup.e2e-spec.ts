@@ -27,7 +27,11 @@ test.describe("auth-signup", () => {
       (r) => r.url().includes("/api/auth/signup") && r.method() === "POST"
     )
     await submit.click()
-    await signupRequest
+    // O nome completo segue como o nome do canal.
+    expect((await signupRequest).postDataJSON()).toMatchObject({
+      email: "alice@example.com",
+      name: "Alice Doe",
+    })
 
     await expect(page.getByRole("status")).toContainText("Conta criada!")
     // No session established, no redirect to an authenticated area.

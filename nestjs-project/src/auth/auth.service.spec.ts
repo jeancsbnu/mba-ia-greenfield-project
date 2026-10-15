@@ -142,6 +142,29 @@ describe('AuthService — register', () => {
     expect(usersService.createUserWithChannel).toHaveBeenCalledWith(
       'new@example.com',
       expect.any(String),
+      undefined,
+    );
+  });
+
+  it('passes the channel name from the sign-up to createUserWithChannel', async () => {
+    usersService.findByEmail.mockResolvedValue(null);
+    usersService.createUserWithChannel.mockResolvedValue({
+      id: 'u1',
+      email: 'new@example.com',
+      channel: { name: 'Ana Souza' },
+    } as User);
+    verificationTokenRepository.create.mockReturnValue({} as VerificationToken);
+
+    await authService.register({
+      email: 'new@example.com',
+      password: 'password123',
+      name: 'Ana Souza',
+    });
+
+    expect(usersService.createUserWithChannel).toHaveBeenCalledWith(
+      'new@example.com',
+      expect.any(String),
+      'Ana Souza',
     );
   });
 
