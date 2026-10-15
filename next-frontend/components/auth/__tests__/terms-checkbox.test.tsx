@@ -13,6 +13,15 @@ describe("TermsCheckbox", () => {
     expect(screen.getByRole("link", { name: /política de privacidade/i })).toHaveAttribute("href", "/privacy");
   });
 
+  it("opens the legal pages in a new tab so the signup form keeps its input", () => {
+    render(<TermsCheckbox />);
+    for (const name of [/termos de uso/i, /política de privacidade/i]) {
+      const link = screen.getByRole("link", { name });
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
   it("is unchecked by default (uncontrolled)", () => {
     render(<TermsCheckbox />);
     expect(screen.getByRole("checkbox")).toHaveAttribute("aria-checked", "false");

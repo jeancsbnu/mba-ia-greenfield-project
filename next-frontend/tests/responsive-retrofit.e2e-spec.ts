@@ -29,7 +29,14 @@ test.describe("responsive-retrofit", () => {
   test("telas-publicas-sem-rolagem-horizontal-a-375px", async ({ page }) => {
     await page.setViewportSize(MOBILE)
 
-    for (const route of ["/@joana_cria", "/videos/watch-video", "/login", "/signup"]) {
+    for (const route of [
+      "/@joana_cria",
+      "/videos/watch-video",
+      "/login",
+      "/signup",
+      "/terms",
+      "/privacy",
+    ]) {
       await page.goto(route)
       await expect(page.locator("body")).toBeVisible()
       expect(await pageScrollsHorizontally(page), route).toBe(false)

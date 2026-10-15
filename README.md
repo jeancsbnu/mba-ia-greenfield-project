@@ -217,7 +217,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 - Edição de título, descrição, categoria (8 categorias) e thumbnail customizada.
 - Visibilidade **pública** ou **unlisted** e fluxo de rascunho → publicação.
 - Painel "Meus vídeos" com thumbnail, título, visualizações, likes, comentários, data de publicação e status, com paginação e acesso à edição.
-- Edição do canal: nickname, nome e descrição.
+- Edição do canal: nickname, nome e descrição, pelo botão "Editar canal" do painel.
 - Página pública do canal em `/@{nickname}`, com informações, inscritos e a lista paginada de vídeos.
 
 ### Página do vídeo (Fase 05)
@@ -254,6 +254,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 | `/signup`, `/login`, `/forgot-password` | Cadastro, login e pedido de recuperação de senha |
 | `/auth/reset-password?token=` | Nova senha (destino do link do e-mail) |
 | `/resend-confirmation` | Reenvio do link de confirmação de conta |
+| `/terms`, `/privacy` | Termos de uso e política de privacidade (texto provisório) |
 | `/upload` | Envio de vídeo *(autenticada)* |
 | `/channel/videos` | Meus vídeos *(autenticada)* |
 | `/videos/{publicId}/edit` | Edição e publicação do vídeo *(autenticada)* |
@@ -277,8 +278,8 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 ## ⚠️ Lacunas conhecidas
 
 - **Confirmação de conta sem tela própria.** O link do e-mail passa por uma rota de ponte do BFF (`/auth/confirm-email`) que confirma a conta e redireciona para `/login`, sem mensagem de sucesso ou erro.
-- **Edição do canal sem link.** A tela `/channel/settings` funciona, mas só se chega a ela digitando a URL.
-- **Termos de uso e privacidade.** O checkbox do cadastro aponta para `/terms` e `/privacy`, que não existem.
+- **Nome do cadastro descartado.** O formulário de cadastro pede "Nome completo", mas envia à API só o e-mail e a senha; o canal nasce com o prefixo do e-mail (editável depois).
+- **Inscrição no próprio canal.** A página do canal mostra "Inscrever-se" também para o dono, e a API aceita a inscrição.
 - **Sem foto de perfil.** Os avatares mostram só as iniciais.
 - **Tipo dos arquivos de mídia.** Os vídeos são gravados no storage sem `Content-Type` (servidos como `binary/octet-stream`); os navegadores reproduzem mesmo assim.
 - **Produção só local.** Não há deploy externo; veja os limites em **Stack de produção local**, acima.
