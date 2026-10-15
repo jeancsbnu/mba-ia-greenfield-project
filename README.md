@@ -280,7 +280,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 - **Nome do cadastro descartado.** O formulário de cadastro pede "Nome completo", mas envia à API só o e-mail e a senha; o canal nasce com o prefixo do e-mail (editável depois).
 - **Inscrição no próprio canal.** A página do canal mostra "Inscrever-se" também para o dono, e a API aceita a inscrição.
 - **Sem foto de perfil.** Os avatares mostram só as iniciais.
-- **Tipo dos arquivos de mídia.** Os vídeos são gravados no storage sem `Content-Type` (servidos como `binary/octet-stream`); os navegadores reproduzem mesmo assim.
 - **Produção só local.** Não há deploy externo; veja os limites em **Stack de produção local**, acima.
 
 ## 🛠️ Estrutura do Projeto

@@ -12,6 +12,7 @@ import type { JwtPayload } from '../auth/auth.types';
 import { ChannelsService } from '../channels/channels.service';
 import storageConfig from '../config/storage.config';
 import { Video, VideoStatus } from './entities/video.entity';
+import { withStorageContentType } from './upload-content-type';
 import { VideoProcessingProducer } from './video-processing.producer';
 
 const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024 * 1024;
@@ -112,7 +113,8 @@ export function createTusUploadServer(app: INestApplication): Server {
       );
 
       res.setHeader('X-Video-Public-Id', publicId);
-      return { res };
+      // The S3 store sets the object's ContentType from metadata.contentType.
+      return { res, metadata: withStorageContentType(upload.metadata) };
     },
     onUploadFinish: async (req, res, upload) => {
       const bucket = upload.storage?.bucket ?? storageCfg.minioBucket;
