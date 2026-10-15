@@ -40,6 +40,20 @@ Conta usada: uma conta de teste criada na própria validação (`ana.validacao@e
 | 6 | **"Voltar para o login" sem ação** em `/forgot-password` | — | O `IconButton` não tem link nem `onClick`. |
 | 7 | **E-mails em inglês** (assunto e corpo da confirmação e da recuperação) numa plataforma em português | — | Templates Handlebars e assuntos em inglês. |
 
+## Depois das correções
+
+A stack de produção foi recompilada a partir desta branch e os sete itens foram conferidos de novo no Chrome:
+
+| # | Resultado | Evidência |
+|---|---|---|
+| 1 | Thumbnails carregam direto do storage (`localhost:9200`, 320 e 1920 px de largura natural) | `depois-01-02-card-thumbnail-e-duracao.png` |
+| 2 | Duração em branco sobre `#0f0f0f`, com a tipografia de 11 px | `depois-01-02-card-thumbnail-e-duracao.png` |
+| 3 | Descrição de uma linha sem "Mostrar mais" | — |
+| 4 | Senha errada mostra "E-mail ou senha incorretos." | `depois-04-login-erro-em-portugues.png` |
+| 5 | Remover a foto troca a navbar para as iniciais, e enviar volta à foto, sem recarregar | `depois-05-navbar-atualiza-a-foto.png` |
+| 6 | O botão de voltar de `/forgot-password` é um link para `/login` | — |
+| 7 | E-mail "Redefina sua senha — StreamTube", corpo em português com acentos | — |
+
 ## Observações (sem correção)
 
 - **Canal inexistente responde HTTP 200** (`obs-canal-inexistente.jpg`): a tela "Canal não encontrado" aparece certa, mas o status fica 200 porque a resposta já começou a ser transmitida (`loading.tsx`) quando o `notFound()` acontece — limitação do streaming do Next.
