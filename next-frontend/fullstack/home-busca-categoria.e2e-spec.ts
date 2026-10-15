@@ -21,6 +21,17 @@ test.describe("home-busca-categoria", () => {
     await page.goto("/")
     await expect(cardTitle()).toBeVisible()
 
+    // O thumbnail vem do storage por URL assinada e precisa carregar de verdade
+    // (no MSW ele é um arquivo local, então só esta suíte pega a quebra).
+    const card = page
+      .locator("[data-slot='video-card']")
+      .filter({ has: cardTitle() })
+    await expect
+      .poll(() =>
+        card.locator("img").first().evaluate((img) => (img as HTMLImageElement).naturalWidth)
+      )
+      .toBeGreaterThan(0)
+
     const banner = page.getByRole("banner")
     await banner.getByRole("searchbox").fill(title)
     await banner.getByRole("button", { name: "Buscar" }).click()
