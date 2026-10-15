@@ -149,7 +149,7 @@ As portas padrão não colidem com as dos compose de desenvolvimento, então as 
 
 - **Só a partir da própria máquina.** A stack é servida em HTTP em `localhost`, sem TLS. O cookie de sessão é `secure` em produção e os navegadores só o aceitam em HTTP porque `localhost` conta como contexto seguro; por IP da rede local o login não funciona.
 - **Sem backup.** Não há serviço de backup; perder os volumes do Docker (`down -v`) apaga contas e vídeos.
-- **E-mails não são entregues.** O Mailpit captura todo e-mail (confirmação de conta, recuperação de senha); leia-os na UI dele. O link de confirmação leva a `/login` depois de confirmar a conta.
+- **E-mails não são entregues.** O Mailpit captura todo e-mail (confirmação de conta, recuperação de senha); leia-os na UI dele. O link de confirmação leva a `/login`, com um aviso de conta confirmada (ou de link inválido).
 
 ## 🧪 Testes
 
@@ -200,7 +200,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 ### Conta e autenticação (Fase 02)
 
 - Cadastro com e-mail e senha (Argon2), com canal criado automaticamente a partir do prefixo do e-mail.
-- Confirmação obrigatória da conta pelo link enviado por e-mail; o login é recusado até lá e oferece o reenvio do link (`/resend-confirmation`).
+- Confirmação obrigatória da conta pelo link enviado por e-mail, que volta ao login com o aviso do resultado; o login é recusado até lá e oferece o reenvio do link (`/resend-confirmation`).
 - Login, sessão e logout. O BFF guarda os tokens num cookie **iron-session** (HTTP-only) e eles nunca chegam ao navegador; o access token é renovado com **rotação de refresh token** e detecção de reuso.
 - Recuperação de senha: pedido por e-mail → link com token de uso único → tela de nova senha (`/auth/reset-password`).
 - **Rate limiting** por visitante: o BFF repassa o IP real à API num header autenticado por segredo compartilhado.
@@ -277,7 +277,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 
 ## ⚠️ Lacunas conhecidas
 
-- **Confirmação de conta sem tela própria.** O link do e-mail passa por uma rota de ponte do BFF (`/auth/confirm-email`) que confirma a conta e redireciona para `/login`, sem mensagem de sucesso ou erro.
 - **Nome do cadastro descartado.** O formulário de cadastro pede "Nome completo", mas envia à API só o e-mail e a senha; o canal nasce com o prefixo do e-mail (editável depois).
 - **Inscrição no próprio canal.** A página do canal mostra "Inscrever-se" também para o dono, e a API aceita a inscrição.
 - **Sem foto de perfil.** Os avatares mostram só as iniciais.
@@ -346,7 +345,7 @@ mba-ia-greenfield-project/
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | **01** | Configuração Base do Projeto | ✅ Concluída |
-| **02** | Cadastro, Login e Gerenciamento de Conta | ✅ Concluída — sem a tela de confirmação de conta |
+| **02** | Cadastro, Login e Gerenciamento de Conta | ✅ Concluída |
 | **03** | Upload e Processamento de Vídeos | ✅ Concluída |
 | **04** | Gerenciamento de Vídeos e Canal | ✅ Concluída |
 | **05** | Página de Visualização do Vídeo | ✅ Concluída |

@@ -34,10 +34,14 @@ test.describe("cadastro-confirmacao-login", () => {
       page.locator("[data-slot='form-confirmation-error']")
     ).toBeVisible()
 
-    // O link do e-mail aponta para a rota-ponte, que confirma e manda ao login.
+    // O link do e-mail aponta para a rota-ponte, que confirma e manda ao login
+    // com o aviso de conta confirmada.
     const link = await readConfirmationLink(request, email)
     await page.goto(link)
-    await expect(page).toHaveURL(/\/login$/)
+    await expect(page).toHaveURL(/\/login\?confirmation=confirmed$/)
+    await expect(
+      page.locator("[data-slot='confirmation-notice']")
+    ).toContainText("Conta confirmada")
 
     await loginThroughUi(page, email, "/")
     const banner = page.getByRole("banner")
