@@ -86,6 +86,28 @@ export function mapForgotPasswordErrorToForm<T extends FieldValues>(
 
 /**
  * Maps the upstream `ApiErrorEnvelope` onto react-hook-form errors for the
+ * reset-password screen:
+ *  - 400: validation failed → inline message on the `newPassword` field.
+ *  - anything else → `root.serverError`.
+ * The 401 (invalid or expired token) never reaches here: the form swaps to its
+ * own "link inválido" state instead of showing a field error.
+ */
+export function mapResetPasswordErrorToForm<T extends FieldValues>(
+  envelope: ApiErrorEnvelope,
+  setError: UseFormSetError<T>,
+): void {
+  const message = flattenMessage(envelope.message)
+
+  if (envelope.statusCode === 400) {
+    setError("newPassword" as Path<T>, { type: "server", message })
+    return
+  }
+
+  setError("root.serverError" as Path<T>, { type: "server", message })
+}
+
+/**
+ * Maps the upstream `ApiErrorEnvelope` onto react-hook-form errors for the
  * resend-confirmation screen. Same shape as forgot-password: the upstream is
  * anti-enumeration (204 for any address), so the only enumerated error is
  *  - 400: validation failed → inline message on the `email` field.

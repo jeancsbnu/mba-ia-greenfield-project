@@ -14,6 +14,7 @@ const BAD_REQUEST_EMAIL = "badrequest@example.com";
 const INVALID_CREDENTIALS_EMAIL = "invalid@example.com";
 const UNCONFIRMED_EMAIL = "unconfirmed@example.com";
 const INVALID_CONFIRMATION_TOKEN = "invalid-confirmation-token";
+const INVALID_RESET_TOKEN = "invalid-reset-token";
 
 /**
  * Prefixo do token de acesso fabricado no login.
@@ -125,6 +126,19 @@ export const handlers = [
       return HttpResponse.json(
         errorEnvelope(400, "VALIDATION_FAILED", "Validation failed"),
         { status: 400 }
+      );
+    }
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // POST /auth/reset-password — 401 para o token reservado, 204 para os demais.
+  http.post(`${env.API_URL}/auth/reset-password`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+
+    if (body.token === INVALID_RESET_TOKEN) {
+      return HttpResponse.json(
+        errorEnvelope(401, "INVALID_TOKEN", "Token is invalid"),
+        { status: 401 }
       );
     }
     return new HttpResponse(null, { status: 204 });
