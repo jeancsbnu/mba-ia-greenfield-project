@@ -20,6 +20,7 @@ interface PublicDetailBody {
     name: string;
     subscribersCount: number;
     viewerSubscribed: boolean;
+    viewerIsOwner: boolean;
   };
   [key: string]: unknown;
 }
@@ -88,11 +89,13 @@ describe('videos-public-detail-social', () => {
       .body as PublicDetailBody;
     expect(asViewer.viewerReaction).toBe('like');
     expect(asViewer.channel.viewerSubscribed).toBe(true);
+    expect(asViewer.channel.viewerIsOwner).toBe(false);
 
     const asOwner = (await http().get(detailUrl()).set(bearer(owner)))
       .body as PublicDetailBody;
     expect(asOwner.viewerReaction).toBeNull();
     expect(asOwner.channel.viewerSubscribed).toBe(false);
+    expect(asOwner.channel.viewerIsOwner).toBe(true);
   });
 
   // Cenário 1.3 do spec — AC #3

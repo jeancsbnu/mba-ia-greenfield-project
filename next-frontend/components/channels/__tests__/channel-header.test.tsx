@@ -33,6 +33,26 @@ function ChannelHeader(
 // vídeos, a descrição quando existe, o avatar com as iniciais (não há upload
 // nesta fase) e o botão de inscrição no estado de `viewerSubscribed`.
 describe("ChannelHeader", () => {
+  it("shows 'Editar canal' instead of the subscribe button to the channel owner", () => {
+    render(
+      <ChannelHeader
+        name="Joana Cria"
+        nickname="joana_cria"
+        videosCount={12}
+        viewerIsOwner
+        isAuthenticated
+      />
+    );
+
+    expect(screen.getByRole("link", { name: "Editar canal" })).toHaveAttribute(
+      "href",
+      "/channel/settings"
+    );
+    expect(
+      screen.queryByRole("button", { name: /inscrever-se|inscrito/i })
+    ).not.toBeInTheDocument();
+  });
+
   it("renders the channel name as the page heading", () => {
     render(
       <ChannelHeader name="Joana Cria" nickname="joana_cria" videosCount={12} />

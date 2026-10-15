@@ -355,6 +355,7 @@ export class VideosService {
         name: channel.name,
         subscribersCount: channel.subscribers_count,
         viewerSubscribed,
+        viewerIsOwner: viewerId !== undefined && viewerId === channel.user_id,
       },
       streamUrl,
       downloadUrl,

@@ -30,6 +30,12 @@ export class PublicVideoDetailChannel extends PublicVideoChannel {
       'Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02).',
   })
   viewerSubscribed: boolean;
+
+  @ApiProperty({
+    description:
+      'Se o canal é de quem pede; false para o visitante anônimo. O dono não se inscreve no próprio canal.',
+  })
+  viewerIsOwner: boolean;
 }
 
 /**

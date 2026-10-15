@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { ChannelsService } from '../channels/channels.service';
 import { Channel } from '../channels/entities/channel.entity';
+import { CannotSubscribeOwnChannelException } from '../common/exceptions/domain.exception';
 import { Subscription } from './entities/subscription.entity';
 
 export interface SubscriptionState {
@@ -31,6 +32,10 @@ export class SubscriptionsService {
     userId: string,
     channel: Channel,
   ): Promise<SubscriptionState> {
+    if (channel.user_id === userId) {
+      throw new CannotSubscribeOwnChannelException();
+    }
+
     return this.dataSource.transaction(async (manager) => {
       // ON CONFLICT DO NOTHING: uma inscrição já existente não falha nem soma
       // — o RETURNING vazio é o sinal de que nada foi criado.

@@ -55,6 +55,12 @@ export class SubscriptionsController {
     schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
   })
   @ApiResponse({
+    status: 409,
+    description:
+      'CANNOT_SUBSCRIBE_OWN_CHANNEL: the channel belongs to the requester',
+    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
+  })
+  @ApiResponse({
     status: 429,
     description: 'More than 60 requests per 60 s from the same IP',
     schema: { $ref: getSchemaPath(ApiErrorEnvelope) },

@@ -1425,7 +1425,7 @@
     },
     "/channels/{nickname}": {
       "get": {
-        "description": "Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed.",
+        "description": "Returns the public information of a channel. videosCount counts only published, public videos. A valid bearer token is optional and only fills viewerSubscribed and viewerIsOwner.",
         "operationId": "ChannelVideosController_getPublicChannel",
         "parameters": [
           {
@@ -1582,6 +1582,16 @@
           },
           "404": {
             "description": "Channel not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CANNOT_SUBSCRIBE_OWN_CHANNEL: the channel belongs to the requester",
             "content": {
               "application/json": {
                 "schema": {
@@ -2330,6 +2340,10 @@
           "viewerSubscribed": {
             "type": "boolean",
             "description": "Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02)."
+          },
+          "viewerIsOwner": {
+            "type": "boolean",
+            "description": "Se o canal é de quem pede; false para o visitante anônimo. O dono não se inscreve no próprio canal."
           }
         },
         "required": [
@@ -2338,7 +2352,8 @@
           "description",
           "videosCount",
           "subscribersCount",
-          "viewerSubscribed"
+          "viewerSubscribed",
+          "viewerIsOwner"
         ]
       },
       "VideoDetailResponse": {
@@ -2449,13 +2464,18 @@
           "viewerSubscribed": {
             "type": "boolean",
             "description": "Se quem pede segue o canal; false para o visitante anônimo (social-interactions-anonymous-gate/TD-02)."
+          },
+          "viewerIsOwner": {
+            "type": "boolean",
+            "description": "Se o canal é de quem pede; false para o visitante anônimo. O dono não se inscreve no próprio canal."
           }
         },
         "required": [
           "nickname",
           "name",
           "subscribersCount",
-          "viewerSubscribed"
+          "viewerSubscribed",
+          "viewerIsOwner"
         ]
       },
       "ReactionType": {

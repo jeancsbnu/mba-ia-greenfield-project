@@ -18,6 +18,7 @@ interface PublicChannelBody {
   videosCount: number;
   subscribersCount: number;
   viewerSubscribed: boolean;
+  viewerIsOwner: boolean;
 }
 
 // Spec: nestjs-project/specs/channels-public-subscribers.plan.md (SI-06.6)
@@ -26,6 +27,7 @@ interface PublicChannelBody {
 // (social-interactions-anonymous-gate/TD-02).
 describe('channels-public-subscribers', () => {
   let ctx: SocialE2eContext;
+  let owner: AuthenticatedUser;
   let follower: AuthenticatedUser;
   let stranger: AuthenticatedUser;
 
@@ -41,7 +43,7 @@ describe('channels-public-subscribers', () => {
     await cleanAllTables(ctx.dataSource);
     ctx.throttlerStorage.storage.clear();
 
-    const owner = await registerConfirmAndLogin(ctx.app, 'pub_owner');
+    owner = await registerConfirmAndLogin(ctx.app, 'pub_owner');
     const channel = await renameChannel(
       ctx.dataSource,
       owner.channel,
@@ -91,6 +93,35 @@ describe('channels-public-subscribers', () => {
     expect(asStranger.viewerSubscribed).toBe(false);
     expect(asFollower.subscribersCount).toBe(1);
     expect(asStranger.subscribersCount).toBe(1);
+  });
+
+  it('marks the channel as the viewer own only for its owner', async () => {
+    const asOwner = (
+      await http().get('/channels/joana_cria').set(bearer(owner))
+    ).body as PublicChannelBody;
+    const asFollower = (
+      await http().get('/channels/joana_cria').set(bearer(follower))
+    ).body as PublicChannelBody;
+    const anonymous = (await http().get('/channels/joana_cria'))
+      .body as PublicChannelBody;
+
+    expect(asOwner.viewerIsOwner).toBe(true);
+    expect(asFollower.viewerIsOwner).toBe(false);
+    expect(anonymous.viewerIsOwner).toBe(false);
+  });
+
+  it('refuses a subscription from the channel owner with 409', async () => {
+    const res = await http()
+      .put('/channels/joana_cria/subscription')
+      .set(bearer(owner));
+
+    expect(res.status).toBe(409);
+    expect((res.body as { error: string }).error).toBe(
+      'CANNOT_SUBSCRIBE_OWN_CHANNEL',
+    );
+    const body = (await http().get('/channels/joana_cria'))
+      .body as PublicChannelBody;
+    expect(body.subscribersCount).toBe(1);
   });
 
   // Cenário 1.3 do spec — AC #3

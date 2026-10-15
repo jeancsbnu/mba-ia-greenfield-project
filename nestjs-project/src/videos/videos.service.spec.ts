@@ -31,6 +31,7 @@ describe('VideosService (unit)', () => {
     findByUserId = jest.fn();
     findByIdOrFail = jest.fn().mockResolvedValue({
       id: 'channel-1',
+      user_id: 'owner-1',
       nickname: 'canal-do-dono',
       name: 'Canal do Dono',
       subscribers_count: 3,
@@ -272,6 +273,7 @@ describe('VideosService (unit)', () => {
         name: 'Canal do Dono',
         subscribersCount: 3,
         viewerSubscribed: false,
+        viewerIsOwner: false,
       });
       expect(findByIdOrFail).toHaveBeenCalledWith('channel-1');
     });
@@ -304,8 +306,22 @@ describe('VideosService (unit)', () => {
 
       expect(detail.viewerReaction).toBe('like');
       expect(detail.channel.viewerSubscribed).toBe(true);
+      expect(detail.channel.viewerIsOwner).toBe(false);
       expect(findVideoReaction).toHaveBeenCalledWith('video-1', 'viewer-1');
       expect(isSubscribed).toHaveBeenCalledWith('viewer-1', 'channel-1');
+    });
+
+    it('marks the channel as the viewer own when the viewer owns it', async () => {
+      const video = buildVideo({
+        id: 'video-1',
+        status: VideoStatus.READY,
+        channel_id: 'channel-1',
+        title: 'Aula',
+      });
+
+      const detail = await service.toPublicDetail(video, 'owner-1');
+
+      expect(detail.channel.viewerIsOwner).toBe(true);
     });
   });
 

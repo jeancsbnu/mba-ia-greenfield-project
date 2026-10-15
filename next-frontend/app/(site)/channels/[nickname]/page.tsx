@@ -79,6 +79,7 @@ export default async function PublicChannelPage({
         videosCount={channel.videosCount}
         subscribersCount={channel.subscribersCount}
         viewerSubscribed={channel.viewerSubscribed}
+        viewerIsOwner={channel.viewerIsOwner}
         isAuthenticated={isAuthenticated}
       />
 

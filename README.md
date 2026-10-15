@@ -232,7 +232,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 
 - Like e dislike em vídeos e em comentários.
 - Comentários com respostas (um nível de aninhamento: responder a uma resposta vai para o mesmo fio).
-- Inscrição em canais, contagem de inscritos e a área "Canais seguidos".
+- Inscrição em canais (o dono não se inscreve no próprio; vê "Editar canal" e, nos próprios vídeos, "Editar vídeo"), contagem de inscritos e a área "Canais seguidos".
 - Visitantes anônimos veem tudo e, ao tentar interagir, são levados ao login e trazidos de volta ao vídeo.
 
 ### Página inicial, busca e produção (Fase 07)
@@ -277,7 +277,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 
 ## ⚠️ Lacunas conhecidas
 
-- **Inscrição no próprio canal.** A página do canal mostra "Inscrever-se" também para o dono, e a API aceita a inscrição.
 - **Sem foto de perfil.** Os avatares mostram só as iniciais.
 - **Produção só local.** Não há deploy externo; veja os limites em **Stack de produção local**, acima.
 

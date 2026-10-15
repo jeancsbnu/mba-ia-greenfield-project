@@ -1,4 +1,5 @@
 import * as React from "react"
+import Link from "next/link"
 
 import {
   ChannelSubscriptionProvider,
@@ -6,6 +7,7 @@ import {
 } from "@/components/channels/channel-subscription-provider"
 import { SubscribeButton } from "@/components/channels/subscribe-button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import { formatVideosCount, initialsOf } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -16,6 +18,8 @@ type ChannelHeaderProps = {
   videosCount: number
   subscribersCount: number
   viewerSubscribed: boolean
+  /** O canal é de quem vê: no lugar de "Inscrever-se", "Editar canal". */
+  viewerIsOwner?: boolean
   isAuthenticated: boolean
 } & Omit<React.ComponentProps<"header">, "children">
 
@@ -26,6 +30,7 @@ function ChannelHeader({
   videosCount,
   subscribersCount,
   viewerSubscribed,
+  viewerIsOwner = false,
   isAuthenticated,
   className,
   ...props
@@ -57,7 +62,15 @@ function ChannelHeader({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex items-center justify-between gap-4">
               <h1 className="text-h2">{name}</h1>
-              <SubscribeButton size="md" />
+              {/* O dono não se inscreve no próprio canal (a API recusa com
+                  409); o lugar do botão vira a entrada para editá-lo. */}
+              {viewerIsOwner ? (
+                <Button asChild size="md" variant="outline">
+                  <Link href="/channel/settings">Editar canal</Link>
+                </Button>
+              ) : (
+                <SubscribeButton size="md" />
+              )}
             </div>
             <p className="text-body-md text-muted-foreground">
               {`@${nickname} · `}
