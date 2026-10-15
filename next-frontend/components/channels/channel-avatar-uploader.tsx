@@ -1,12 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 
 import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import type { ApiErrorEnvelope } from "@/lib/api/contracts"
+import { bumpAvatarVersion } from "@/lib/channels/avatar-version"
 import { cn } from "@/lib/utils"
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"]
@@ -19,16 +18,15 @@ type ChannelAvatarUploaderProps = {
 
 // Foto de perfil do canal na tela "Editar canal". Troca e remoção são
 // imediatas (não esperam o "Salvar" do formulário): cada ação é um PUT/DELETE
-// próprio. A versão muda a URL da imagem para não mostrar a foto anterior.
+// próprio, e a versão da foto (lib/channels/avatar-version) atualiza todos os
+// avatares do canal na página.
 function ChannelAvatarUploader({
   nickname,
   name,
   className,
   ...props
 }: ChannelAvatarUploaderProps) {
-  const router = useRouter()
   const inputRef = React.useRef<HTMLInputElement>(null)
-  const [version, setVersion] = React.useState(() => Date.now())
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -38,20 +36,15 @@ function ChannelAvatarUploader({
     try {
       const res = await fetch("/api/me/channel/avatar", init)
       if (!res.ok) {
-        const envelope = (await res.json().catch(() => null)) as
-          | ApiErrorEnvelope
-          | null
         setError(
           res.status === 400 || res.status === 413
             ? "Use uma imagem JPEG, PNG ou WebP de até 2 MB."
-            : (envelope?.statusCode && "Não foi possível salvar a foto. Tente de novo.") ||
-                "Não foi possível salvar a foto. Tente de novo."
+            : "Não foi possível salvar a foto. Tente de novo."
         )
         return
       }
-      setVersion(Date.now())
-      // A navbar e o menu também mostram a foto: re-renderiza o chrome.
-      router.refresh()
+      // Navbar, menu e este seletor buscam a foto nova juntos.
+      bumpAvatarVersion(nickname)
     } finally {
       setPending(false)
     }
@@ -78,7 +71,7 @@ function ChannelAvatarUploader({
       className={cn("w-full max-w-xl flex-row items-center gap-4 px-6 py-6", className)}
       {...props}
     >
-      <ChannelAvatar size="xl" nickname={nickname} name={name} version={version} />
+      <ChannelAvatar size="xl" nickname={nickname} name={name} />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <span className="text-label-lg text-foreground">Foto do canal</span>

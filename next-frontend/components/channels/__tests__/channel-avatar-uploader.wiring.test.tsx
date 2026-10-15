@@ -2,27 +2,21 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { http, HttpResponse } from "msw"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import { server } from "@/mocks/server"
 import { ChannelAvatarUploader } from "../channel-avatar-uploader"
 
-const { refreshMock } = vi.hoisted(() => ({ refreshMock: vi.fn() }))
+import { getAvatarVersion } from "@/lib/channels/avatar-version"
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: refreshMock }),
-}))
-
-beforeEach(() => {
-  refreshMock.mockClear()
-})
+// Cada caso usa um nickname próprio: o store de versões é global ao módulo.
 
 function png(size = 10) {
   return new File([new Uint8Array(size)], "foto.png", { type: "image/png" })
 }
 
 describe("<ChannelAvatarUploader /> wiring", () => {
-  it("uploads the chosen image and refreshes the chrome", async () => {
+  it("uploads the chosen image and bumps the channel avatar version", async () => {
     const user = userEvent.setup()
     const received: (File | null)[] = []
     server.use(
@@ -32,10 +26,10 @@ describe("<ChannelAvatarUploader /> wiring", () => {
       })
     )
 
-    render(<ChannelAvatarUploader nickname="joana_cria" name="Joana Cria" />)
+    render(<ChannelAvatarUploader nickname="uploader_0" name="Joana Cria" />)
     await user.upload(screen.getByLabelText("Arquivo da foto do canal"), png())
 
-    await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(getAvatarVersion("uploader_0")).toBe(1))
     expect(received).toHaveLength(1)
     expect(received[0]?.type).toBe("image/png")
   })
@@ -50,11 +44,11 @@ describe("<ChannelAvatarUploader /> wiring", () => {
       })
     )
 
-    render(<ChannelAvatarUploader nickname="joana_cria" name="Joana Cria" />)
+    render(<ChannelAvatarUploader nickname="uploader_1" name="Joana Cria" />)
     await user.click(screen.getByRole("button", { name: "Remover foto" }))
 
     await waitFor(() => expect(deleted).toBe(1))
-    expect(refreshMock).toHaveBeenCalledTimes(1)
+    expect(getAvatarVersion("uploader_1")).toBe(1)
   })
 
   it("refuses an oversized file without calling the API", async () => {
@@ -67,7 +61,7 @@ describe("<ChannelAvatarUploader /> wiring", () => {
       })
     )
 
-    render(<ChannelAvatarUploader nickname="joana_cria" name="Joana Cria" />)
+    render(<ChannelAvatarUploader nickname="uploader_2" name="Joana Cria" />)
     await user.upload(
       screen.getByLabelText("Arquivo da foto do canal"),
       png(2 * 1024 * 1024 + 1)
@@ -90,12 +84,12 @@ describe("<ChannelAvatarUploader /> wiring", () => {
       )
     )
 
-    render(<ChannelAvatarUploader nickname="joana_cria" name="Joana Cria" />)
+    render(<ChannelAvatarUploader nickname="uploader_3" name="Joana Cria" />)
     await user.upload(screen.getByLabelText("Arquivo da foto do canal"), png())
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "JPEG, PNG ou WebP de até 2 MB"
     )
-    expect(refreshMock).not.toHaveBeenCalled()
+    expect(getAvatarVersion("uploader_3")).toBeUndefined()
   })
 })
