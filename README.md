@@ -184,7 +184,7 @@ cd next-frontend
 npm run test:fullstack
 ```
 
-Sobe um projeto Compose próprio (`streamtube-fullstack`, a partir do `compose.prod.yaml`, em outras portas e com volumes zerados), percorre seis jornadas — cadastro → confirmação pelo e-mail no Mailpit → login/logout; recuperação de senha pelo link do e-mail; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria — e derruba tudo no fim. Não toca na stack de produção local nem nos compose de desenvolvimento.
+Sobe um projeto Compose próprio (`streamtube-fullstack`, a partir do `compose.prod.yaml`, em outras portas e com volumes zerados), percorre sete jornadas — cadastro → confirmação pelo e-mail no Mailpit → login/logout; recuperação de senha pelo link do e-mail; foto de perfil do upload até a navbar; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria — e derruba tudo no fim. Não toca na stack de produção local nem nos compose de desenvolvimento.
 
 ### CI
 
@@ -217,7 +217,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 - Edição de título, descrição, categoria (8 categorias) e thumbnail customizada.
 - Visibilidade **pública** ou **unlisted** e fluxo de rascunho → publicação.
 - Painel "Meus vídeos" com thumbnail, título, visualizações, likes, comentários, data de publicação e status, com paginação e acesso à edição.
-- Edição do canal: nickname, nome e descrição, pelo botão "Editar canal" do painel.
+- Edição do canal: nickname, nome, descrição e foto de perfil (JPEG, PNG ou WebP até 2 MB), pelo botão "Editar canal" do painel; sem foto, o avatar mostra as iniciais.
 - Página pública do canal em `/@{nickname}`, com informações, inscritos e a lista paginada de vídeos.
 
 ### Página do vídeo (Fase 05)
@@ -258,7 +258,7 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 | `/upload` | Envio de vídeo *(autenticada)* |
 | `/channel/videos` | Meus vídeos *(autenticada)* |
 | `/videos/{publicId}/edit` | Edição e publicação do vídeo *(autenticada)* |
-| `/channel/settings` | Edição do canal *(autenticada)* |
+| `/channel/settings` | Edição do canal e da foto de perfil *(autenticada)* |
 | `/channel/subscriptions` | Canais seguidos *(autenticada)* |
 
 ### Endpoints da API (`nestjs-project`)
@@ -266,8 +266,8 @@ As sete fases do `docs/project-plan.md` foram implementadas, com as lacunas list
 | Área | Endpoints |
 |------|-----------|
 | Autenticação | `POST /auth/register`, `GET /auth/confirm-email`, `POST /auth/resend-confirmation`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `GET /auth/me` |
-| Meu canal | `GET /me/channel`, `PATCH /me/channel`, `GET /me/videos`, `GET /me/subscriptions` |
-| Canais | `GET /channels/:nickname`, `GET /channels/:nickname/videos`, `PUT` e `DELETE /channels/:nickname/subscription` |
+| Meu canal | `GET /me/channel`, `PATCH /me/channel`, `PUT` e `DELETE /me/channel/avatar`, `GET /me/videos`, `GET /me/subscriptions` |
+| Canais | `GET /channels/:nickname`, `GET /channels/:nickname/videos`, `GET /channels/:nickname/avatar`, `PUT` e `DELETE /channels/:nickname/subscription` |
 | Vídeos | `GET /videos` (feed, `?category`, `?q`), `GET` e `PATCH /videos/:publicId`, `GET /videos/:publicId/public`, `POST /videos/:publicId/view`, `GET /videos/:publicId/suggestions`, `GET /videos/:publicId/stream`, `GET /videos/:publicId/download`, `PUT` e `DELETE /videos/:publicId/reaction` |
 | Upload (tus) | `POST`, `PATCH`, `HEAD`, `DELETE` em `/videos/upload` |
 | Comentários | `GET` e `POST /videos/:publicId/comments`, `GET /comments/:commentId/replies`, `PUT` e `DELETE /comments/:commentId/reaction` |
@@ -277,7 +277,6 @@ A documentação interativa (Swagger) fica em `/api/docs` no ambiente de desenvo
 
 ## ⚠️ Lacunas conhecidas
 
-- **Sem foto de perfil.** Os avatares mostram só as iniciais.
 - **Produção só local.** Não há deploy externo; veja os limites em **Stack de produção local**, acima.
 
 ## 🛠️ Estrutura do Projeto

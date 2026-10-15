@@ -208,9 +208,12 @@ test.describe("video-watch-page", () => {
     expect(href).not.toContain("/api/")
 
     // Nenhuma chamada à API no clique: a URL já veio com a página (TD-02).
+    // Só fetch/XHR contam: as fotos de canal (`/api/channels/*/avatar`) são
+    // imagens que o navegador ainda pode estar carregando, não efeito do clique.
     let apiCalls = 0
     page.on("request", (request) => {
-      if (request.url().includes("/api/")) apiCalls += 1
+      const isCall = ["fetch", "xhr"].includes(request.resourceType())
+      if (isCall && request.url().includes("/api/")) apiCalls += 1
     })
 
     const started = page.waitForEvent("download")

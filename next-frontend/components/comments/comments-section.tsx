@@ -61,6 +61,7 @@ type CommentsSectionProps = {
   commentsCount: number
   isAuthenticated: boolean
   viewerName?: string
+  viewerNickname?: string
 }
 
 /**
@@ -74,6 +75,7 @@ function CommentsSection({
   commentsCount,
   isAuthenticated,
   viewerName,
+  viewerNickname,
 }: CommentsSectionProps) {
   const [threads, setThreads] = React.useState<Thread[]>(
     initialPage?.items ?? []
@@ -189,6 +191,7 @@ function CommentsSection({
         onSubmit={(body) => submitComment(body, null)}
         isAuthenticated={isAuthenticated}
         viewerName={viewerName}
+        viewerNickname={viewerNickname}
       />
 
       {initialPage === null ? (
@@ -218,6 +221,7 @@ function CommentsSection({
               root={
                 <CommentItem
                   authorName={thread.author.name || viewerName || ""}
+                  authorNickname={thread.author.nickname || viewerNickname}
                   createdAt={thread.createdAt}
                   body={thread.body}
                   actions={renderActions(thread, thread.id)}
@@ -239,6 +243,7 @@ function CommentsSection({
                       <CommentReply
                         key={reply.id}
                         authorName={reply.author.name || viewerName || ""}
+                        authorNickname={reply.author.nickname || viewerNickname}
                         createdAt={reply.createdAt}
                         body={reply.body}
                         actions={renderActions(reply, thread.id)}
@@ -257,6 +262,7 @@ function CommentsSection({
                     onSubmit={(body) => submitComment(body, thread.id)}
                     isAuthenticated={isAuthenticated}
                     viewerName={viewerName}
+                    viewerNickname={viewerNickname}
                   />
                 ) : undefined
               }

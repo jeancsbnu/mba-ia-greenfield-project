@@ -7,6 +7,7 @@ import { CreateVideos1783384550640 } from '../database/migrations/1783384550640-
 import { AddVideoCategoryVisibilityPublication1790081095939 } from '../database/migrations/1790081095939-AddVideoCategoryVisibilityPublication';
 import { CreateSocialInteractions1791249975498 } from '../database/migrations/1791249975498-CreateSocialInteractions';
 import { CreateVideoFeedAndSearchIndexes1791755875362 } from '../database/migrations/1791755875362-CreateVideoFeedAndSearchIndexes';
+import { AddChannelAvatar1792072822957 } from '../database/migrations/1792072822957-AddChannelAvatar';
 import { resolveTestDatabaseName } from './test-database-name';
 
 // Import explícito porque o ts-jest não resolve o glob de migrations do
@@ -19,6 +20,7 @@ export const ALL_MIGRATIONS: (new () => MigrationInterface)[] = [
   AddVideoCategoryVisibilityPublication1790081095939,
   CreateSocialInteractions1791249975498,
   CreateVideoFeedAndSearchIndexes1791755875362,
+  AddChannelAvatar1792072822957,
 ];
 
 const MIGRATIONS_DIR = join(__dirname, '..', 'database', 'migrations');

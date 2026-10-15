@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { ChannelAvatarUploader } from "@/components/channels/channel-avatar-uploader"
 import { ChannelEditForm } from "@/components/channels/channel-edit-form"
 import type { Channel } from "@/lib/api/contracts"
 import { fetchFromUpstream } from "@/lib/api/server-upstream"
@@ -21,7 +22,9 @@ export default async function ChannelSettingsPage() {
   }
 
   return (
-    <div className="flex justify-center px-4 py-12 lg:px-8">
+    <div className="flex flex-col items-center gap-6 px-4 py-12 lg:px-8">
+      <ChannelAvatarUploader nickname={channel.nickname} name={channel.name} />
+
       <ChannelEditForm defaultValues={defaultValues}>
         <Link
           href="/channel/videos"

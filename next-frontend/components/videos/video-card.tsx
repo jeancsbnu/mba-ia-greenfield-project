@@ -2,8 +2,7 @@ import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { initialsOf } from "@/lib/format"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { cn } from "@/lib/utils"
 
 type VideoCardChannel = {
@@ -136,9 +135,7 @@ function VideoCard({
         <div className="flex gap-2.5">
           {/* Mesmo destino do nome do canal, que é o link nomeado. */}
           <Link href={channelHref} tabIndex={-1} aria-hidden="true">
-            <Avatar>
-              <AvatarFallback>{initialsOf(channel.name)}</AvatarFallback>
-            </Avatar>
+            <ChannelAvatar nickname={channel.nickname} name={channel.name} />
           </Link>
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             {titleAndMeta}

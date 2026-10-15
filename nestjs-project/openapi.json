@@ -559,6 +559,130 @@
         ]
       }
     },
+    "/me/channel/avatar": {
+      "put": {
+        "description": "Replaces the channel avatar with a JPEG, PNG or WebP image of up to 2 MB. The previous image is deleted.",
+        "operationId": "ChannelsController_setMyAvatar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "avatar"
+                ],
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Avatar replaced"
+          },
+          "400": {
+            "description": "Missing file, unsupported type or file over 2 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The authenticated user has no channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Set the authenticated user channel avatar",
+        "tags": [
+          "channels"
+        ]
+      },
+      "delete": {
+        "description": "Removes the avatar so the channel falls back to its initials. Idempotent.",
+        "operationId": "ChannelsController_removeMyAvatar",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Avatar removed (or there was none)"
+          },
+          "404": {
+            "description": "The authenticated user has no channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Remove the authenticated user channel avatar",
+        "tags": [
+          "channels"
+        ]
+      }
+    },
+    "/channels/{nickname}/avatar": {
+      "get": {
+        "description": "Redirects to a presigned storage URL for the channel avatar. Accessible without authentication. 404 when the channel has no avatar — clients fall back to the initials.",
+        "operationId": "ChannelAvatarController_getAvatar",
+        "parameters": [
+          {
+            "name": "nickname",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to a presigned storage URL"
+          },
+          "404": {
+            "description": "CHANNEL_NOT_FOUND or AVATAR_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a channel avatar",
+        "tags": [
+          "channels"
+        ]
+      }
+    },
     "/videos": {
       "get": {
         "description": "Returns published, public videos, newest first, with optional and combinable filters. `category` filters by the enum value; `q` (3 to 100 characters after trimming) matches the video title, the channel name or the channel nickname, ignoring case and accents, and returns videos only. Drafts and unlisted videos never appear. Paginated with offset/limit; the default page is 12. An empty list is a legitimate result, not an error. A bearer token is optional and does not change the response.",

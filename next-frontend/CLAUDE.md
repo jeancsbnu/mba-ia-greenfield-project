@@ -270,7 +270,7 @@ Uma suíte de fumaça **separada** da E2E acima: o Playwright roda contra a **st
 npm run test:fullstack
 ```
 
-- **Seis jornadas, cobrindo as fases entregues:** cadastro → confirmação pelo link lido no Mailpit → login/logout; recuperação de senha pelo link do e-mail até o login com a senha nova; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria.
+- **Sete jornadas, cobrindo as fases entregues:** cadastro → confirmação pelo link lido no Mailpit → login/logout; recuperação de senha pelo link do e-mail até o login com a senha nova; foto de perfil enviada no "Editar canal" e carregada do storage na navbar; upload → processamento → publicação; assistir com view contada; like, comentário e inscrição; home, busca e categoria.
 - **Ambiente zerado por execução.** O `globalSetup` sobe o projeto Compose `streamtube-fullstack` (outro nome, outras portas — `fullstack/fullstack.env`: app 8180, storage 9280, Mailpit 8181) e o `globalTeardown` o derruba com os volumes. Não toca a stack de produção local nem os compose de dev, e pode rodar ao lado deles.
 - **Cada jornada cria os próprios dados** (`fullstack/helpers.ts`): contas com e-mail único, confirmadas pela API do Mailpit, e vídeos enviados pelo protocolo tus às rotas do BFF, com o fixture `fullstack/fixtures/sample.mp4` (~8 s, acima do limiar de 5 s da view).
 - **Google Chrome, não o Chromium do Playwright** (`channel: "chrome"`): o Chromium não decodifica H.264/AAC e o vídeo não tocaria. Na CI: `npx playwright install chrome`.

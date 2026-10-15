@@ -5,10 +5,10 @@ import {
   ChannelSubscriptionProvider,
   ProvidedSubscriberCount,
 } from "@/components/channels/channel-subscription-provider"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { SubscribeButton } from "@/components/channels/subscribe-button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { formatVideosCount, initialsOf } from "@/lib/format"
+import { formatVideosCount } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type ChannelHeaderProps = {
@@ -55,9 +55,12 @@ function ChannelHeader({
         isAuthenticated={isAuthenticated}
       >
         <div className="flex items-center gap-4">
-          <Avatar size="xl" aria-label={name}>
-            <AvatarFallback>{initialsOf(name)}</AvatarFallback>
-          </Avatar>
+          <ChannelAvatar
+            size="xl"
+            aria-label={name}
+            nickname={nickname}
+            name={name}
+          />
 
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex items-center justify-between gap-4">

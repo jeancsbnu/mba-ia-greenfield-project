@@ -5,10 +5,10 @@ import {
   ChannelSubscriptionProvider,
   ProvidedSubscriberCount,
 } from "@/components/channels/channel-subscription-provider"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
 import { SubscribeButton } from "@/components/channels/subscribe-button"
 import { CommentsSection } from "@/components/comments/comments-section"
 import { DownloadIcon } from "@/components/icons/download-icon"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { SidebarLoadMore } from "@/components/videos/sidebar-load-more"
 import { VideoCard } from "@/components/videos/video-card"
@@ -34,17 +34,6 @@ function suggestionsHeading(category: string): string {
   return category === "Outros"
     ? "MAIS VÍDEOS"
     : `MAIS EM ${category.toLocaleUpperCase("pt-BR")}`
-}
-
-// Iniciais do canal: não há upload de avatar nesta fase, então o fallback é o
-// que sempre renderiza.
-function channelInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toLocaleUpperCase("pt-BR") ?? "")
-    .join("")
 }
 
 export default async function VideoWatchPage({
@@ -136,11 +125,11 @@ export default async function VideoWatchPage({
         >
           <div className="flex flex-wrap items-center justify-between gap-4 border-y border-border py-4">
             <div className="flex min-w-0 items-center gap-3">
-              <Avatar size="lg">
-                <AvatarFallback>
-                  {channelInitials(video.channel.name)}
-                </AvatarFallback>
-              </Avatar>
+              <ChannelAvatar
+                size="lg"
+                nickname={video.channel.nickname}
+                name={video.channel.name}
+              />
               <div className="flex min-w-0 flex-col">
                 <span className="truncate text-label-md text-foreground">
                   {video.channel.name}
@@ -201,6 +190,7 @@ export default async function VideoWatchPage({
           commentsCount={video.commentsCount}
           isAuthenticated={isAuthenticated}
           viewerName={viewer?.name}
+          viewerNickname={viewer?.nickname}
         />
       </div>
 

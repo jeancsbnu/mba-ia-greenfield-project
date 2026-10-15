@@ -1,12 +1,14 @@
 import * as React from "react"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { formatRelativeDate, initialsOf } from "@/lib/format"
+import { ChannelAvatar } from "@/components/channels/channel-avatar"
+import { formatRelativeDate } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type CommentItemProps = {
   /** Nome de exibição do canal de quem comentou. */
   authorName: string
+  /** Nickname do autor, para a foto do canal; vazio no comentário otimista. */
+  authorNickname?: string
   /** ISO-8601 de criação do comentário. */
   createdAt: string
   body: string
@@ -20,6 +22,7 @@ type CommentItemProps = {
 // ações, que chegam prontos pelo slot `actions`.
 function CommentItem({
   authorName,
+  authorNickname,
   createdAt,
   body,
   actions,
@@ -35,9 +38,12 @@ function CommentItem({
       className={cn("flex gap-3", className)}
       {...props}
     >
-      <Avatar size={avatarSize} aria-label={authorName}>
-        <AvatarFallback>{initialsOf(authorName)}</AvatarFallback>
-      </Avatar>
+      <ChannelAvatar
+        size={avatarSize}
+        aria-label={authorName}
+        nickname={authorNickname}
+        name={authorName}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="flex items-center gap-2 text-caption text-muted-foreground">
