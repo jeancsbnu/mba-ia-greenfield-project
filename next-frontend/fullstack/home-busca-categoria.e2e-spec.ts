@@ -32,6 +32,15 @@ test.describe("home-busca-categoria", () => {
       )
       .toBeGreaterThan(0)
 
+    // A duração precisa ser legível: texto e fundo do selo não podem ter a
+    // mesma cor (o selo já saiu como uma caixa preta vazia).
+    const duration = card.locator("[data-slot='video-card-duration']")
+    const colors = await duration.evaluate((el) => {
+      const style = getComputedStyle(el)
+      return { text: style.color, background: style.backgroundColor }
+    })
+    expect(colors.text).not.toBe(colors.background)
+
     const banner = page.getByRole("banner")
     await banner.getByRole("searchbox").fill(title)
     await banner.getByRole("button", { name: "Buscar" }).click()

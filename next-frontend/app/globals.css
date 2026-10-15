@@ -65,7 +65,10 @@
   --color-border: var(--border);
   --color-input-background: var(--input-background);
   --color-link: var(--link);
-  --color-overlay: var(--overlay);
+  /* `scrim`, não `overlay`: com --color-overlay e --text-overlay no tema, o
+     Tailwind resolve `text-overlay` como cor, e o selo de duração ficava com o
+     texto da cor do fundo. */
+  --color-scrim: var(--overlay);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --color-red-100: #ffd5d5;

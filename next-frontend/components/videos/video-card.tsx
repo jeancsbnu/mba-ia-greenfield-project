@@ -124,7 +124,7 @@ function VideoCard({
           // Overlay interno do card, não uma variante do Badge (decisão OQ-20).
           <span
             data-slot="video-card-duration"
-            className="absolute right-1 bottom-1 rounded-[var(--radius-1)] bg-overlay px-1.5 py-0.5 text-overlay"
+            className="absolute right-1 bottom-1 rounded-[var(--radius-1)] bg-scrim px-1.5 py-0.5 text-overlay text-neutral-100"
           >
             {duration}
           </span>
