@@ -23,7 +23,25 @@ function VideoDescription({
   ...props
 }: VideoDescriptionProps) {
   const [expanded, setExpanded] = React.useState(false)
+  const [overflows, setOverflows] = React.useState(false)
+  const textRef = React.useRef<HTMLParagraphElement>(null)
   const regionId = React.useId()
+
+  // "Mostrar mais" só quando o texto recolhido passa das duas linhas: numa
+  // descrição curta o botão não teria nada a revelar. Mede com o clamp
+  // aplicado e de novo quando a largura muda (o texto quebra diferente).
+  React.useEffect(() => {
+    const text = textRef.current
+    if (!text || expanded) return
+
+    const measure = () => setOverflows(text.scrollHeight > text.clientHeight)
+    measure()
+    if (typeof ResizeObserver === "undefined") return
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(text)
+    return () => observer.disconnect()
+  }, [description, expanded])
 
   if (description === null || description.trim() === "") {
     return null
@@ -39,6 +57,7 @@ function VideoDescription({
       {...props}
     >
       <p
+        ref={textRef}
         id={regionId}
         data-slot="video-description-text"
         className={cn(
@@ -49,21 +68,23 @@ function VideoDescription({
         {description}
       </p>
 
-      <button
-        type="button"
-        data-slot="video-description-toggle"
-        aria-expanded={expanded}
-        aria-controls={regionId}
-        onClick={() => {
-          setExpanded((previous) => !previous)
-        }}
-        className="inline-flex w-fit items-center gap-1.5 text-label-md text-link outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        {expanded ? "Mostrar menos" : "Mostrar mais"}
-        <ChevronDownIcon
-          className={cn("size-3 transition-transform", expanded && "rotate-180")}
-        />
-      </button>
+      {overflows || expanded ? (
+        <button
+          type="button"
+          data-slot="video-description-toggle"
+          aria-expanded={expanded}
+          aria-controls={regionId}
+          onClick={() => {
+            setExpanded((previous) => !previous)
+          }}
+          className="inline-flex w-fit items-center gap-1.5 text-label-md text-link outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          {expanded ? "Mostrar menos" : "Mostrar mais"}
+          <ChevronDownIcon
+            className={cn("size-3 transition-transform", expanded && "rotate-180")}
+          />
+        </button>
+      ) : null}
     </section>
   )
 }

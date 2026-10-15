@@ -72,7 +72,7 @@ describe("<LoginForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Entrar" }))
 
     const alert = await screen.findByRole("alert")
-    expect(alert).toHaveTextContent("Credenciais inválidas")
+    expect(alert).toHaveTextContent("E-mail ou senha incorretos.")
     expect(refreshMock).not.toHaveBeenCalled()
   })
 
@@ -91,7 +91,7 @@ describe("<LoginForm /> wiring", () => {
     await user.click(screen.getByRole("button", { name: "Entrar" }))
 
     const alert = await screen.findByRole("alert")
-    expect(alert).toHaveTextContent("E-mail não confirmado")
+    expect(alert).toHaveTextContent("Confirme seu e-mail antes de entrar.")
     expect(
       screen.getByRole("link", { name: /Reenviar e-mail de confirmação/i })
     ).toBeInTheDocument()
@@ -109,7 +109,7 @@ describe("<LoginForm /> wiring", () => {
     await fillValid(user)
     await user.click(screen.getByRole("button", { name: "Entrar" }))
 
-    expect(await screen.findByText("Validation failed")).toBeInTheDocument()
+    expect(await screen.findByText("Verifique os dados informados.")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 

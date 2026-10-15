@@ -1,14 +1,41 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { VideoDescription } from "../video-description";
 
 const DESCRIPTION =
   "Neste vídeo mostro todos os detalhes do estúdio: iluminação, tratamento acústico, câmeras e a mesa de edição.";
 
+// jsdom não faz layout: scrollHeight e clientHeight são 0. Cada caso diz se
+// o texto recolhido transborda as duas linhas.
+function mockTextOverflow(overflowing: boolean) {
+  vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(40);
+  vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(
+    overflowing ? 120 : 40
+  );
+}
+
 describe("VideoDescription", () => {
+  beforeEach(() => {
+    mockTextOverflow(true);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("hides the toggle when the text fits in the collapsed box", () => {
+    mockTextOverflow(false);
+    render(<VideoDescription description="Descrição curta de uma linha." />);
+
+    expect(screen.getByText("Descrição curta de uma linha.")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Mostrar mais" })
+    ).not.toBeInTheDocument();
+  });
+
   it("starts collapsed and announces it through aria-expanded", () => {
     render(<VideoDescription description={DESCRIPTION} />);
 

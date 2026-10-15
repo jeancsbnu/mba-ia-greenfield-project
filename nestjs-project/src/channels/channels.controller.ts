@@ -2,21 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  ParseFilePipeBuilder,
   Patch,
-  Put,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -26,11 +16,6 @@ import type { JwtPayload } from '../auth/auth.types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ChannelNotFoundException } from '../common/exceptions/domain.exception';
 import { ApiErrorEnvelope } from '../common/openapi/api-error-envelope.dto';
-import {
-  AVATAR_MAX_BYTES,
-  AVATAR_MIME,
-  ChannelAvatarService,
-} from './channel-avatar.service';
 import { ChannelsService } from './channels.service';
 import { ChannelResponse } from './dto/channel-response.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
@@ -39,10 +24,7 @@ import { Channel } from './entities/channel.entity';
 @ApiTags('channels')
 @Controller('me/channel')
 export class ChannelsController {
-  constructor(
-    private readonly channelsService: ChannelsService,
-    private readonly channelAvatarService: ChannelAvatarService,
-  ) {}
+  constructor(private readonly channelsService: ChannelsService) {}
 
   private toResponse(channel: Channel) {
     return {
@@ -117,69 +99,5 @@ export class ChannelsController {
 
     const channel = await this.channelsService.updateChannel(user.sub, dto);
     return this.toResponse(channel);
-  }
-
-  @Put('avatar')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth('access-token')
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['avatar'],
-      properties: { avatar: { type: 'string', format: 'binary' } },
-    },
-  })
-  @ApiOperation({
-    summary: 'Set the authenticated user channel avatar',
-    description:
-      'Replaces the channel avatar with a JPEG, PNG or WebP image of up to 2 MB. The previous image is deleted.',
-  })
-  @ApiResponse({ status: 204, description: 'Avatar replaced' })
-  @ApiResponse({
-    status: 400,
-    description: 'Missing file, unsupported type or file over 2 MB',
-    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'The authenticated user has no channel',
-    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
-  })
-  @UseInterceptors(
-    FileInterceptor('avatar', { limits: { fileSize: AVATAR_MAX_BYTES } }),
-  )
-  async setMyAvatar(
-    @CurrentUser() user: JwtPayload,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: AVATAR_MIME })
-        .addMaxSizeValidator({ maxSize: AVATAR_MAX_BYTES })
-        .build({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
-    )
-    avatar: Express.Multer.File,
-  ): Promise<void> {
-    await this.channelAvatarService.setAvatar(user.sub, avatar);
-  }
-
-  @Delete('avatar')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: 'Remove the authenticated user channel avatar',
-    description:
-      'Removes the avatar so the channel falls back to its initials. Idempotent.',
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'Avatar removed (or there was none)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'The authenticated user has no channel',
-    schema: { $ref: getSchemaPath(ApiErrorEnvelope) },
-  })
-  async removeMyAvatar(@CurrentUser() user: JwtPayload): Promise<void> {
-    await this.channelAvatarService.removeAvatar(user.sub);
   }
 }

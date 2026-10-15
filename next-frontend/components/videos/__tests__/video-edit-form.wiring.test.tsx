@@ -181,7 +181,7 @@ describe("VideoEditForm — wiring", () => {
       errorResponse(
         409,
         "VIDEO_NOT_PUBLISHABLE",
-        "O vídeo ainda está sendo processado."
+        "Video is still processing or failed, so it cannot be published"
       )
     );
 
@@ -189,7 +189,26 @@ describe("VideoEditForm — wiring", () => {
     await user.click(screen.getByRole("button", { name: "Publicar" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("processado");
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "O vídeo só pode ser publicado depois que o processamento terminar."
+      );
+    });
+    expect(screen.getByRole("alert")).not.toHaveTextContent("processing");
+  });
+
+  it("never shows the upstream English text on an unexpected error", async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(
+      errorResponse(500, "INTERNAL_ERROR", "Internal server error")
+    );
+
+    render(<VideoEditForm publicId={PUBLIC_ID} defaultValues={DEFAULTS} />);
+    await user.click(screen.getByRole("button", { name: "Salvar rascunho" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Não foi possível salvar o vídeo. Tente de novo."
+      );
     });
   });
 
@@ -223,7 +242,7 @@ describe("VideoEditForm — wiring", () => {
     const user = userEvent.setup();
     const onThumbnailError = vi.fn();
     fetchMock.mockResolvedValue(
-      errorResponse(413, "PAYLOAD_TOO_LARGE", "Arquivo grande demais.")
+      errorResponse(413, "PAYLOAD_TOO_LARGE", "File too large")
     );
 
     render(
@@ -236,8 +255,37 @@ describe("VideoEditForm — wiring", () => {
     await user.click(screen.getByRole("button", { name: "Salvar rascunho" }));
 
     await waitFor(() => {
-      expect(onThumbnailError).toHaveBeenCalledWith("Arquivo grande demais.");
+      expect(onThumbnailError).toHaveBeenCalledWith(
+        "A thumbnail deve ter no máximo 2 MB."
+      );
     });
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("shows a server-side thumbnail rejection (400) in Portuguese under the uploader", async () => {
+    const user = userEvent.setup();
+    const onThumbnailError = vi.fn();
+    fetchMock.mockResolvedValue(
+      errorResponse(
+        400,
+        "VALIDATION_FAILED",
+        "Validation failed (expected type is /^image\\/(jpeg|png|webp)$/)"
+      )
+    );
+
+    render(
+      <VideoEditForm
+        publicId={PUBLIC_ID}
+        defaultValues={DEFAULTS}
+        onThumbnailError={onThumbnailError}
+      />
+    );
+    await user.click(screen.getByRole("button", { name: "Salvar rascunho" }));
+
+    await waitFor(() => {
+      expect(onThumbnailError).toHaveBeenCalledWith(
+        "A thumbnail deve ser JPEG, PNG ou WebP."
+      );
+    });
   });
 });

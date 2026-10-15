@@ -108,6 +108,28 @@ describe("ChannelEditForm — wiring", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  it.each([
+    [400, "VALIDATION_FAILED", "Verifique os dados informados."],
+    [429, "RATE_LIMIT_EXCEEDED", "Muitas tentativas. Aguarde um pouco e tente de novo."],
+    [500, "INTERNAL_ERROR", "Não foi possível salvar o canal. Tente de novo."],
+  ])(
+    "shows a %i in Portuguese, never the upstream English text",
+    async (status, error, expected) => {
+      const user = userEvent.setup();
+      fetchMock.mockResolvedValue(
+        errorResponse(status, error, "Some English upstream message")
+      );
+
+      render(<ChannelEditForm defaultValues={DEFAULTS} />);
+      await user.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent(expected);
+      });
+      expect(screen.getByRole("alert")).not.toHaveTextContent("English");
+    }
+  );
+
   it("routes a 401 to /login", async () => {
     const user = userEvent.setup();
     fetchMock.mockResolvedValue(errorResponse(401, "UNAUTHORIZED"));

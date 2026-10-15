@@ -4,6 +4,6 @@ export const MAIL_TEMPLATES = {
 } as const;
 
 export const MAIL_SUBJECTS = {
-  CONFIRMATION: 'Confirm your email — StreamTube',
-  PASSWORD_RESET: 'Reset your password — StreamTube',
+  CONFIRMATION: 'Confirme seu e-mail — StreamTube',
+  PASSWORD_RESET: 'Redefina sua senha — StreamTube',
 } as const;

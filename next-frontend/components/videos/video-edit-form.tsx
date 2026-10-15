@@ -128,19 +128,24 @@ function VideoEditForm({
       return
     }
 
-    if (response.status === 400 || response.status === 413) {
-      onThumbnailError?.(
-        typeof envelope.message === "string"
-          ? envelope.message
-          : envelope.message.join(" ")
-      )
+    // A `message` da API é texto técnico em inglês: nunca vai para a tela.
+    // 400 e 413 são a thumbnail recusada no servidor, com as mesmas mensagens
+    // da validação no cliente.
+    if (response.status === 413) {
+      onThumbnailError?.(THUMBNAIL_ERROR_MESSAGES.size)
+      return
+    }
+    if (response.status === 400) {
+      onThumbnailError?.(THUMBNAIL_ERROR_MESSAGES.type)
       return
     }
 
     setFormError(
-      typeof envelope.message === "string"
-        ? envelope.message
-        : envelope.message.join(" ")
+      envelope.error === "VIDEO_NOT_PUBLISHABLE"
+        ? "O vídeo só pode ser publicado depois que o processamento terminar."
+        : response.status === 429
+          ? "Muitas tentativas. Aguarde um pouco e tente de novo."
+          : "Não foi possível salvar o vídeo. Tente de novo."
     )
   }
 
