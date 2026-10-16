@@ -77,7 +77,11 @@ test.describe("channel-public", () => {
   })
 
   test("1.4 canal-inexistente-mostra-nao-encontrado", async ({ page }) => {
-    await page.goto("/@nao_existe")
+    const response = await page.goto("/@nao_existe")
+
+    // 404 de verdade, não 200 com a tela de não encontrado: o canal é lido
+    // antes de a resposta começar a ser transmitida.
+    expect(response?.status()).toBe(404)
 
     await expect(
       page.getByRole("heading", { name: "Canal não encontrado" })

@@ -57,7 +57,7 @@ A stack de produção foi recompilada a partir desta branch e os itens 1 a 7 for
 
 ## Observações (sem correção)
 
-- **Canal inexistente responde HTTP 200** (`obs-canal-inexistente.jpg`): a tela "Canal não encontrado" aparece certa, mas o status fica 200 porque a resposta já começou a ser transmitida (`loading.tsx`) quando o `notFound()` acontece — limitação do streaming do Next.
+- **Canal inexistente responde HTTP 200** (`obs-canal-inexistente.jpg`): a tela "Canal não encontrado" aparece certa, mas o status fica 200 porque a resposta já começou a ser transmitida (`loading.tsx`) quando o `notFound()` acontece — limitação do streaming do Next. **Corrigido depois desta rodada:** a página lê o canal antes de qualquer `Suspense` (o segmento perdeu o `loading.tsx`, e só a grade de vídeos tem esqueleto), e `/@nao_existe` responde 404.
 - **"Indisponível"** como rótulo de vídeo não listado é decisão registrada (video-channel-management/TD-02, revisão de 2026-08-08), não defeito.
 - Responsividade não foi verificada nesta rodada (a extensão não redimensiona a janela); está coberta pelo `responsive-retrofit.e2e-spec.ts`.
 

@@ -65,6 +65,7 @@ A rota pública `/@{nickname}` (mapeada por `rewrites` para `app/channels/[nickn
 
 **Steps:**
   1. Visitante navega para `/@nao_existe`
+    - expect: a resposta HTTP tem status 404
     - expect: a página "Canal não encontrado" é exibida
     - expect: nenhum cabeçalho de canal nem grade de vídeos é renderizado
 
