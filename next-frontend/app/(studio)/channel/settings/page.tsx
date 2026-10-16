@@ -1,19 +1,33 @@
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
 import { ChannelAvatarUploader } from "@/components/channels/channel-avatar-uploader"
 import { ChannelEditForm } from "@/components/channels/channel-edit-form"
 import type { Channel } from "@/lib/api/contracts"
-import { fetchFromUpstream } from "@/lib/api/server-upstream"
+import { fetchFromUpstream, UpstreamError } from "@/lib/api/server-upstream"
 import { upstream } from "@/lib/api/upstream"
 import type { ChannelEditValues } from "@/lib/channels/edit-schema"
 
 const ROUTE = "/channel/settings"
 
+// O segmento não tem loading.tsx: com ele a resposta começa a ser transmitida
+// antes desta leitura, e o `notFound()` do CHANNEL_NOT_FOUND sairia com status
+// 200 em vez de 404 (Next, guia de streaming, "The HTTP contract").
 export default async function ChannelSettingsPage() {
-  const channel = await fetchFromUpstream<Channel>(
-    (init) => upstream.GET("/me/channel", init),
-    ROUTE
-  )
+  let channel: Channel
+  try {
+    channel = await fetchFromUpstream<Channel>(
+      (init) => upstream.GET("/me/channel", init),
+      ROUTE
+    )
+  } catch (error) {
+    // Só o 404 é "não encontrado"; o resto — inclusive o redirect() da sessão,
+    // que o Next sinaliza por throw — segue adiante.
+    if (error instanceof UpstreamError && error.status === 404) {
+      notFound()
+    }
+    throw error
+  }
 
   const defaultValues: ChannelEditValues = {
     nickname: channel.nickname,

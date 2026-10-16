@@ -90,3 +90,18 @@ A rota `/channel/settings` edita nickname, nome e descrição do canal do dono: 
 **Steps:**
   1. Usuário em `/channel/settings` clica em "Cancelar"
     - expect: a URL final é `/channel/videos`
+
+### 2. Conta sem canal
+
+**Setup:** mesmo de 1, autenticando com `no-channel@example.com`: para essa conta `GET /me/channel` responde `404` com `CHANNEL_NOT_FOUND`.
+
+#### 2.1. conta-sem-canal-responde-404
+
+**Covers AC:** — (Error mapping do SI-04.13b, item 5: `CHANNEL_NOT_FOUND` → `not-found`)
+**Source:** manual
+
+**Steps:**
+  1. Usuário autenticado como `no-channel@example.com` navega para `/channel/settings`
+    - expect: a resposta HTTP tem status 404
+    - expect: a página "Canal não encontrado" é exibida, com o link "Voltar para o painel" para `/channel/videos`
+    - expect: o formulário do canal não é renderizado
