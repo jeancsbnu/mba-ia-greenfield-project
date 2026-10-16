@@ -26,6 +26,8 @@ const UNKNOWN_NICKNAME = "nao_existe";
 const EMPTY_SHOWCASE_NICKNAME = "sem_videos";
 const OWNER_NICKNAME = "joana_cria";
 const EMPTY_CHANNEL_EMAIL = "empty-channel@example.com";
+// Conta sem canal: GET /me/channel responde 404 CHANNEL_NOT_FOUND.
+const NO_CHANNEL_EMAIL = "no-channel@example.com";
 // Único canal com foto no upstream fingido; o resto responde 404 e o avatar
 // fica nas iniciais.
 const AVATAR_CHANNEL_NICKNAME = "com_foto";
@@ -44,6 +46,13 @@ function errorEnvelope(
 export const handlers = [
   http.get(`${env.API_URL}/me/channel`, ({ request }) => {
     const email = emailFromAuthHeader(request.headers.get("authorization"));
+
+    if (email === NO_CHANNEL_EMAIL) {
+      return HttpResponse.json(
+        errorEnvelope(404, "CHANNEL_NOT_FOUND", "Channel not found"),
+        { status: 404 }
+      );
+    }
 
     return HttpResponse.json<ChannelOk>(
       buildChannel({

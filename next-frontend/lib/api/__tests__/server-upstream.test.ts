@@ -40,11 +40,14 @@ vi.mock("next/navigation", () => ({
 // depois de o MSW ter substituído o fetch global — caso contrário a chamada
 // escapa para a rede de verdade.
 let fetchFromUpstream: typeof import("@/lib/api/server-upstream").fetchFromUpstream;
+let UpstreamError: typeof import("@/lib/api/server-upstream").UpstreamError;
 let upstream: typeof import("@/lib/api/upstream").upstream;
 let setSession: typeof import("@/lib/auth/session").setSession;
 
 beforeAll(async () => {
-  ({ fetchFromUpstream } = await import("@/lib/api/server-upstream"));
+  ({ fetchFromUpstream, UpstreamError } = await import(
+    "@/lib/api/server-upstream"
+  ));
   ({ upstream } = await import("@/lib/api/upstream"));
   ({ setSession } = await import("@/lib/auth/session"));
 });
@@ -131,8 +134,31 @@ describe("fetchFromUpstream", () => {
       (caught: unknown) => caught
     );
 
-    expect(error).toBeInstanceOf(Error);
+    expect(error).toBeInstanceOf(UpstreamError);
     expect(error).not.toBeInstanceOf(RedirectError);
+    expect(error).toMatchObject({ status: 500 });
     expect((error as Error).message).toContain("500");
+  });
+
+  it("carries the upstream status so a page can map a 404 to notFound()", async () => {
+    await setSession(SEED_SESSION);
+    server.use(
+      http.get(`${env.API_URL}/me/channel`, () =>
+        HttpResponse.json(
+          {
+            statusCode: 404,
+            error: "CHANNEL_NOT_FOUND",
+            message: "Channel not found",
+            code: null,
+          },
+          { status: 404 }
+        )
+      )
+    );
+
+    await expect(readChannel("/channel/settings")).rejects.toMatchObject({
+      name: "UpstreamError",
+      status: 404,
+    });
   });
 });

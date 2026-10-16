@@ -14,6 +14,18 @@ type AuthorizedInit = {
 };
 
 /**
+ * Falha do upstream que não é de sessão. Carrega o status para a página decidir
+ * o que é dela — por exemplo, um `404` virar `notFound()` — e repassar o resto
+ * ao error boundary.
+ */
+export class UpstreamError extends Error {
+  constructor(readonly status: number) {
+    super(`Upstream request failed with status ${String(status)}`);
+    this.name = "UpstreamError";
+  }
+}
+
+/**
  * Leitura autenticada a partir de um Server Component.
  *
  * Um Server Component não pode gravar cookie, então ele não consegue renovar a
@@ -50,9 +62,7 @@ export async function fetchFromUpstream<T>(
   if (!response.ok || data === undefined) {
     // Erros que não são de sessão sobem para o error boundary da rota: o
     // helper cuida de autenticação, não de tratamento de falha de domínio.
-    throw new Error(
-      `Upstream request failed with status ${String(response.status)}`
-    );
+    throw new UpstreamError(response.status);
   }
 
   return data;

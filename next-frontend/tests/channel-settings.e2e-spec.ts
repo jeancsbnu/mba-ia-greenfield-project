@@ -102,3 +102,24 @@ test.describe("channel-settings", () => {
     await expect(page).toHaveURL(/\/channel\/videos$/)
   })
 })
+
+// 2. Conta sem canal: o login no-channel@example.com faz GET /me/channel
+// responder 404 CHANNEL_NOT_FOUND.
+test.describe("channel-settings sem canal", () => {
+  test("2.1 conta-sem-canal-responde-404", async ({ page }) => {
+    await login(page, "no-channel@example.com")
+
+    const response = await page.goto("/channel/settings")
+
+    // 404 de verdade, não 200 nem a página de erro genérica: o segmento não
+    // tem loading.tsx, então o notFound() acontece antes de a resposta sair.
+    expect(response?.status()).toBe(404)
+    await expect(
+      page.getByRole("heading", { name: "Canal não encontrado" })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: "Voltar para o painel" })
+    ).toHaveAttribute("href", "/channel/videos")
+    await expect(page.locator("input[name='nickname']")).toHaveCount(0)
+  })
+})
